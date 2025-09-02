@@ -1,0 +1,94 @@
+#include <stdint.h>
+
+#include <syscall/handlers/open.h>
+#include <syscall/handlers/close.h>
+#include <syscall/handlers/write.h>
+#include <syscall/handlers/read.h>
+#include <syscall/handlers/seek.h>
+#include <syscall/handlers/exit.h>
+#include <syscall/handlers/readdir.h>
+#include <syscall/handlers/chdir.h>
+#include <syscall/handlers/fork.h>
+#include <syscall/handlers/exec.h>
+#include <syscall/handlers/pipe.h>
+#include <syscall/handlers/dup.h>
+
+#include <interface/interface_map.h>
+
+#include <paging/kernel_translation.h>
+#include <paging/tables.h>
+
+#include <device/device.h>
+
+#include <process/address_translation.h>
+#include <process/scheduler.h>
+
+#include <application/application_start_table.h>
+
+#include <util/string/strlen.h>
+#include <util/memory/memcpy.h>
+#include <util/math/max.h>
+
+#include <debug/vga_print.h>
+
+#include <syscall_number.h>
+
+#include <sys/paging/load_page_table.h>
+#include <sys/paging/read_page_table.h>
+
+uint64_t syscall_handler(uint64_t rax, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, interrupt_state_record_t * isr) {
+    load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+
+    process_load_isr(scheduler_current_process(), isr);
+
+    uint64_t return_value = 0;
+
+    switch (rax) {
+        case SYSCALL_OPEN: return_value = syscall_open((const char *) rsi, rdx); break;
+
+        case SYSCALL_CLOSE: return_value = syscall_close((fd_t) rsi); break;
+
+        case SYSCALL_WRITE: return_value = syscall_write((fd_t) rsi, (const char *) rdx, rcx); break;
+
+        case SYSCALL_READ: return_value = syscall_read((fd_t) rsi, (char *) rdx, rcx); break;
+
+        case SYSCALL_SEEK: return_value = syscall_seek((fd_t) rsi, (int64_t) rdx, rcx); break;
+
+        case SYSCALL_EXIT: syscall_exit(rsi);
+
+        case SYSCALL_READDIR: return_value = syscall_readdir((fd_t) rsi, (directory_entry_t *) rdx, rcx); break;
+
+        case SYSCALL_CHDIR: return_value = syscall_chdir((const char *) rsi); break;
+
+        case SYSCALL_FORK: return_value = syscall_fork(); break;
+
+        case SYSCALL_EXEC: return_value = syscall_exec(
+            (const char *) rsi,
+            (const char **) rdx,
+            (uint64_t) rcx
+        ); break;
+
+        case SYSCALL_MAP: {
+            process_t * current_process = scheduler_current_process();
+
+            pman_context_t * context = current_process->paging_context;
+
+            fs_file_t * file = process_file_table_get(&current_process->file_table, (fd_t) rsi);
+
+            return_value = (uint64_t) file_map(file, context, (void *) rdx, rdx, r8);
+        } break;
+
+        case SYSCALL_WAIT: {
+        } break;
+
+        case SYSCALL_PIPE: return_value = syscall_pipe((fd_t *) rsi, (open_options_t) rdx); break;
+
+        case SYSCALL_DUP: return_value = syscall_dup((fd_t) rsi, (fd_t) rdx); break;
+
+        default: return_value = ERROR_BAD_SYSCALL; break;
+    }
+
+    scheduler_current_thread()->isr.rax = return_value;
+
+    scheduler_start();
+}

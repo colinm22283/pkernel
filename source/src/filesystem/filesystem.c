@@ -1,0 +1,278 @@
+#include <stddef.h>
+#include <stdint.h>
+
+#include <filesystem/filesystem.h>
+
+#include <filesystem/pipe.h>
+
+#include <util/string/strcmp.h>
+#include <util/string/strcpy.h>
+#include <util/string/strlen.h>
+#include <util/memory/memcpy.h>
+#include <util/heap/heap.h>
+
+#include <error_number.h>
+#include <entry_error.h>
+
+#include <debug/vga_print.h>
+
+#include "sys/halt.h"
+
+typedef struct fs_mount_s {
+    char * name;
+
+    uint64_t mount_count;
+
+    fs_mount_func_t mount;
+    fs_unmount_func_t unmount;
+    const fs_superblock_ops_t * superblock_ops;
+
+    struct fs_mount_s * next;
+    struct fs_mount_s * prev;
+} fs_filesystem_node_t;
+
+fs_directory_entry_t fs_root;
+
+fs_filesystem_node_t fs_filesystem_head, fs_filesystem_tail;
+
+bool fs_init() {
+    fs_root.node = NULL;
+    fs_root.parent = NULL;
+    fs_root.superblock = NULL;
+    fs_root.type = FS_DIRECTORY;
+    fs_root.parent_node = NULL;
+    fs_root.references = 1;
+
+    fs_filesystem_head.next = &fs_filesystem_tail;
+    fs_filesystem_head.prev = NULL;
+    fs_filesystem_tail.next = NULL;
+    fs_filesystem_tail.prev = &fs_filesystem_head;
+
+    return true;
+}
+
+error_number_t fs_register(const char * name, fs_mount_func_t mount, fs_unmount_func_t unmount) {
+    for (
+        fs_filesystem_node_t * node = fs_filesystem_head.next;
+        node != &fs_filesystem_tail;
+        node = node->next
+    ) {
+        if (strcmp(node->name, name) == 0) {
+            return ERROR_FILESYSTEM_EXISTS;
+        }
+    }
+
+    fs_filesystem_node_t * new_node = heap_alloc(sizeof(fs_filesystem_node_t));
+
+    new_node->name = heap_alloc(strlen(name) + 1);
+    strcpy(new_node->name, name);
+    new_node->mount_count = 0;
+    new_node->mount = mount;
+    new_node->unmount = unmount;
+
+    new_node->prev = &fs_filesystem_head;
+    new_node->next = fs_filesystem_head.next;
+    fs_filesystem_head.next->prev = new_node;
+    fs_filesystem_head.next = new_node;
+
+    return ERROR_OK;
+}
+
+error_number_t fs_unregister(const char * name) {
+    for (
+        fs_filesystem_node_t * node = fs_filesystem_head.next;
+        node != &fs_filesystem_tail;
+        node = node->next
+    ) {
+        if (strcmp(node->name, name) == 0) {
+            if (node->mount_count > 0) return ERROR_FILESYSTEM_HAS_MOUNT;
+
+            node->prev->next = node->next;
+            node->next->prev = node->prev;
+
+            heap_free(node->name);
+            heap_free(node);
+
+            return ERROR_OK;
+        }
+    }
+
+    return ERROR_FILESYSTEM_NOT_FOUND;
+}
+
+error_number_t fs_mount(const char * name, fs_directory_entry_t * mount_point, device_t * device) {
+    if (mount_point->type != FS_DIRECTORY) return ERROR_NOT_DIR;
+
+    for (
+        fs_filesystem_node_t * node = fs_filesystem_head.next;
+        node != &fs_filesystem_tail;
+        node = node->next
+    ) {
+        if (strcmp(node->name, name) == 0) {
+            fs_directory_entry_add_reference(mount_point);
+
+            fs_superblock_t * superblock = superblock_alloc(node->superblock_ops);
+
+            superblock->mount_point = mount_point;
+            superblock->device = device;
+            superblock->mount_point->superblock = superblock;
+            superblock->mount_point->type = FS_DIRECTORY;
+
+            error_number_t result = node->mount(superblock);
+            if (result != ERROR_OK) return result;
+
+            superblock->mount_point->head.next = &mount_point->tail;
+            superblock->mount_point->head.prev = NULL;
+            superblock->mount_point->tail.next = NULL;
+            superblock->mount_point->tail.prev = &mount_point->head;
+
+            mount_point->superblock->superblock_ops->list(superblock->mount_point);
+
+            node->mount_count++;
+
+            return ERROR_OK;
+        }
+
+        node = node->next;
+    }
+
+    return ERROR_FILESYSTEM_NOT_FOUND;
+}
+
+fs_directory_entry_t * fs_make(fs_directory_entry_t * parent, const char * name, fs_file_type_t type) {
+    fs_node_t * new_node = parent->superblock->superblock_ops->alloc_node(parent->superblock);
+
+    if (new_node == NULL) return NULL;
+
+    fs_directory_entry_node_t * dirent_node = parent->superblock->superblock_ops->create(parent, new_node, name, type);
+
+    if (dirent_node == NULL) return NULL; // TODO: leak
+
+    fs_directory_entry_add_reference(parent);
+
+    return dirent_node->dirent;
+}
+
+fs_directory_entry_t * fs_make_anon(fs_file_type_t type) {
+    fs_directory_entry_t * new_dirent = fs_directory_entry_create(type, NULL, NULL);
+
+    new_dirent->node = NULL;
+
+    switch (type) {
+        case FS_PIPE: {
+            new_dirent->pipe = pipe_init();
+        } break;
+    }
+
+    return new_dirent;
+}
+
+fs_directory_entry_t * fs_open_path(fs_directory_entry_t * root, const char * path) {
+    fs_directory_entry_t * cur_node = root;
+
+    fs_directory_entry_add_reference(cur_node);
+
+    uint64_t path_pos = 0;
+    uint64_t path_start = 0;
+    while (true) {
+        if (path[path_pos] == '/' || path[path_pos] == '\0') {
+            char segment[path_pos - path_start + 1];
+            memcpy(segment, &path[path_start], path_pos - path_start);
+            segment[path_pos - path_start] = '\0';
+
+            fs_directory_entry_t * new_node;
+
+            if (segment[0] == '\0' || strcmp(segment, ".") == 0) {
+                new_node = cur_node;
+            }
+            else if (strcmp(segment, "..") == 0) {
+                if (cur_node->parent != NULL) {
+                    new_node = cur_node->parent;
+                    fs_directory_entry_release(cur_node);
+                }
+                else new_node = cur_node;
+            }
+            else {
+                new_node = fs_directory_entry_enter(cur_node, segment);
+                fs_directory_entry_release(cur_node);
+
+                if (new_node == NULL) {
+                    return NULL;
+                }
+            }
+
+            if (path[path_pos] == '\0') {
+                return new_node;
+            }
+            else {
+                cur_node = new_node;
+            }
+
+            path_start = ++path_pos;
+        }
+
+        path_pos++;
+    }
+}
+
+fs_directory_entry_t * fs_make_path(fs_directory_entry_t * root, const char * path, fs_file_type_t type) {
+    vga_print("MAKE\n");
+    asm volatile ("hlt");
+    // if (root != fs_root) {
+    //     fs_directory_add_reference(root->parent_directory_entry);
+    // }
+    //
+    // fs_node_t * cur_node = root;
+    //
+    // uint64_t path_pos = 0;
+    // uint64_t path_start = 0;
+    // while (true) {
+    //     if (path[path_pos] == '/' || path[path_pos] == '\0') {
+    //         char segment[path_pos - path_start + 1];
+    //         memcpy(segment, &path[path_start], path_pos - path_start);
+    //         segment[path_pos - path_start] = '\0';
+    //
+    //         fs_node_t * new_node;
+    //
+    //         if (path[path_pos] == '\0') {
+    //             fs_directory_entry_t * dirent = fs_get_directory_entry(cur_node);
+    //             if (cur_node != fs_root) fs_directory_entry_release(cur_node->parent_directory_entry);
+    //
+    //             return fs_make(dirent->node, segment, type);
+    //         }
+    //         else if (segment[0] == '\0' || strcmp(segment, ".") == 0) {
+    //             new_node = cur_node;
+    //         }
+    //         else if (strcmp(segment, "..") == 0) {
+    //             if (cur_node != fs_root) {
+    //                 new_node = cur_node->parent_directory_entry->node;
+    //                 if (new_node != fs_root) fs_directory_add_reference(new_node->parent_directory_entry);
+    //                 fs_directory_entry_release(cur_node->parent_directory_entry);
+    //             }
+    //         }
+    //         else {
+    //             fs_directory_entry_t * dirent = fs_get_directory_entry(cur_node);
+    //             if (cur_node != fs_root) fs_directory_entry_release(cur_node->parent_directory_entry);
+    //
+    //             new_node = fs_directory_entry_enter(dirent, segment);
+    //
+    //             vga_print("New node: ");
+    //             vga_print_hex(new_node->references);
+    //             vga_print("\n");
+    //
+    //             if (new_node == NULL) {
+    //                 fs_directory_entry_release(dirent);
+    //
+    //                 return NULL;
+    //             }
+    //         }
+    //
+    //         cur_node = new_node;
+    //
+    //         path_start = ++path_pos;
+    //     }
+    //
+    //     path_pos++;
+    // }
+}
+

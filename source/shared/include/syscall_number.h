@@ -1,0 +1,18 @@
+#pragma once
+
+typedef enum {
+    SYSCALL_OPEN    = 0,
+    SYSCALL_CLOSE   = 1,
+    SYSCALL_WRITE   = 2,
+    SYSCALL_READ    = 3,
+    SYSCALL_SEEK    = 4,
+    SYSCALL_EXIT    = 5,
+    SYSCALL_READDIR = 6,
+    SYSCALL_CHDIR   = 7,
+    SYSCALL_FORK    = 8,
+    SYSCALL_EXEC    = 9,
+    SYSCALL_MAP     = 10,
+    SYSCALL_WAIT    = 11,
+    SYSCALL_PIPE    = 12,
+    SYSCALL_DUP     = 13,
+} syscall_number_t;

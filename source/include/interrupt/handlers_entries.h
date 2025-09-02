@@ -1,0 +1,29 @@
+#pragma once
+
+typedef char interrupt_entry_t[1];
+
+extern interrupt_entry_t null_handler_entry;
+extern interrupt_entry_t div0_handler_entry;
+extern interrupt_entry_t nmi_handler_entry;
+extern interrupt_entry_t bp_int3_handler_entry;
+extern interrupt_entry_t ovf_handler_entry;
+extern interrupt_entry_t bound_range_handler_entry;
+extern interrupt_entry_t invalid_opcode_handler_entry;
+extern interrupt_entry_t device_not_avail_handler_entry;
+extern interrupt_entry_t double_fault_handler_entry;
+extern interrupt_entry_t coproc_segment_overrun_handler_entry;
+extern interrupt_entry_t invalid_tss_handler_entry;
+extern interrupt_entry_t segment_not_present_handler_entry;
+extern interrupt_entry_t stack_segment_fault_handler_entry;
+extern interrupt_entry_t general_protection_fault_handler_entry;
+extern interrupt_entry_t page_fault_handler_entry;
+extern interrupt_entry_t x87_fpu_handler_entry;
+extern interrupt_entry_t alignment_check_handler_entry;
+extern interrupt_entry_t machine_check_handler_entry;
+extern interrupt_entry_t simd_fpu_error_handler_entry;
+
+extern interrupt_entry_t null_pic1_handler;
+extern interrupt_entry_t null_pic2_handler;
+
+extern interrupt_entry_t pic1_timer_handler_entry;
+extern interrupt_entry_t pic1_keyboard_handler_entry;

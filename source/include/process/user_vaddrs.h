@@ -1,0 +1,6 @@
+#pragma once
+
+#define PROCESS_TEXT_USER_VADDR ((void *) 0x8100000000)
+#define PROCESS_DATA_USER_VADDR ((void *) 0x8200000000)
+#define PROCESS_RODATA_USER_VADDR ((void *) 0x8300000000)
+#define PROCESS_BSS_USER_VADDR ((void *) 0x8400000000)

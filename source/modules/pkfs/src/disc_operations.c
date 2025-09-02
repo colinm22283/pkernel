@@ -1,0 +1,325 @@
+#include <stddef.h>
+
+#include <device/device.h>
+
+#include <disc_operations.h>
+
+#include <util/string/strcpy.h>
+#include <util/string/strcmp.h>
+#include <util/string/strcmpn.h>
+#include <util/memory/memcpy.h>
+#include <util/math/max.h>
+
+#include <debug/vga_print.h>
+
+static inline bool disc_write(device_t * device, uint64_t lba, uint64_t sectors, const void * buffer) {
+    return device->block_ops.write(device, buffer, sectors, lba) == sectors;
+}
+
+static inline bool disc_read(device_t * device, uint64_t lba, uint64_t sectors, void * buffer) {
+    return device->block_ops.read(device, buffer, sectors, lba) == sectors;
+}
+
+pkfs_directory_t open_filesystem(device_t * device, filesystem_page_address_t root_address) {
+    filesystem_root_page_t root_page;
+    if (!disc_read(device, root_address, 1, &root_page)) return 0;
+
+    if (strcmpn(root_page.signature, FILESYSTEM_ROOT_SIGNATURE, 4) != 0) {
+        return 0;
+    }
+
+    vga_print("Test: ");
+    vga_print_hex(root_page.root_directory_address);
+    vga_print("\n");
+
+    return root_page.root_directory_address;
+}
+
+pkfs_directory_t open_directory(device_t * device, pkfs_directory_t parent, const char * directory_name) {
+    filesystem_directory_node_page_t directory_page;
+    if (!disc_read(device, parent, 1, &directory_page)) return 0;
+
+    filesystem_page_address_t directory_index_address = directory_page.directory_index_address;
+
+    while (true) {
+        filesystem_directory_index_page_t directory_index;
+        if (!disc_read(device, directory_index_address, 1, &directory_index)) return 0;
+
+        for (size_t i = 0; i < FILESYSTEM_DIRECTORY_INDEX_CHILDREN_SIZE; i++) {
+            if (directory_index.children[i] == 0) {
+                return 0;
+            }
+            else {
+                filesystem_directory_node_page_t directory_node;
+                if (!disc_read(device, directory_index.children[i], 1, &directory_node)) {
+                    return 0;
+                }
+
+                if (strcmp(directory_node.name, directory_name) == 0) {
+                    return directory_index.children[i];
+                }
+            }
+        }
+
+        if (directory_index.next_index_address != 0) {
+            directory_index_address = directory_index.next_index_address;
+        }
+        else return 0;
+    }
+}
+
+pkfs_file_t open_file(device_t * device, pkfs_directory_t parent, const char * directory_name) {
+    filesystem_directory_node_page_t directory_page;
+    if (!disc_read(device, parent, 1, &directory_page)) {
+        return 0;
+    }
+
+    filesystem_page_address_t directory_index_address = directory_page.directory_index_address;
+
+    while (true) {
+        filesystem_directory_index_page_t directory_index;
+        if (!disc_read(device, directory_index_address, 1, &directory_index)) {
+            return 0;
+        }
+
+        for (size_t i = 0; i < FILESYSTEM_DIRECTORY_INDEX_CHILDREN_SIZE; i++) {
+            if (directory_index.children[i] == 0) {
+                return 0;
+            }
+            else {
+                static filesystem_file_node_page_t file_node;
+                if (!disc_read(device, directory_index.children[i], 1, &file_node)) {
+                    return 0;
+                }
+
+                if (strcmp(file_node.name, directory_name) == 0) {
+                    return directory_index.children[i];
+                }
+            }
+        }
+
+        if (directory_index.next_index_address != 0) {
+            directory_index_address = directory_index.next_index_address;
+        }
+        else return 0;
+    }
+}
+
+bool get_directory_name(device_t * device, pkfs_directory_t file, char * buffer) {
+    static filesystem_directory_node_page_t directory_node;
+
+    if (!disc_read(device, file, 1, &directory_node)) {
+        return false;
+    }
+    uint16_t i;
+    for (i = 0; i < FILESYSTEM_NAME_MAX_SIZE && directory_node.name[i] != '\0'; i++) buffer[i] = directory_node.name[i];
+    buffer[i] = '\0';
+
+    return true;
+}
+
+bool get_file_name(device_t * device, pkfs_file_t file, char * buffer) {
+    static filesystem_file_node_page_t file_node;
+
+    if (!disc_read(device, file, 1, &file_node)) {
+        return false;
+    }
+    uint16_t i;
+    for (i = 0; i < FILESYSTEM_NAME_MAX_SIZE && file_node.name[i] != '\0'; i++) buffer[i] = file_node.name[i];
+    buffer[i] = '\0';
+
+    return true;
+}
+
+uint64_t get_file_size(device_t * device, pkfs_file_t file) {
+    static filesystem_file_node_page_t root_node;
+
+    if (!disc_read(device, file, 1, &root_node)) return 0;
+
+    pkfs_file_t current_file = root_node.root_data_address;
+    static filesystem_file_data_page_t file_node;
+
+    uint64_t size = 0;
+
+    while (true) {
+        if (!disc_read(device, current_file, 1, &file_node)) return 0;
+
+        size += file_node.size;
+
+        if (file_node.next_data_address != 0) break;
+
+        current_file = file_node.next_data_address;
+    }
+
+    return size;
+}
+
+pkfs_file_t create_file(device_t * device) {
+    static filesystem_root_page_t root_node;
+    if (!disc_read(device, FILESYSTEM_ROOT_ADDRESS, 1, &root_node)) return 0;
+
+    filesystem_page_address_t node = root_node.first_free;
+
+    pkfs_file_t file_root_addr = node;
+    static filesystem_file_node_page_t file_page;
+
+    file_page.tag.in_use = true;
+    file_page.type = FILESYSTEM_PAGE_TYPE_FILE;
+
+    while (true) {
+        node++;
+
+        static filesystem_node_page_t page;
+        if (!disc_read(device, node, 1, &page)) return 0;
+
+        if (!page.tag.in_use) break;
+    }
+
+    static filesystem_file_data_page_t file_data;
+
+    file_data.tag.in_use = true;
+    file_data.type = FILESYSTEM_PAGE_TYPE_FILE;
+    file_data.parent_file_address = file_root_addr;
+    file_data.prev_data_address = 0;
+    file_data.next_data_address = 0;
+    file_data.size = 0;
+
+    file_page.root_data_address = node;
+
+    if (!disc_write(device, file_root_addr, 1, &file_page)) return 0;
+    if (!disc_write(device, node, 1, &file_data)) return 0;
+
+    while (true) {
+        node++;
+
+        static filesystem_node_page_t page;
+        if (!disc_read(device, node, 1, &page)) return 0;
+
+        if (!page.tag.in_use) break;
+    }
+
+    root_node.first_free = node;
+    if (!disc_write(device, FILESYSTEM_ROOT_ADDRESS, 1, &root_node)) return 0;
+
+    return file_root_addr;
+}
+
+bool link_node(device_t * device, pkfs_directory_t directory, filesystem_page_address_t node, const char * name) {
+    static filesystem_directory_node_page_t node_page;
+    if (!disc_read(device, directory, 1, &node_page)) return false;
+
+    static filesystem_directory_index_page_t index_page;
+    if (!disc_read(device, node_page.directory_index_address, 1, &index_page)) return false;
+
+    for (size_t i = 0; i < FILESYSTEM_DIRECTORY_INDEX_CHILDREN_SIZE; i++) {
+        if (index_page.children[i] == 0) {
+            index_page.children[i] = node;
+
+            static filesystem_file_node_page_t file_page;
+            if (!disc_read(device, node, 1, &file_page)) return false;
+
+            strcpy(file_page.name, name);
+            file_page.parent_directory_address = directory;
+
+            if (!disc_write(device, node, 1, &file_page)) return false;
+
+            if (!disc_write(device, node_page.directory_index_address, 1, &index_page)) return false;
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool directory_iterator_init(device_t * device, directory_iterator_t * iterator, pkfs_directory_t directory) {
+    if (!disc_read(device, directory, 1, &iterator->node_page)) {
+        return false;
+    }
+    if (!disc_read(device, iterator->node_page.directory_index_address, 1, &iterator->index_page)) {
+        return false;
+    }
+
+    iterator->index_location = 0;
+
+    return true;
+}
+
+filesystem_directory_entry_type_t directory_iterator_next(device_t * device, directory_iterator_t * iterator, filesystem_page_address_t * handle) {
+    if (iterator->index_location >= FILESYSTEM_DIRECTORY_INDEX_CHILDREN_SIZE) {
+        if (!disc_read(device, iterator->index_page.next_index_address, 1, &iterator->index_page)) {
+            return FS_DET_NONE;
+        }
+
+        iterator->index_location = 0;
+
+        return directory_iterator_next(device, iterator, handle);
+    }
+    else if (iterator->index_page.children[iterator->index_location] == 0) {
+        return FS_DET_NONE;
+    }
+    else {
+        *handle = iterator->index_page.children[iterator->index_location];
+        iterator->index_location++;
+
+        filesystem_node_page_t page;
+
+        if (!disc_read(device, *handle, 1, &page)) {
+            return FS_DET_NONE;
+        }
+
+        switch (page.type) {
+            case FILESYSTEM_PAGE_TYPE_FILE: return FS_DET_FILE;
+            case FILESYSTEM_PAGE_TYPE_DIRECTORY: return FS_DET_DIRECTORY;
+            default: return FS_DET_NONE;
+        }
+    }
+}
+
+uint64_t read_file(device_t * device, pkfs_file_t file, char * buffer, uint64_t size, uint64_t offset) {
+    static filesystem_file_node_page_t file_node;
+    if (!disc_read(device, file, 1, &file_node)) return 0;
+
+    static filesystem_file_data_page_t data_page;
+    if (!disc_read(device, file_node.root_data_address, 1, &data_page)) return 0;
+
+    uint64_t inner_offset = 0;
+
+    while (offset > 0) {
+        if (inner_offset < data_page.size) {
+            inner_offset++;
+            offset--;
+        }
+        else {
+            if (data_page.next_data_address == 0) return 0;
+
+            if (!disc_read(device, data_page.next_data_address, 1, &data_page)) return 0;
+
+            inner_offset = 0;
+        }
+    }
+
+    uint64_t buffer_offset = 0;
+    while (size > 0) {
+        if (inner_offset < data_page.size) {
+            buffer[buffer_offset] = data_page.data[inner_offset];
+
+            buffer_offset++;
+            inner_offset++;
+            size--;
+        }
+        else {
+            if (data_page.next_data_address == 0) return buffer_offset;
+
+            if (!disc_read(device, data_page.next_data_address, 1, &data_page)) return buffer_offset;
+
+            inner_offset = 0;
+        }
+    }
+
+    return buffer_offset;
+}
+
+uint64_t write_file(device_t * device, pkfs_file_t file, const char * buffer, uint64_t size, uint64_t offset) {
+    return 0;
+}
