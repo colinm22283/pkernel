@@ -26,8 +26,21 @@ kernel:
 modules:
 	cd source && $(MAKE) modules
 
-.PHONY: external
-external:
-	cd $(EXTERNAL_DIR) && $(MAKE)
+.PHONY: application
+application: $(OBJ_DIR)/application_start_table.o
+	if [[ ! -v APPLICATION_DIR ]]; then echo "ERROR: APPLICATION_DIR varaible not set!"; false; fi
+	
+	cd $(APPLICATION_DIR) && $(MAKE) \
+		AS="$(ASM64)" \
+		ASFLAGS="$(ASMFLAGS64)" \
+		CC="$(CC64)" \
+		CFLAGS="$(CFLAGS64)" \
+		LD="$(LD64)" \
+		LDFLAGS="$(LDFLAGS) -T$(CURDIR)/application/application.ld $(OBJ_DIR)/application_start_table.o" \
+		INCLUDE_DIRS="$(SOURCE_DIR)/shared/include"
+
+$(OBJ_DIR)/application_start_table.o: $(CURDIR)/application/application_start_table.c
+	mkdir -p $(@D)
+	$(CC64) $(CFLAGS64) -I$(SOURCE_DIR)/shared/include $< -o $@
 
 .FORCE:

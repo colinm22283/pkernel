@@ -102,7 +102,7 @@ __NORETURN void kernel_main(void) {
     fs_directory_entry_t * home_dirent = fs_make(&fs_root, "home", FS_DIRECTORY);
     fs_mount("pkfs", home_dirent, disc_dev);
 
-    fs_directory_entry_t * test_file_dirent = fs_open_path(home_dirent, "home/apps/init");
+    fs_directory_entry_t * test_file_dirent = fs_open_path(home_dirent, "bin/init");
 
     uint64_t read_bytes;
 

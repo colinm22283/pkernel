@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "../../defs.h"
+#include <defs.h>
 
 typedef struct __PACKED {
     uint32_t _reserved0 : 32;
