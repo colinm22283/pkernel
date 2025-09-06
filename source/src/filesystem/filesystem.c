@@ -18,19 +18,6 @@
 
 #include "sys/halt.h"
 
-typedef struct fs_mount_s {
-    char * name;
-
-    uint64_t mount_count;
-
-    fs_mount_func_t mount;
-    fs_unmount_func_t unmount;
-    const fs_superblock_ops_t * superblock_ops;
-
-    struct fs_mount_s * next;
-    struct fs_mount_s * prev;
-} fs_filesystem_node_t;
-
 fs_directory_entry_t fs_root;
 
 fs_filesystem_node_t fs_filesystem_head, fs_filesystem_tail;
@@ -127,16 +114,28 @@ error_number_t fs_mount(const char * name, fs_directory_entry_t * mount_point, d
             superblock->mount_point->tail.prev = &mount_point->head;
 
             mount_point->superblock->superblock_ops->list(superblock->mount_point);
+            mount_point->mounted_fs = node;
 
             node->mount_count++;
 
             return ERROR_OK;
         }
-
-        node = node->next;
     }
 
     return ERROR_FILESYSTEM_NOT_FOUND;
+}
+
+error_number_t fs_unmount(fs_directory_entry_t * mount_point) {
+     if (mount_point->mounted_fs == NULL) {
+         return ERROR_FILESYSTEM_NOT_MOUNTED;
+     }
+
+    mount_point->mounted_fs->unmount(mount_point->superblock);
+
+    mount_point->mounted_fs = NULL;
+    mount_point->superblock = mount_point->parent->superblock;
+
+    return ERROR_OK;
 }
 
 fs_directory_entry_t * fs_make(fs_directory_entry_t * parent, const char * name, fs_file_type_t type) {

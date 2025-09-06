@@ -30,6 +30,7 @@ fs_directory_entry_t * fs_directory_entry_create(fs_file_type_t type, fs_directo
     directory_entry->type = type;
     directory_entry->node = NULL;
     directory_entry->pipe = NULL;
+    directory_entry->mounted_fs = NULL;
     directory_entry->references = 1;
 
 

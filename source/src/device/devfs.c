@@ -45,6 +45,7 @@ error_number_t devfs_list(fs_directory_entry_t * dirent) {
         fs_directory_entry_t * new_dirent = fs_directory_entry_create(FS_DEVICE, dirent, dirent_node);
 
         dirent_node->dirent = new_dirent;
+        new_dirent->node = (fs_node_t *) new_node;
     }
 
     return ERROR_OK;
@@ -95,10 +96,20 @@ error_number_t devfs_mount(fs_superblock_t * superblock) {
     return ERROR_OK;
 }
 
-error_number_t devfs_unmount(__MAYBE_UNUSED fs_superblock_t * superblock) {
-    // TODO
+error_number_t devfs_unmount(fs_superblock_t * superblock) {
+    for (uint64_t i = 0; i < devfs_mount_count; i++) {
+        if (devfs_mounts[i] == superblock->mount_point) {
+            for (i++; i < devfs_mount_count; i++) {
+                devfs_mounts[i - 1] = devfs_mounts[i];
+            }
 
-    return ERROR_OK;
+            devfs_mount_count--;
+
+            return ERROR_OK;
+        }
+    }
+
+    return ERROR_UNKNOWN;
 }
 
 error_number_t devfs_init(void) {

@@ -30,6 +30,8 @@ typedef struct fs_directory_entry_s {
 
     pipe_t * pipe;
 
+    struct fs_filesystem_node_s * mounted_fs;
+
     fs_directory_entry_node_t head, tail;
 } fs_directory_entry_t;
 

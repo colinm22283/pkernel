@@ -86,10 +86,9 @@ __NORETURN void kernel_main(void) {
 
     if (fs_mount("ramfs", &fs_root, NULL) != ERROR_OK) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_MOUNT_ERROR);
 
-    fs_make(&fs_root, "dev", FS_DIRECTORY);
+    fs_directory_entry_t * dev_dirent = fs_make(&fs_root, "dev", FS_DIRECTORY);
 
     devfs_init();
-    sysfs_init();
 
     if (!static_module_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_MODULE_INIT_ERROR);
 
@@ -99,10 +98,18 @@ __NORETURN void kernel_main(void) {
     device_t * disc_dev = devfs_open(disc_dirent->node);
     fs_directory_entry_release(disc_dirent);
 
-    fs_directory_entry_t * home_dirent = fs_make(&fs_root, "home", FS_DIRECTORY);
-    fs_mount("pkfs", home_dirent, disc_dev);
+    fs_unmount(dev_dirent);
+    fs_unmount(&fs_root);
 
-    fs_directory_entry_t * test_file_dirent = fs_open_path(home_dirent, "bin/init");
+    fs_mount("pkfs", &fs_root, disc_dev);
+
+    dev_dirent = fs_open_path(&fs_root, "dev");
+    fs_mount("devfs", dev_dirent, NULL);
+    fs_directory_entry_release(dev_dirent);
+
+    sysfs_init();
+
+    fs_directory_entry_t * test_file_dirent = fs_open_path(&fs_root, "bin/init");
 
     uint64_t read_bytes;
 

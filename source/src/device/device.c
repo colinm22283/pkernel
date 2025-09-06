@@ -7,6 +7,8 @@
 #include <util/string/strcpy.h>
 #include <util/memory/memcpy.h>
 
+#include "debug/vga_print.h"
+
 typedef struct device_node_s {
     device_t device;
 
