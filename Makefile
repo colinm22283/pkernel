@@ -10,12 +10,17 @@ export MAKE_SCRIPTS=$(MAKE_DIR)/targets16.mk $(MAKE_DIR)/targets32.mk $(MAKE_DIR
 include $(MAKE_DIR)/arch.mk
 include $(MAKE_SCRIPTS)
 
-.PHONY: kernel
-kernel: $(BIN_DIR)/kernel.bin
+.DEFAULT: all
+.PHONY: all
+all: kernel
 
-.PHONY: $(BIN_DIR)/kernel.bin
-$(BIN_DIR)/kernel.bin:
-	cd source && $(MAKE) $(BIN_DIR)/kernel.bin
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR)
+
+.PHONY: kernel
+kernel:
+	cd source && $(MAKE) kernel
 
 .PHONY: modules
 modules:
@@ -25,7 +30,4 @@ modules:
 external:
 	cd $(EXTERNAL_DIR) && $(MAKE)
 
-.PHONY: all
-all: kernel
-
-.DEFAULT: all
+.FORCE:

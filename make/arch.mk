@@ -24,7 +24,21 @@ export LD64=$(PREFIX64)-ld
 export OBJCOPY32=$(PREFIX32)-objcopy
 export OBJCOPY64=$(PREFIX64)-objcopy
 
-export CFLAGS=-c -std=gnu99 -ffreestanding -fno-exceptions -nostdlib -fno-stack-protector -fno-asynchronous-unwind-tables -mno-red-zone -Wall -Wextra -Wno-packed-bitfield-compat -Wno-unused-parameter
+export CFLAGS= \
+	-c \
+	-std=gnu99 \
+	-ffreestanding \
+	-fno-exceptions \
+	-nostdlib \
+	-fno-stack-protector \
+	-fno-asynchronous-unwind-tables \
+	-mno-red-zone \
+	-Wall \
+	-Wextra \
+	-Wno-packed-bitfield-compat \
+	-Wno-unused-parameter \
+	-D__ARCH=x86_64
+
 export CFLAGS16=-m16 $(CFLAGS)
 export CFLAGS32=-m32 $(CFLAGS)
 export CFLAGS64=-m64 -mcmodel=large $(CFLAGS)

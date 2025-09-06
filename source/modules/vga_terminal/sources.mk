@@ -1,0 +1,6 @@
+INCLUDE_DIRS+=$(CURDIR)/include
+
+MODULE_OBJS+=$(MODULE_OD_64)/vga_terminal.o
+MODULE_OBJS+=$(MODULE_OD_64)/font.o
+MODULE_OBJS+=$(MODULE_OD_64)/update.o
+

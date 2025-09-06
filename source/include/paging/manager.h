@@ -107,6 +107,8 @@ static inline void pman_add_reference(pman_mapping_t * mapping) {
     switch (mapping->type) {
         case PMAN_MAPPING_ALLOC: mapping->alloc.references++; break;
         case PMAN_MAPPING_MAP: mapping->map.references++; break;
+
+        default: __UNREACHABLE();
     }
 }
 

@@ -130,24 +130,22 @@ KN_OBJS+=$(KN_OD_64)/main.o
 KN_OBJS+=$(KN_OD_64)/entry_error.o
 KN_OBJS+=$(KN_OD_64)/user.o
 
-OPTIMIZATION=0
+OPTIMIZATION=3
 
 include $(MAKE_SCRIPTS)
 
 .DEFAULT: all
 .PHONY: all
-all: $(BIN_DIR)/kernel.bin
+all: kernel modules
+
+.PHONY: kernel
+kernel: $(BIN_DIR)/kernel.bin
 
 include modules/module.mk
-export INCLUDE_DIRS+=$(STATIC_MODULE_INCLUDE_DIRS)
 
 $(BIN_DIR)/kernel.bin: $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(SOURCE_DIR)/kernel.ld
 	mkdir -p $(@D)
 	$(LD64) $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(STATIC_MODULE_OBJS) -o $@ -Map=$@.map
 
-.PHONY: mkmod
-mkmod:
-	cd $(TOOLS_DIR)/mkmod && $(MAKE)
-
 .PHONY: modules
-modules: mkmod $(DYNAMIC_MODULE_MODS) $(STATIC_MODULE_OBJS)
+modules: $(MODULE_TARGETS)
