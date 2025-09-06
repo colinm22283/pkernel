@@ -4,11 +4,11 @@ CXXHEADERS=$(foreach d, $(INCLUDE_DIRS), $(shell find $d -type f -name '*.hpp'))
 
 OPTIMIZATION?=3
 
-$(OBJ_DIR)/32/%.o: $(SOURCE_DIR)/%.c $(CHEADERS)
+$(OBJ_DIR)/32/%.o: $(SOURCE_DIR)/%.c $(CHEADERS) $(AUTOGEN_HEADERS)
 	mkdir -p $(@D)
 	$(CC32) $(CFLAGS32) -O$(OPTIMIZATION) $(INCLUDE_PARAMS) $< -o $@
 
-$(OBJ_DIR)/32/%.o: $(SOURCE_DIR)/%.cpp $(CHEADERS) $(CXXHEADERS)
+$(OBJ_DIR)/32/%.o: $(SOURCE_DIR)/%.cpp $(CHEADERS) $(CXXHEADERS) $(AUTOGEN_HEADERS)
 	mkdir -p $(@D)
 	$(CXX32) $(CXXFLAGS32) -O$(OPTIMIZATION) $(INCLUDE_PARAMS) $< -o $@
 
