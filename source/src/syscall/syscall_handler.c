@@ -12,6 +12,7 @@
 #include <syscall/handlers/exec.h>
 #include <syscall/handlers/pipe.h>
 #include <syscall/handlers/dup.h>
+#include <syscall/handlers/mount.h>
 
 #include <interface/interface_map.h>
 
@@ -36,7 +37,7 @@
 #include <sys/paging/load_page_table.h>
 #include <sys/paging/read_page_table.h>
 
-uint64_t syscall_handler(uint64_t rax, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, interrupt_state_record_t * isr) {
+uint64_t syscall_handler(uint64_t rax, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9, interrupt_state_record_t * isr) {
     load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
 
     process_load_isr(scheduler_current_process(), isr);
@@ -84,6 +85,14 @@ uint64_t syscall_handler(uint64_t rax, uint64_t rsi, uint64_t rdx, uint64_t rcx,
         case SYSCALL_PIPE: return_value = syscall_pipe((fd_t *) rsi, (open_options_t) rdx); break;
 
         case SYSCALL_DUP: return_value = syscall_dup((fd_t) rsi, (fd_t) rdx); break;
+
+        case SYSCALL_MOUNT: return_value = syscall_mount(
+            (const char *) rsi,
+            (const char *) rdx,
+            (const char *) rcx,
+            (mount_options_t) r8,
+            (const char *) r9
+        ); break;
 
         default: return_value = ERROR_BAD_SYSCALL; break;
     }

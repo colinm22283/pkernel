@@ -19,6 +19,7 @@ typedef enum {
     ERROR_FILESYSTEM_ENTRY_EXISTS,
     ERROR_FILESYSTEM_BAD_NODE_TYPE,
 
+    ERROR_FS_IN_USE,
     ERROR_FS_NO_ENT,
 
     ERROR_BAD_FD,
@@ -31,6 +32,8 @@ typedef enum {
     ERROR_NOT_DIR,
     
     ERROR_NOT_REG,
+
+    ERROR_NOT_DEV,
 
     ERROR_MUST_BLOCK,
 } error_number_t;

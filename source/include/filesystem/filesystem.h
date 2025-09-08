@@ -29,9 +29,10 @@ extern fs_directory_entry_t fs_root;
 
 bool fs_init();
 
-error_number_t fs_register(const char * name, fs_mount_func_t mount, fs_unmount_func_t unmount);
+error_number_t fs_register(const char * name, const fs_superblock_ops_t * superblock_ops, fs_mount_func_t mount, fs_unmount_func_t unmount);
 error_number_t fs_unregister(const char * name);
 
+error_number_t fs_mount_root(const char * name, device_t * device);
 error_number_t fs_mount(const char * name, fs_directory_entry_t * mount_point, device_t * device);
 error_number_t fs_unmount(fs_directory_entry_t * mount_point);
 

@@ -14,6 +14,8 @@
 #include <debug/vga_print.h>
 #include <util/heap/internal.h>
 
+#include <sys/halt.h>
+
 fs_directory_entry_t * fs_directory_entry_create(fs_file_type_t type, fs_directory_entry_t * parent, fs_directory_entry_node_t * parent_node) {
     fs_directory_entry_t * directory_entry = heap_alloc(sizeof(fs_directory_entry_t));
 

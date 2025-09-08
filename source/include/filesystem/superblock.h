@@ -25,6 +25,7 @@ typedef struct {
 } fs_superblock_ops_t;
 
 typedef struct fs_superblock_s {
+    fs_directory_entry_t * prev_dirent;
     fs_directory_entry_t * mount_point;
     device_t * device;
 

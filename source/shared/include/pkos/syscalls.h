@@ -113,3 +113,14 @@ static inline void * dup(fd_t dst, fd_t src) {
 
     return (void *) ret;
 }
+
+static inline void * mount(const char * dst, const char * src, const char * fs, mount_options_t options, const char * data) {
+    int64_t ret;
+
+    register uint64_t r8 asm("r8") = options;
+    register uint64_t r9 asm("r9") = (uint64_t) data;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_MOUNT), "S" ((uint64_t) dst), "d" ((uint64_t) src), "c" ((uint64_t) fs), "r" (r8), "r" (r9) : "memory", "cc");
+
+    return (void *) ret;
+}

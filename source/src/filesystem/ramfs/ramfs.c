@@ -133,17 +133,6 @@ const fs_superblock_ops_t ramfs_superblock_ops = {
 };
 
 error_number_t fs_ramfs_mount(fs_superblock_t * superblock) {
-    superblock->superblock_ops = &ramfs_superblock_ops;
-
-    fs_directory_entry_t * mount_point = superblock->mount_point;
-
-    fs_node_t * _root_node = heap_alloc(sizeof(ramfs_fs_node_t));
-    ramfs_fs_node_t * root_node = (ramfs_fs_node_t *) _root_node;
-
-    fs_node_init(&root_node->base);
-
-    mount_point->node = _root_node;
-
     return ERROR_OK;
 }
 
@@ -152,7 +141,7 @@ error_number_t fs_ramfs_unmount(__MAYBE_UNUSED fs_superblock_t * superblock) {
 }
 
 bool fs_ramfs_init(void) {
-    fs_register("ramfs", fs_ramfs_mount, fs_ramfs_unmount);
+    fs_register("ramfs", &ramfs_superblock_ops, fs_ramfs_mount, fs_ramfs_unmount);
 
     return true;
 }

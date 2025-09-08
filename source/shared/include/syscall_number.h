@@ -15,4 +15,5 @@ typedef enum {
     SYSCALL_WAIT    = 11,
     SYSCALL_PIPE    = 12,
     SYSCALL_DUP     = 13,
+    SYSCALL_MOUNT   = 14,
 } syscall_number_t;

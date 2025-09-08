@@ -16,6 +16,7 @@
 
 #include <debug/vga_print.h>
 
+#include "../../modules/pkfs/include/pkfs.h"
 #include "sys/halt.h"
 
 fs_directory_entry_t fs_root;
@@ -38,7 +39,7 @@ bool fs_init() {
     return true;
 }
 
-error_number_t fs_register(const char * name, fs_mount_func_t mount, fs_unmount_func_t unmount) {
+error_number_t fs_register(const char * name, const fs_superblock_ops_t * superblock_ops, fs_mount_func_t mount, fs_unmount_func_t unmount) {
     for (
         fs_filesystem_node_t * node = fs_filesystem_head.next;
         node != &fs_filesystem_tail;
@@ -54,6 +55,7 @@ error_number_t fs_register(const char * name, fs_mount_func_t mount, fs_unmount_
     new_node->name = heap_alloc(strlen(name) + 1);
     strcpy(new_node->name, name);
     new_node->mount_count = 0;
+    new_node->superblock_ops = superblock_ops;
     new_node->mount = mount;
     new_node->unmount = unmount;
 
@@ -87,6 +89,46 @@ error_number_t fs_unregister(const char * name) {
     return ERROR_FILESYSTEM_NOT_FOUND;
 }
 
+error_number_t fs_mount_root(const char * name, device_t * device) {
+    fs_root.head.next = &fs_root.tail;
+    fs_root.head.prev = NULL;
+    fs_root.tail.next = NULL;
+    fs_root.tail.prev = &fs_root.head;
+
+    for (
+        fs_filesystem_node_t * node = fs_filesystem_head.next;
+        node != &fs_filesystem_tail;
+        node = node->next
+    ) {
+        if (strcmp(node->name, name) == 0) {
+            fs_directory_entry_add_reference(&fs_root);
+
+            fs_superblock_t * superblock = superblock_alloc(node->superblock_ops);
+
+            superblock->prev_dirent = NULL;
+            superblock->mount_point = &fs_root;
+            superblock->device = device;
+            superblock->mount_point->superblock = superblock;
+            superblock->mount_point->type = FS_DIRECTORY;
+
+            fs_node_t * new_node = node->superblock_ops->alloc_node(superblock);
+            superblock->mount_point->node = new_node;
+
+            error_number_t result = node->mount(superblock);
+            if (result != ERROR_OK) return result;
+
+            node->superblock_ops->list(superblock->mount_point);
+            superblock->mount_point->mounted_fs = node;
+
+            node->mount_count++;
+
+            return ERROR_OK;
+        }
+    }
+
+    return ERROR_FILESYSTEM_NOT_FOUND;
+}
+
 error_number_t fs_mount(const char * name, fs_directory_entry_t * mount_point, device_t * device) {
     if (mount_point->type != FS_DIRECTORY) return ERROR_NOT_DIR;
 
@@ -100,21 +142,23 @@ error_number_t fs_mount(const char * name, fs_directory_entry_t * mount_point, d
 
             fs_superblock_t * superblock = superblock_alloc(node->superblock_ops);
 
-            superblock->mount_point = mount_point;
+            fs_directory_entry_t * new_dirent = fs_directory_entry_create(FS_DIRECTORY, mount_point->parent, mount_point->parent_node);
+
+            superblock->prev_dirent = mount_point;
+            superblock->mount_point = new_dirent;
             superblock->device = device;
             superblock->mount_point->superblock = superblock;
             superblock->mount_point->type = FS_DIRECTORY;
+            superblock->mount_point->parent_node->dirent = superblock->mount_point;
+
+            fs_node_t * new_node = node->superblock_ops->alloc_node(superblock);
+            superblock->mount_point->node = new_node;
 
             error_number_t result = node->mount(superblock);
             if (result != ERROR_OK) return result;
 
-            superblock->mount_point->head.next = &mount_point->tail;
-            superblock->mount_point->head.prev = NULL;
-            superblock->mount_point->tail.next = NULL;
-            superblock->mount_point->tail.prev = &mount_point->head;
-
-            mount_point->superblock->superblock_ops->list(superblock->mount_point);
-            mount_point->mounted_fs = node;
+            node->superblock_ops->list(superblock->mount_point);
+            superblock->mount_point->mounted_fs = node;
 
             node->mount_count++;
 
@@ -132,8 +176,13 @@ error_number_t fs_unmount(fs_directory_entry_t * mount_point) {
 
     mount_point->mounted_fs->unmount(mount_point->superblock);
 
+    if (mount_point->parent_node != NULL) mount_point->parent_node->dirent = mount_point->superblock->prev_dirent;
+
+    if (mount_point->superblock->prev_dirent != NULL) fs_directory_entry_release(mount_point->superblock->prev_dirent);
+    fs_directory_entry_release(mount_point);
+
     mount_point->mounted_fs = NULL;
-    mount_point->superblock = mount_point->parent->superblock;
+    if (mount_point->parent != NULL) mount_point->superblock = mount_point->parent->superblock;
 
     return ERROR_OK;
 }
@@ -196,6 +245,7 @@ fs_directory_entry_t * fs_open_path(fs_directory_entry_t * root, const char * pa
                 fs_directory_entry_release(cur_node);
 
                 if (new_node == NULL) {
+                    vga_print("GURP\n");
                     return NULL;
                 }
             }

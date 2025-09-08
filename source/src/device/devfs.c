@@ -23,6 +23,10 @@ devfs_entry_t devfs_head, devfs_tail;
 uint64_t devfs_mount_count;
 fs_directory_entry_t ** devfs_mounts;
 
+fs_node_t * devfs_alloc(fs_superblock_t * superblock) {
+    return heap_alloc(sizeof(devfs_fs_node_t));
+}
+
 error_number_t devfs_free(fs_superblock_t * superblock, fs_node_t * node) {
     heap_free(node);
 
@@ -30,6 +34,8 @@ error_number_t devfs_free(fs_superblock_t * superblock, fs_node_t * node) {
 }
 
 error_number_t devfs_list(fs_directory_entry_t * dirent) {
+    vga_print("LIST\n");
+
     for (
         devfs_entry_t * entry = devfs_head.next;
         entry != &devfs_tail;
@@ -70,6 +76,7 @@ error_number_t devfs_read(fs_directory_entry_t * dirent, char * data, uint64_t s
 }
 
 fs_superblock_ops_t devfs_superblock_ops = {
+    .alloc_node = devfs_alloc,
     .free_node = devfs_free,
 
     .list  = devfs_list,
@@ -79,17 +86,6 @@ fs_superblock_ops_t devfs_superblock_ops = {
 };
 
 error_number_t devfs_mount(fs_superblock_t * superblock) {
-    superblock->superblock_ops = &devfs_superblock_ops;
-
-    fs_directory_entry_t * mount_point = superblock->mount_point;
-
-    fs_node_t * _root_node = heap_alloc(sizeof(devfs_fs_node_t));
-    devfs_fs_node_t * root_node = (devfs_fs_node_t *) _root_node;
-
-    fs_node_init(&root_node->base);
-
-    mount_point->node = _root_node;
-
     devfs_mounts[devfs_mount_count++] = superblock->mount_point;
     devfs_mounts = heap_realloc(devfs_mounts, (devfs_mount_count + 1) * sizeof(fs_directory_entry_t *));
 
@@ -120,18 +116,11 @@ error_number_t devfs_init(void) {
 
     error_number_t result;
 
-    result = fs_register("devfs", devfs_mount, devfs_unmount);
+    result = fs_register("devfs", &devfs_superblock_ops, devfs_mount, devfs_unmount);
     if (result != ERROR_OK) return result;
 
     devfs_mount_count = 0;
     devfs_mounts = heap_alloc(sizeof(fs_directory_entry_t *));
-
-    fs_directory_entry_t * dev_node = fs_directory_entry_enter(&fs_root, "dev");
-
-    result = fs_mount("devfs", dev_node, NULL);
-    if (result != ERROR_OK) return result;
-
-    // fs_directory_entry_release(root_dirent);
 
     return ERROR_OK;
 }
@@ -155,8 +144,6 @@ devfs_entry_t * devfs_register(device_t * device) {
     new_node->device = device;
 
     for (uint64_t i = 0; i < devfs_mount_count; i++) {
-        new_node->device = device;
-
         fs_directory_entry_node_t * dirent_node = fs_directory_entry_add_entry(devfs_mounts[i], device->name);
 
         fs_directory_entry_t * new_dirent = fs_directory_entry_create(FS_DEVICE, devfs_mounts[i], dirent_node);

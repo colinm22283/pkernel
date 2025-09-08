@@ -126,8 +126,12 @@ int64_t file_readdir(fs_file_t * file, directory_entry_t * entries, uint64_t buf
 
         directory_entry_t * entry = (directory_entry_t *) (buffer + buffer_pos);
 
-        entry->file_type = file->current_node->dirent->type;
+        fs_directory_entry_t * dirent = fs_directory_node_enter(file->dirent, file->current_node);
+
+        entry->file_type = dirent->type;
         entry->struct_size = entry_length;
+
+        fs_directory_entry_release(dirent);
 
         strcpy(entry->name, file->current_node->name);
 

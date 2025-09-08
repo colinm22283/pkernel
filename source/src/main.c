@@ -84,30 +84,34 @@ __NORETURN void kernel_main(void) {
     if (!fs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_INIT_ERROR);
     if (!fs_ramfs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_INIT_ERROR);
 
-    if (fs_mount("ramfs", &fs_root, NULL) != ERROR_OK) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_MOUNT_ERROR);
+    if (fs_mount_root("ramfs", NULL) != ERROR_OK) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_MOUNT_ERROR);
 
     fs_directory_entry_t * dev_dirent = fs_make(&fs_root, "dev", FS_DIRECTORY);
 
     devfs_init();
+    sysfs_init();
+
+    fs_mount("devfs", dev_dirent, NULL);
+    fs_directory_entry_release(dev_dirent);
 
     if (!static_module_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_MODULE_INIT_ERROR);
 
-    vga_print("BOOT\n");
+    vga_print("Static Modules Initialized!\n");
 
     fs_directory_entry_t * disc_dirent = fs_open_path(&fs_root, "dev/disc0");
     device_t * disc_dev = devfs_open(disc_dirent->node);
     fs_directory_entry_release(disc_dirent);
 
     fs_unmount(dev_dirent);
+    fs_directory_entry_release(dev_dirent);
+
     fs_unmount(&fs_root);
 
-    fs_mount("pkfs", &fs_root, disc_dev);
+    fs_mount_root("pkfs", disc_dev);
 
     dev_dirent = fs_open_path(&fs_root, "dev");
     fs_mount("devfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
-
-    sysfs_init();
 
     fs_directory_entry_t * test_file_dirent = fs_open_path(&fs_root, "bin/init");
 

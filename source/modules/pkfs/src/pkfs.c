@@ -6,7 +6,7 @@
 #include <filesystem/filesystem.h>
 
 bool init() {
-    fs_register("pkfs", mount, unmount);
+    fs_register("pkfs", &superblock_ops, mount, unmount);
 
     return true;
 }

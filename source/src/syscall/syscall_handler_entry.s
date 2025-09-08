@@ -22,12 +22,14 @@ syscall_handler_entry:
     push %rbx
     push %rax
 
-    movq %rsp, %r9
+    push %rsp
 
     mov %rax, %rdi
 
     cld
     call syscall_handler
+
+    add $8, %rsp
 
     pop %r11
     pop %r10
