@@ -135,8 +135,6 @@ KN_OBJS+=$(KN_OD_64)/user.o
 
 OPTIMIZATION=3
 
-include $(MAKE_SCRIPTS)
-
 .DEFAULT: all
 .PHONY: all
 all: kernel modules
@@ -145,6 +143,8 @@ all: kernel modules
 kernel: $(BIN_DIR)/kernel.bin
 
 include modules/module.mk
+
+include $(MAKE_SCRIPTS)
 
 $(BIN_DIR)/kernel.bin: $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(SOURCE_DIR)/kernel.ld
 	mkdir -p $(@D)
