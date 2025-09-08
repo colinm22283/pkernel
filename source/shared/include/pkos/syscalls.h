@@ -5,6 +5,7 @@
 #include <pkos/types.h>
 
 #include <syscall_number.h>
+#include <error_number.h>
 
 #include <defs.h>
 
@@ -114,7 +115,7 @@ static inline void * dup(fd_t dst, fd_t src) {
     return (void *) ret;
 }
 
-static inline void * mount(const char * dst, const char * src, const char * fs, mount_options_t options, const char * data) {
+static inline error_number_t mount(const char * dst, const char * src, const char * fs, mount_options_t options, const char * data) {
     int64_t ret;
 
     register uint64_t r8 asm("r8") = options;
@@ -122,5 +123,13 @@ static inline void * mount(const char * dst, const char * src, const char * fs, 
 
     asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_MOUNT), "S" ((uint64_t) dst), "d" ((uint64_t) src), "c" ((uint64_t) fs), "r" (r8), "r" (r9) : "memory", "cc");
 
-    return (void *) ret;
+    return ret;
+}
+
+static inline error_number_t unmount(const char * mount_point) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_UNMOUNT), "S" ((uint64_t) mount_point) : "memory", "cc");
+
+    return ret;
 }

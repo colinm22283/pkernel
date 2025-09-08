@@ -34,8 +34,6 @@ error_number_t devfs_free(fs_superblock_t * superblock, fs_node_t * node) {
 }
 
 error_number_t devfs_list(fs_directory_entry_t * dirent) {
-    vga_print("LIST\n");
-
     for (
         devfs_entry_t * entry = devfs_head.next;
         entry != &devfs_tail;

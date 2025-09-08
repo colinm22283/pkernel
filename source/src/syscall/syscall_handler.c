@@ -13,6 +13,7 @@
 #include <syscall/handlers/pipe.h>
 #include <syscall/handlers/dup.h>
 #include <syscall/handlers/mount.h>
+#include <syscall/handlers/unmount.h>
 
 #include <interface/interface_map.h>
 
@@ -93,6 +94,8 @@ uint64_t syscall_handler(uint64_t rax, uint64_t rsi, uint64_t rdx, uint64_t rcx,
             (mount_options_t) r8,
             (const char *) r9
         ); break;
+
+        case SYSCALL_UNMOUNT: return_value = syscall_unmount((const char *) rsi); break;
 
         default: return_value = ERROR_BAD_SYSCALL; break;
     }
