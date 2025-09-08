@@ -204,6 +204,56 @@ pkfs_file_t create_file(device_t * device) {
     return file_root_addr;
 }
 
+pkfs_file_t create_dir(device_t * device) {
+    static filesystem_root_page_t root_node;
+    if (!disc_read(device, FILESYSTEM_ROOT_ADDRESS, 1, &root_node)) return 0;
+
+    filesystem_page_address_t node = root_node.first_free;
+
+    pkfs_file_t file_root_addr = node;
+    static filesystem_directory_node_page_t dir_page;
+
+    dir_page.tag.in_use = true;
+    dir_page.type = FILESYSTEM_PAGE_TYPE_DIRECTORY;
+
+    while (true) {
+        node++;
+
+        static filesystem_node_page_t page;
+        if (!disc_read(device, node, 1, &page)) return 0;
+
+        if (!page.tag.in_use) break;
+    }
+
+    static filesystem_directory_index_page_t file_data;
+
+    file_data.tag.in_use = true;
+    file_data.type = FILESYSTEM_PAGE_TYPE_DIRECTORY_INDEX;
+    file_data.parent_directory_address = file_root_addr;
+    file_data.prev_index_address = 0;
+    file_data.next_index_address = 0;
+    for (uint64_t i = 0; i < FILESYSTEM_DIRECTORY_INDEX_CHILDREN_SIZE; i++) file_data.children[i] = 0;
+
+    dir_page.directory_index_address = node;
+
+    if (!disc_write(device, file_root_addr, 1, &dir_page)) return 0;
+    if (!disc_write(device, node, 1, &file_data)) return 0;
+
+    while (true) {
+        node++;
+
+        static filesystem_node_page_t page;
+        if (!disc_read(device, node, 1, &page)) return 0;
+
+        if (!page.tag.in_use) break;
+    }
+
+    root_node.first_free = node;
+    if (!disc_write(device, FILESYSTEM_ROOT_ADDRESS, 1, &root_node)) return 0;
+
+    return file_root_addr;
+}
+
 bool link_node(device_t * device, pkfs_directory_t directory, filesystem_page_address_t node, const char * name) {
     static filesystem_directory_node_page_t node_page;
     if (!disc_read(device, directory, 1, &node_page)) return false;

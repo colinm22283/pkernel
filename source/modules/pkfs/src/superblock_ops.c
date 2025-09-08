@@ -100,25 +100,42 @@ fs_directory_entry_node_t * create(struct fs_directory_entry_s * parent, struct 
     pkfs_fs_node_t * parent_node = (pkfs_fs_node_t *) parent->node;
 
     switch (type) {
-        case FS_REGULAR: break;
+        case FS_REGULAR: {
+            node->file_page = create_file(parent->superblock->device);
+
+            fs_directory_entry_node_t * dirent_node = fs_directory_entry_add_entry(parent, name);
+
+            fs_directory_entry_t * new_dirent = fs_directory_entry_create(type, parent, dirent_node);
+            fs_directory_entry_add_reference(new_dirent);
+
+            new_dirent->node = _node;
+
+            dirent_node->dirent = new_dirent;
+
+            link_node(parent->superblock->device, parent_node->file_page, node->file_page, name);
+
+            return dirent_node;
+        } break;
+
+        case FS_DIRECTORY: {
+            node->file_page = create_dir(parent->superblock->device);
+
+            fs_directory_entry_node_t * dirent_node = fs_directory_entry_add_entry(parent, name);
+
+            fs_directory_entry_t * new_dirent = fs_directory_entry_create(type, parent, dirent_node);
+            fs_directory_entry_add_reference(new_dirent);
+
+            new_dirent->node = _node;
+
+            dirent_node->dirent = new_dirent;
+
+            link_node(parent->superblock->device, parent_node->file_page, node->file_page, name);
+
+            return dirent_node;
+        } break;
 
         default: return NULL;
     }
-
-    node->file_page = create_file(parent->superblock->device);
-
-    fs_directory_entry_node_t * dirent_node = fs_directory_entry_add_entry(parent, name);
-
-    fs_directory_entry_t * new_dirent = fs_directory_entry_create(type, parent, dirent_node);
-    fs_directory_entry_add_reference(new_dirent);
-
-    new_dirent->node = _node;
-
-    dirent_node->dirent = new_dirent;
-
-    link_node(parent->superblock->device, parent_node->file_page, node->file_page, name);
-
-    return dirent_node;
 }
 
 fs_directory_entry_node_t * link(fs_directory_entry_t * dirent, fs_directory_entry_t * subdirent, const char * name) {

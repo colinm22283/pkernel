@@ -14,6 +14,7 @@ bool directory_iterator_init(device_t * device, directory_iterator_t * iterator,
 filesystem_directory_entry_type_t directory_iterator_next(device_t * device, directory_iterator_t * iterator, filesystem_page_address_t * handle);
 
 pkfs_file_t create_file(device_t * device);
+pkfs_file_t create_dir(device_t * device);
 
 bool link_node(device_t * device, pkfs_directory_t directory, filesystem_page_address_t node, const char * name);
 

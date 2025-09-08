@@ -133,3 +133,11 @@ static inline error_number_t unmount(const char * mount_point) {
 
     return ret;
 }
+
+static inline error_number_t mkdir(const char * path) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_MKDIR), "S" ((uint64_t) path) : "memory", "cc");
+
+    return ret;
+}

@@ -54,6 +54,7 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/pipe.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/dup.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/unmount.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/mkdir.o
 
 KN_OBJS+=$(KN_OD_64)/interface/interface.o
 KN_OBJS+=$(KN_OD_64)/interface/interface_map.o
