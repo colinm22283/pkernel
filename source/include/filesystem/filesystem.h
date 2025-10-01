@@ -41,3 +41,4 @@ fs_directory_entry_t * fs_make_anon(fs_file_type_t type);
 
 fs_directory_entry_t * fs_open_path(fs_directory_entry_t * root, const char * path);
 fs_directory_entry_t * fs_make_path(fs_directory_entry_t * root, const char * path, fs_file_type_t type);
+fs_directory_entry_t * fs_make_path_dirs(fs_directory_entry_t * root, const char * path, fs_file_type_t type);

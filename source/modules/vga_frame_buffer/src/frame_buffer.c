@@ -1,6 +1,5 @@
 #include <stddef.h>
 
-//aaaaa
 #include <paging/mapper.h>
 #include <paging/manager.h>
 #include <paging/virtual_allocator.h>
@@ -114,7 +113,7 @@ uint64_t read(device_t * dev, char * buffer, uint64_t size) {
 }
 
 void * map(device_t * dev, pman_context_t * context, pman_protection_flags_t prot, void * map_addr, uint64_t size, uint64_t offset) {
-    pman_mapping_t * temp_mapping = pman_context_add_map(context, PMAN_PROT_WRITE, NULL, FRAME_BUFFER_PADDR, FRAME_BUFFER_SIZE_BYTES);
+    pman_mapping_t * temp_mapping = pman_context_add_map(pman_kernel_context(), PMAN_PROT_WRITE, NULL, FRAME_BUFFER_PADDR, FRAME_BUFFER_SIZE_BYTES);
     pman_mapping_t * mapping = pman_context_add_shared(context, PMAN_PROT_WRITE, temp_mapping, map_addr);
     pman_context_unmap(temp_mapping);
 

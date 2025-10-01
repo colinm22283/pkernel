@@ -10,9 +10,13 @@
 #include <device/devfs.h>
 #include <device/device.h>
 
+#include <sysfs/sysfs.h>
+
 #include <vga_terminal.h>
 #include <font.h>
 #include <update.h>
+
+#include "debug/vga_print.h"
 
 device_t * device;
 devfs_entry_t * devfs_entry;
@@ -23,6 +27,7 @@ bool (* draw_bitmap)(uint8_t * bitmap, uint64_t x, uint64_t y, uint64_t w, uint6
 bool (* draw_bitmap_transparent)(uint8_t * bitmap, uint64_t x, uint64_t y, uint64_t w, uint64_t h);
 bool (* clear_rect)(uint64_t x, uint64_t y, uint64_t w, uint64_t h);
 
+volatile bool bound = true;
 volatile bool cursor_on;
 uint8_t cur_x, cur_y, view_y, buffer_start;
 
@@ -74,6 +79,52 @@ uint64_t read(device_t * dev, char * buffer, uint64_t size) {
     return 0;
 }
 
+enum {
+    SYSFS_BIND = 0,
+};
+
+int64_t sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offset) {
+    if (offset != 0) return 0;
+
+    switch (id) {
+        case SYSFS_BIND: {
+            if (size > 0) {
+                if (bound) data[0] = '1';
+                else data[0] = '0';
+
+                return 1;
+            }
+        }
+
+        default: break;
+    }
+    return 0;
+}
+
+int64_t sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offset) {
+    switch (id) {
+        case SYSFS_BIND: {
+            if (size == 1) {
+                if (data[0] == '1') {
+                    bound = true;
+                    terminal_update();
+
+                    return 1;
+                }
+                else if (data[0] == '0') {
+                    bound = false;
+
+                    return 1;
+                }
+            }
+        } break;
+
+        default: break;
+    }
+
+    return 0;
+}
+
 bool init(void) {
     cursor_on = true;
     cur_x = 0;
@@ -121,6 +172,8 @@ bool init(void) {
     if (device == NULL) return false;
     devfs_entry = devfs_register(device);
     if (devfs_entry == NULL) return false;
+
+    sysfs_add_entry("vgatty/bind", SYSFS_BIND, sysfs_read, sysfs_write);
 
     return true;
 }

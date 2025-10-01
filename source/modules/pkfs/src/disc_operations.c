@@ -28,10 +28,6 @@ pkfs_directory_t open_filesystem(device_t * device, filesystem_page_address_t ro
         return 0;
     }
 
-    vga_print("Test: ");
-    vga_print_hex(root_page.root_directory_address);
-    vga_print("\n");
-
     return root_page.root_directory_address;
 }
 

@@ -5,6 +5,7 @@
 #include <defs.h>
 
 void scheduler_init(void);
+void scheduler_sysfs_init(void);
 
 process_t * scheduler_queue(
     process_id_t parent_id,

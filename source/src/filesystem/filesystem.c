@@ -314,3 +314,56 @@ fs_directory_entry_t * fs_make_path(fs_directory_entry_t * root, const char * pa
     }
 }
 
+fs_directory_entry_t * fs_make_path_dirs(fs_directory_entry_t * root, const char * path, fs_file_type_t type) {
+    fs_directory_entry_t * cur_node = root;
+
+    fs_directory_entry_add_reference(cur_node);
+
+    uint64_t path_pos = 0;
+    uint64_t path_start = 0;
+    while (true) {
+        if (path[path_pos] == '/' || path[path_pos] == '\0') {
+            char segment[path_pos - path_start + 1];
+            memcpy(segment, &path[path_start], path_pos - path_start);
+            segment[path_pos - path_start] = '\0';
+
+            if (path[path_pos] == '\0') {
+                fs_directory_entry_t * new_dirent = fs_make(cur_node, segment, type);
+
+                fs_directory_entry_release(cur_node);
+
+                return new_dirent;
+            }
+
+            fs_directory_entry_t * new_node;
+
+            if (segment[0] == '\0' || strcmp(segment, ".") == 0) {
+                new_node = cur_node;
+            }
+            else if (strcmp(segment, "..") == 0) {
+                if (cur_node->parent != NULL) {
+                    new_node = cur_node->parent;
+                    fs_directory_entry_release(cur_node);
+                }
+                else new_node = cur_node;
+            }
+            else {
+                new_node = fs_directory_entry_enter(cur_node, segment);
+                fs_directory_entry_release(cur_node);
+
+                if (new_node == NULL) {
+                    new_node = fs_make(cur_node, segment, FS_DIRECTORY);
+
+                    if (new_node == NULL) return NULL;
+                }
+            }
+
+            cur_node = new_node;
+
+            path_start = ++path_pos;
+        }
+
+        path_pos++;
+    }
+}
+

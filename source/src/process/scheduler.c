@@ -10,6 +10,8 @@
 
 #include <memory/gdt.h>
 
+#include <sysfs/sysfs.h>
+
 #include <util/heap/heap.h>
 #include <util/memory/memcpy.h>
 
@@ -23,6 +25,61 @@ process_t * volatile current_process;
 
 process_id_t scheduler_current_id;
 process_t scheduler_head, scheduler_tail;
+
+enum {
+    SYSFS_PROCESSES = 0,
+};
+
+int64_t sched_sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offset) {
+    if (offset != 0) return 0;
+
+    switch (id) {
+        case SYSFS_PROCESSES: {
+            uint64_t process_count = 0;
+            for (process_t * process = scheduler_head.next; process != &scheduler_tail; process = process->next) {
+                process_count++;
+            }
+
+            char buffer[20];
+
+            uint64_t num = process_count;
+            for (uint64_t i = 0; i < 20; i++) {
+                buffer[19 - i] = (char) ('0' + (num % 10));
+                num /= 10;
+            }
+
+            uint64_t base = 0;
+            uint64_t real_size = 20;
+            for (uint64_t i = 0; i < 20; i++) {
+                if (buffer[i] != '0') break;
+                else {
+                    base++;
+                    real_size--;
+                }
+            }
+
+            if (offset >= real_size) return 0;
+            if (size + offset >= real_size) size = real_size - offset;
+
+            for (uint64_t i = 0; i < size; i++) {
+                data[i] = buffer[base + offset + i];
+            }
+
+            return (int64_t) size;
+        }
+
+        default: break;
+    }
+    return 0;
+}
+
+int64_t sched_sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offset) {
+    switch (id) {
+        default: break;
+    }
+
+    return 0;
+}
 
 void scheduler_timer_handler() {
     if (current_process->next != &scheduler_tail && current_process != &scheduler_tail) current_process = current_process->next;
@@ -41,6 +98,10 @@ void scheduler_init(void) {
     current_process = scheduler_head.next;
 
     timer_init(scheduler_timer_handler, NULL, 0, 1);
+}
+
+void scheduler_sysfs_init(void) {
+    sysfs_add_entry("sched/procs", SYSFS_PROCESSES, sched_sysfs_read, sched_sysfs_write);
 }
 
 process_t * scheduler_queue(

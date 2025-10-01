@@ -10,6 +10,7 @@
 #include <syscall/handlers/chdir.h>
 #include <syscall/handlers/fork.h>
 #include <syscall/handlers/exec.h>
+#include <syscall/handlers/map.h>
 #include <syscall/handlers/pipe.h>
 #include <syscall/handlers/dup.h>
 #include <syscall/handlers/mount.h>
@@ -71,17 +72,13 @@ uint64_t syscall_handler(uint64_t rax, uint64_t rsi, uint64_t rdx, uint64_t rcx,
             (uint64_t) rcx
         ); break;
 
-        case SYSCALL_MAP: {
-            process_t * current_process = scheduler_current_process();
-
-            pman_context_t * context = current_process->paging_context;
-
-            fs_file_t * file = process_file_table_get(&current_process->file_table, (fd_t) rsi);
-
-            return_value = (uint64_t) file_map(file, context, (void *) rdx, rdx, r8);
-        } break;
+        case SYSCALL_MAP: return_value = (uint64_t) syscall_map((fd_t) rsi, (void *) rdx, rcx, r8, r9); break;
 
         case SYSCALL_WAIT: {
+            process_t * current_process = scheduler_current_process();
+            process_thread_t * current_thread = scheduler_current_thread();
+
+            current_thread->state = TS_WAIT_CHILD;
         } break;
 
         case SYSCALL_PIPE: return_value = syscall_pipe((fd_t *) rsi, (open_options_t) rdx); break;

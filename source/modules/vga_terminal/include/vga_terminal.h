@@ -17,5 +17,6 @@ extern bool (* draw_bitmap_transparent)(uint8_t * bitmap, uint64_t x, uint64_t y
 extern bool (* clear_rect)(uint64_t x, uint64_t y, uint64_t w, uint64_t h);
 extern console_buffer_t * console_buffer;
 
+extern volatile bool bound;
 extern volatile bool cursor_on;
 extern uint8_t cur_x, cur_y, view_y, buffer_start;

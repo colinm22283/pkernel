@@ -50,6 +50,7 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/readdir.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/chdir.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/fork.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/exec.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/map.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/pipe.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/dup.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
@@ -100,6 +101,8 @@ KN_OBJS+=$(KN_OD_64)/device/device.o
 KN_OBJS+=$(KN_OD_64)/device/devfs.o
 
 KN_OBJS+=$(KN_OD_64)/sysfs/sysfs.o
+KN_OBJS+=$(KN_OD_64)/sysfs/ops.o
+KN_OBJS+=$(KN_OD_64)/sysfs/mount.o
 
 KN_OBJS+=$(KN_OD_64)/interrupt/init.o
 KN_OBJS+=$(KN_OD_64)/interrupt/idt.o

@@ -3,6 +3,8 @@
 #include <vga_terminal.h>
 
 void terminal_update(void) {
+    if (!bound) return;
+
     for (uint8_t y = 0; y < WINDOW_HEIGHT; y++) {
         uint64_t buffer_y = (view_y - y + BUFFER_HEIGHT) % BUFFER_HEIGHT;
 

@@ -87,12 +87,18 @@ __NORETURN void kernel_main(void) {
     if (fs_mount_root("ramfs", NULL) != ERROR_OK) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_MOUNT_ERROR);
 
     fs_directory_entry_t * dev_dirent = fs_make(&fs_root, "dev", FS_DIRECTORY);
+    fs_directory_entry_t * sys_dirent = fs_make(&fs_root, "sys", FS_DIRECTORY);
 
     devfs_init();
     sysfs_init();
 
+    scheduler_sysfs_init();
+
     fs_mount("devfs", dev_dirent, NULL);
+    fs_mount("sysfs", sys_dirent, NULL);
+
     fs_directory_entry_release(dev_dirent);
+    fs_directory_entry_release(sys_dirent);
 
     if (!static_module_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_MODULE_INIT_ERROR);
 
@@ -111,6 +117,10 @@ __NORETURN void kernel_main(void) {
 
     dev_dirent = fs_open_path(&fs_root, "dev");
     fs_mount("devfs", dev_dirent, NULL);
+    fs_directory_entry_release(dev_dirent);
+
+    dev_dirent = fs_open_path(&fs_root, "sys");
+    fs_mount("sysfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
     fs_directory_entry_t * test_file_dirent = fs_open_path(&fs_root, "bin/init");

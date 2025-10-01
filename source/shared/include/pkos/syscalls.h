@@ -89,14 +89,23 @@ static inline int64_t exec(const char * path, const char ** argv, uint64_t argc)
     return ret;
 }
 
-static inline void * map(fd_t fd, void * map_address, uint64_t size, uint64_t offset) {
+static inline void * map(fd_t fd, void * map_address, uint64_t size, uint64_t offset, map_options_t options) {
     int64_t ret;
 
     register uint64_t r8 asm("r8") = offset;
+    register uint64_t r9 asm("r9") = options;
 
-    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_MAP), "S" (fd), "d" ((uint64_t) map_address), "c" (size), "r" (r8) : "memory", "cc");
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_MAP), "S" (fd), "d" ((uint64_t) map_address), "c" (size), "r" (r8), "r" (r9) : "memory", "cc");
 
     return (void *) ret;
+}
+
+static inline pid_t wait(void) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_WAIT) : "memory", "cc");
+
+    return ret;
 }
 
 static inline void * pipe(fd_t fds[2], open_options_t options) {
