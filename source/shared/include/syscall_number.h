@@ -18,4 +18,5 @@ typedef enum {
     SYSCALL_MOUNT   = 14,
     SYSCALL_UNMOUNT = 15,
     SYSCALL_MKDIR   = 16,
+    SYSCALL_REMOVE  = 17,
 } syscall_number_t;

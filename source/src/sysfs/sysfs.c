@@ -8,6 +8,8 @@
 
 #include <util/heap/heap.h>
 
+#include <util/string/strcmp.h>
+
 sysfs_entry_t sysfs_head, sysfs_tail;
 
 uint64_t sysfs_mount_count;
@@ -31,6 +33,7 @@ error_number_t sysfs_add_entry(const char * path, sysfs_id_t id, sysfs_read_op_t
     sysfs_entry_t * entry = heap_alloc(sizeof(sysfs_entry_t));
 
     entry->path = path;
+
     entry->id = id;
     entry->read = read_op;
     entry->write = write_op;
@@ -44,6 +47,8 @@ error_number_t sysfs_add_entry(const char * path, sysfs_id_t id, sysfs_read_op_t
     for (uint64_t i = 0; i < sysfs_mount_count; i++) {
         fs_directory_entry_t * dirent = fs_make_path_dirs(sysfs_mounts[i].mount_point, path, FS_REGULAR);
 
+        if (dirent == NULL) return ERROR_EXISTS;
+
         sysfs_fs_node_t * node = (sysfs_fs_node_t *) dirent->node;
 
         node->id = id;
@@ -55,6 +60,33 @@ error_number_t sysfs_add_entry(const char * path, sysfs_id_t id, sysfs_read_op_t
 }
 
 error_number_t sysfs_remove_entry(const char * path) {
+    for (sysfs_entry_t * entry = sysfs_head.next; entry != &sysfs_tail; entry = entry->next) {
+        if (strcmp(entry->path, path) == 0) {
+            entry->next->prev = entry->prev;
+            entry->prev->next = entry->next;
+
+            heap_free(entry);
+        }
+    }
+
+    for (uint64_t i = 0; i < sysfs_mount_count; i++) {
+        fs_directory_entry_t * dirent = fs_open_path(sysfs_mounts[i].mount_point, path);
+        if (dirent == NULL) return ERROR_FS_NO_ENT;
+
+        while (true) {
+            fs_directory_entry_t * parent = dirent->parent;
+            fs_directory_entry_add_reference(parent);
+
+            fs_directory_entry_release(dirent);
+            // vga_print("Delete ");
+            // vga_print_hex(dirent->references);
+            // vga_print("\n");
+            if (fs_remove(dirent) != ERROR_OK) break;
+
+            dirent = parent;
+        }
+    }
+
 
 
     return ERROR_UNIMPLEMENTED;

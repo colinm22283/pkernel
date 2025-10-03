@@ -1,3 +1,16 @@
-//
-// Created by colin on 10/1/25.
-//
+#include <process/scheduler.h>
+#include <process/address_translation.h>
+
+#include <syscall/handlers/remove.h>
+
+error_number_t syscall_remove(const char * _path) {
+    process_t * current_process = scheduler_current_process();
+
+    const char * path = process_user_to_kernel(current_process, _path);
+    if (path == NULL) return ERROR_BAD_PTR;
+
+    fs_directory_entry_t * dirent = process_open_path(current_process, path);
+    if (dirent == NULL) return ERROR_FS_NO_ENT;
+
+    fs_remove(dirent);
+}

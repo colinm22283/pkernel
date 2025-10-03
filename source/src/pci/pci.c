@@ -18,13 +18,13 @@ static inline void add_pci_device(pci_address_t address) {
 
     pci_device->address = address;
 
-    uint8_t class_pair = pci_get_class_pair(address);
+    uint16_t class_pair = pci_get_class_pair(address);
 
     // TODO
     pci_device->device_id       = 0;
     pci_device->vendor_id       = 0;
-    pci_device->class           = (class_pair >> 4) & 0xF;
-    pci_device->subclass        = (class_pair >> 0) & 0xF;
+    pci_device->class           = (class_pair >> 8) & 0xFF;
+    pci_device->subclass        = (class_pair >> 0) & 0xFF;
     pci_device->prog_if         = 0;
     pci_device->rev_id          = 0;
     pci_device->bist_id         = 0;
@@ -61,7 +61,7 @@ void pci_init(void) {
             if (pci_exists(base_address)) {
                 uint64_t func_max;
 
-                if (pci_is_multifunction(base_address)) func_max = 8;
+                if (pci_is_multifunction(base_address)) func_max = PCI_FUNC_MAX;
                 else func_max = 1;
 
                 for (uint64_t func = 0; func < func_max; func++) {

@@ -1,8 +1,5 @@
-//
-// Created by colin on 10/1/25.
-//
+#pragma once
 
-#ifndef REMOVE_H
-#define REMOVE_H
+#include <error_number.h>
 
-#endif //REMOVE_H
+error_number_t syscall_remove(const char * _path);

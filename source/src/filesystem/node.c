@@ -9,6 +9,7 @@
 #include "filesystem/superblock.h"
 
 void fs_node_init(fs_node_t * node) {
+    node->delete = false;
     node->references = 1;
     node->size = 0;
 }
@@ -21,6 +22,8 @@ void fs_node_release(fs_directory_entry_t * dirent) {
     dirent->node->references--;
 
     if (dirent->node->references == 0) {
+        if (dirent->node->delete) dirent->superblock->superblock_ops->delete(dirent);
+
         dirent->superblock->superblock_ops->free_node(dirent->superblock, dirent->node);
     }
 }

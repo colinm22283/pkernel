@@ -1,8 +1,5 @@
-//
-// Created by colin on 10/1/25.
-//
+#pragma once
 
-#ifndef WRITESTR_H
-#define WRITESTR_H
+#include <stdint.h>
 
-#endif //WRITESTR_H
+uint64_t writestr(char * buf, uint64_t size, uint64_t offset, uint64_t value);

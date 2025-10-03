@@ -367,3 +367,23 @@ fs_directory_entry_t * fs_make_path_dirs(fs_directory_entry_t * root, const char
     }
 }
 
+error_number_t fs_remove(fs_directory_entry_t * dirent) {
+    if (dirent->type == FS_DIRECTORY) {
+        if (dirent->head.next != &dirent->tail) return ERROR_DIR_NOT_EMPTY;
+    }
+
+    dirent->node->delete = true;
+
+    if (dirent->parent != NULL) {
+        dirent->parent_node->next->prev = dirent->parent_node->prev;
+        dirent->parent_node->prev->next = dirent->parent_node->next;
+        heap_free(dirent->parent_node);
+
+        dirent->parent = NULL;
+        dirent->parent_node = NULL;
+    }
+
+    fs_directory_entry_release(dirent);
+
+    return ERROR_OK;
+}

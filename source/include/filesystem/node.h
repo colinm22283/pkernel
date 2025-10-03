@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <filesystem/types.h>
 #include <filesystem/directory_entry.h>
@@ -10,6 +11,8 @@
 #include <pkos/types.h>
 
 typedef struct fs_node_s {
+    bool delete;
+
     uint64_t references;
 
     uint64_t size;

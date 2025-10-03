@@ -7,265 +7,213 @@
 #include <sys/ata/pio.h>
 #include <sys/ports.h>
 
-static inline bool wait_ready(ata_pio_io_port_t * io_port) {
-    volatile union { uint8_t uint8; ata_pio_status_t value; } status = { .uint8 = inb_ptr(&io_port->status), };
-    while ((status.value.busy || !status.value.ready) && !status.value.error) status.uint8 = inb_ptr(&io_port->status);
-    if (status.value.error) {
-        return false;
+#include "../../../../../pkbl/source/bootloader/include/boot/disc.h"
+#include "debug/vga_print.h"
+
+typedef union {
+    uint8_t num;
+    ata_pio_status_t bits;
+} status_pack_t;
+
+device_drive_t current_device_drive = -1;
+port_t current_io_port = -1;
+port_t current_control_port = -1;
+
+static inline void pio_write8(port_t port, port_t offset, uint8_t value) {
+    outb(port + offset, value);
+}
+static inline void pio_write16(port_t port, port_t offset, uint16_t value) {
+    outw(port + offset, value);
+}
+static inline uint8_t pio_read8(port_t port, port_t offset) {
+    return inb(port + offset);
+}
+static inline uint16_t pio_read16(port_t port, port_t offset) {
+    return inw(port + offset);
+}
+
+static inline uint8_t read_status_long(port_t io_port) {
+    for (int i = 0; i < 14; i++) pio_read8(io_port, ATA_PIO_IO_STATUS_OFFSET);
+    return pio_read8(io_port, ATA_PIO_IO_STATUS_OFFSET);
+}
+
+static inline status_pack_t wait_ready(void) {
+    volatile status_pack_t status = { .num = pio_read8(current_control_port, ATA_PIO_CONTROL_STATUS_OFFSET) };
+
+    while (
+        (status.bits.busy) &&
+        (!status.bits.error) &&
+        (!status.bits.drive_fault)
+    ) {
+        vga_print("yep\n");
+        status.num = pio_read8(current_control_port, ATA_PIO_CONTROL_STATUS_OFFSET);
     }
+
+    return status;
+}
+
+static inline status_pack_t wait_data_ready(void) {
+    volatile status_pack_t status = { .num = pio_read8(current_io_port, ATA_PIO_IO_STATUS_OFFSET) };
+
+    while (
+        (status.bits.busy || !status.bits.data_ready) &&
+        (!status.bits.error) &&
+        (!status.bits.drive_fault)
+    ) {
+        status.num = pio_read8(current_io_port, ATA_PIO_IO_STATUS_OFFSET);
+    }
+
+    return status;
+}
+
+static inline void disc_reset(void) {
+    pio_write8(current_control_port, ATA_PIO_CONTROL_DEVICE_CONTROL_OFFSET, ATA_PIO_DEVICE_CONTROL_SOFTWARE_RESET);
+    pio_write8(current_control_port, ATA_PIO_CONTROL_DEVICE_CONTROL_OFFSET, 0);
+
+    for (uint8_t i = 0; i < 4; i++) pio_read8(current_control_port, ATA_PIO_CONTROL_STATUS_OFFSET);
+}
+
+void disc_select(port_t io_port, port_t control_port, device_drive_t drive) {
+    if (io_port != current_io_port || control_port != current_control_port || drive != current_device_drive) {
+        if (drive == DEVICE_DRIVE_MASTER) {
+            pio_write8(io_port, ATA_PIO_IO_DRIVE_HEAD_OFFSET, 0xA0);
+        }
+        else {
+            pio_write8(io_port, ATA_PIO_IO_DRIVE_HEAD_OFFSET, 0xB0);
+        }
+
+        read_status_long(io_port);
+
+        current_io_port = io_port;
+        current_control_port = control_port;
+        current_device_drive = drive;
+    }
+}
+
+bool disc_present(port_t io_port, port_t control_port, device_drive_t drive) {
+    disc_select(io_port, control_port, drive);
+
+    pio_write8(io_port, ATA_PIO_IO_SECTOR_COUNT_OFFSET, 0);
+    pio_write8(io_port, ATA_PIO_IO_LBA_LOW_OFFSET, 0);
+    pio_write8(io_port, ATA_PIO_IO_LBA_MID_OFFSET, 0);
+    pio_write8(io_port, ATA_PIO_IO_LBA_HIGH_OFFSET, 0);
+
+    pio_write8(io_port, ATA_PIO_IO_COMMAND_OFFSET, ATA_PIO_COMMAND_IDENTIFY);
+
+    status_pack_t status = { .num = pio_read8(io_port, ATA_PIO_IO_STATUS_OFFSET) };
+
+    if (status.num == 0) return false;
+
+    while (status.bits.busy) status.num = pio_read8(io_port, ATA_PIO_IO_STATUS_OFFSET);
+
+    if (
+        pio_read8(io_port, ATA_PIO_IO_LBA_MID_OFFSET) != 0 ||
+        pio_read8(io_port, ATA_PIO_IO_LBA_HIGH_OFFSET) != 0
+    ) return false;
+
+    while (!status.bits.data_ready && !status.bits.error) status.num = pio_read8(io_port, ATA_PIO_IO_STATUS_OFFSET);
+
+    if (status.bits.error) return false;
+
+    for (uint16_t i = 0; i < 256; i++) pio_read16(io_port, ATA_PIO_IO_DATA_OFFSET);
 
     return true;
 }
 
-enum {
-    DEVICE_DETECT_DRIVE_ID_MASTER = 0xA0,
-    DEVICE_DETECT_DRIVE_ID_SLAVE = 0xB0,
-};
-static inline bool device_detect(ata_pio_io_port_t * io_port, uint8_t drive_id) {
-    outb_ptr(&io_port->drive_head, drive_id);
-    outb_ptr(&io_port->lba_low, 0);
-    outb_ptr(&io_port->lba_mid, 0);
-    outb_ptr(&io_port->lba_high, 0);
-    outb_ptr(&io_port->command, ATA_PIO_COMMAND_IDENTIFY);
-
-    uint8_t first_status = inb_ptr(&io_port->status);
-
-    if (first_status == 0) return false;
-
-    union { ata_pio_status_t bits; uint8_t value; } status = { .value = inb_ptr(&io_port->status), };
-    while (status.bits.busy) status.value = inb_ptr(&io_port->status);
-
-    status.value = inb_ptr(&io_port->status);
-    while (!status.bits.data_ready && !status.bits.error) status.value = inb_ptr(&io_port->status);
-
-    if (status.bits.error) {
-        return false;
-    }
-
-    return true;
-}
-
-static inline bool disc_reset(ata_pio_io_port_t * io_port, ata_pio_control_port_t * control_port) {
-    outb_ptr(&control_port->device_control, ATA_PIO_DEVICE_CONTROL_SOFTWARE_RESET);
-    outb_ptr(&control_port->device_control, 0);
-
-    inb_ptr(&control_port->status);
-    inb_ptr(&control_port->status);
-    inb_ptr(&control_port->status);
-    inb_ptr(&control_port->status);
-
-    if (!wait_ready(io_port)) {
-        return false;
-    }
-
-    return true;
-}
-
-enum {
-    READ28_DRIVE_SELECT_MASTER = 0xE0,
-    READ28_DRIVE_SELECT_SLAVE  = 0xF0,
-};
-static inline bool read28(ata_pio_io_port_t * io_port, uint8_t drive_select, uint64_t lba, uint16_t sector_count, uint16_t * dest) {
+uint32_t disc_read28(uint32_t lba, uint8_t sector_count, uint16_t * dest) {
     if (lba > 0xFFFFFF) return false;
 
-    outb_ptr(&io_port->drive_head, drive_select | ((lba >> 24) & 0xF));
+    switch (current_device_drive) {
+        case DEVICE_DRIVE_MASTER: {
+            pio_write8(current_io_port, ATA_PIO_IO_DRIVE_HEAD_OFFSET, 0xE0 | ((lba >> 24) & 0xF));
+        } break;
+        case DEVICE_DRIVE_SLAVE: {
+            pio_write8(current_io_port, ATA_PIO_IO_DRIVE_HEAD_OFFSET, 0xF0 | ((lba >> 24) & 0xF));
+        } break;
+    }
 
-    outb_ptr(&io_port->sector_count, sector_count);
+    read_status_long(current_io_port);
 
-    outb_ptr(&io_port->lba_low, lba);
-    outb_ptr(&io_port->lba_mid, lba >> 8);
-    outb_ptr(&io_port->lba_high, lba >> 16);
+    pio_write8(current_io_port, ATA_PIO_IO_ERROR_OFFSET, 0);
 
-    outb_ptr(&io_port->command, ATA_PIO_COMMAND_READ);
+    pio_write8(current_io_port, ATA_PIO_IO_SECTOR_COUNT_OFFSET, sector_count);
 
-    inb_ptr(&io_port->status);
-    inb_ptr(&io_port->status);
-    inb_ptr(&io_port->status);
-    inb_ptr(&io_port->status);
+    pio_write8(current_io_port, ATA_PIO_IO_LBA_LOW_OFFSET, (lba >> 0) & 0xFF );
+    pio_write8(current_io_port, ATA_PIO_IO_LBA_MID_OFFSET, (lba >> 8) & 0xFF);
+    pio_write8(current_io_port, ATA_PIO_IO_LBA_HIGH_OFFSET, (lba >> 16) & 0xFF);
 
-    for (int i = 0; i < sector_count; i++) {
-        for (int j = 0; j < 256; j++) {
-            while (1) {
-                union { uint8_t uint8; ata_pio_status_t value; } status = { .uint8 = inb_ptr(&io_port->status), };
+    pio_write8(current_io_port, ATA_PIO_IO_COMMAND_OFFSET, ATA_PIO_COMMAND_READ);
 
-                if (status.value.error) {
-                    return false;
-                }
+    for (uint8_t i = 0; i < sector_count; i++) {
+        status_pack_t status = wait_data_ready();
 
-                if (status.value.data_ready) break;
-            }
+        if (status.bits.error || status.bits.drive_fault) return i;
 
-            *dest = inw_ptr(&io_port->data);
+        for (uint16_t j = 0; j < 256; j++) {
+            *dest = pio_read16(current_io_port, ATA_PIO_IO_DATA_OFFSET);
 
             dest++;
         }
-    }
-    if (!wait_ready(io_port)) {
-        return false;
+
+        read_status_long(current_io_port);
     }
 
-    return true;
+    return sector_count;
 }
-static inline bool write28(ata_pio_io_port_t * io_port, uint8_t drive_select, uint64_t lba, uint16_t sector_count, const uint16_t * src) {
+
+uint32_t disc_read48(uint64_t lba, uint16_t sector_count, uint16_t * dest) {
+
+}
+
+uint32_t disc_write28(uint32_t lba, uint8_t sector_count, const uint16_t * src) {
     if (lba > 0xFFFFFF) return false;
 
-    outb_ptr(&io_port->drive_head, drive_select | ((lba >> 24) & 0xF));
-
-    outb_ptr(&io_port->sector_count, sector_count);
-
-    outb_ptr(&io_port->lba_low, lba);
-    outb_ptr(&io_port->lba_mid, lba >> 8);
-    outb_ptr(&io_port->lba_high, lba >> 16);
-
-    outb_ptr(&io_port->command, ATA_PIO_COMMAND_WRITE);
-
-    for (int i = 0; i < sector_count; i++) {
-        if (!wait_ready(io_port)) {
-            return false;
-        }
-
-        for (int j = 0; j < 256; j++) {
-            outw_ptr(&io_port->data, *src);
-
-            src++;
-
-            if (!wait_ready(io_port)) {
-                return false;
-            }
-        }
-
-        outb_ptr(&io_port->command, ATA_PIO_COMMAND_CACHE_FLUSH);
+    switch (current_device_drive) {
+        case DEVICE_DRIVE_MASTER: {
+            pio_write8(current_io_port, ATA_PIO_IO_DRIVE_HEAD_OFFSET, 0xE0 | ((lba >> 24) & 0xF));
+        } break;
+        case DEVICE_DRIVE_SLAVE: {
+            pio_write8(current_io_port, ATA_PIO_IO_DRIVE_HEAD_OFFSET, 0xF0 | ((lba >> 24) & 0xF));
+        } break;
     }
 
-    if (!wait_ready(io_port)) {
-        return false;
+    read_status_long(current_io_port);
+
+    pio_write8(current_io_port, ATA_PIO_IO_ERROR_OFFSET, 0);
+
+    pio_write8(current_io_port, ATA_PIO_IO_SECTOR_COUNT_OFFSET, sector_count);
+
+    pio_write8(current_io_port, ATA_PIO_IO_LBA_LOW_OFFSET, (lba >> 0) & 0xFF );
+    pio_write8(current_io_port, ATA_PIO_IO_LBA_MID_OFFSET, (lba >> 8) & 0xFF);
+    pio_write8(current_io_port, ATA_PIO_IO_LBA_HIGH_OFFSET, (lba >> 16) & 0xFF);
+
+    pio_write8(current_io_port, ATA_PIO_IO_COMMAND_OFFSET, ATA_PIO_COMMAND_WRITE);
+
+    for (uint8_t i = 0; i < sector_count; i++) {
+        status_pack_t status = wait_data_ready();
+
+        if (status.bits.error || status.bits.drive_fault) return i;
+
+        for (uint16_t j = 0; j < 256; j++) {
+            pio_write16(current_io_port, ATA_PIO_IO_DATA_OFFSET, src[i * 256 + j]);
+        }
+
+        read_status_long(current_io_port);
     }
 
-    return true;
+    return sector_count;
 }
 
-enum {
-    READ48_DRIVE_SELECT_MASTER = 0x40,
-    READ48_DRIVE_SELECT_SLAVE  = 0x50,
-};
-static inline bool read48(ata_pio_io_port_t * io_port, uint8_t drive_select, uint64_t lba, uint16_t sector_count, uint16_t * dest) {
-    if (lba > 0xFFFFFFFFFFFF) return false;
+uint32_t disc_write48(uint32_t lba, uint8_t sector_count, const uint16_t * src) {
 
-    outb_ptr(&io_port->drive_head, drive_select);
-
-    outb_ptr(&io_port->sector_count, sector_count >> 8);
-    outb_ptr(&io_port->lba_low, lba >> 24);
-    outb_ptr(&io_port->lba_mid, lba >> 32);
-    outb_ptr(&io_port->lba_high, lba >> 40);
-    outb_ptr(&io_port->sector_count, sector_count & 0xFF);
-    outb_ptr(&io_port->lba_low, lba >> 0);
-    outb_ptr(&io_port->lba_mid, lba >> 8);
-    outb_ptr(&io_port->lba_high, lba >> 16);
-    outb_ptr(&io_port->command, ATA_PIO_COMMAND_READ_EXT);
-
-    for (int i = 0; i < sector_count; i++) {
-        if (!wait_ready(io_port)) {
-            return false;
-        }
-
-        for (int j = 0; j < 256; j++) {
-            *dest = inw_ptr(&io_port->data);
-
-            dest++;
-
-            if (!wait_ready(io_port)) {
-                return false;
-            }
-        }
-    }
-
-    if (!wait_ready(io_port)) {
-        return false;
-    }
-
-    return true;
-}
-
-static inline bool write48(ata_pio_io_port_t * io_port, uint8_t drive_select, uint64_t lba, uint16_t sector_count, const uint16_t * src) {
-    if (lba > 0xFFFFFFFFFFFF) return false;
-
-    outb_ptr(&io_port->drive_head, drive_select);
-
-    outb_ptr(&io_port->sector_count, sector_count >> 8);
-    outb_ptr(&io_port->lba_low, lba >> 24);
-    outb_ptr(&io_port->lba_mid, lba >> 32);
-    outb_ptr(&io_port->lba_high, lba >> 40);
-    outb_ptr(&io_port->sector_count, sector_count & 0xFF);
-    outb_ptr(&io_port->lba_low, lba >> 0);
-    outb_ptr(&io_port->lba_mid, lba >> 8);
-    outb_ptr(&io_port->lba_high, lba >> 16);
-    outb_ptr(&io_port->command, ATA_PIO_COMMAND_WRITE_EXT);
-
-    for (int i = 0; i < sector_count; i++) {
-        if (!wait_ready(io_port)) {
-            return false;
-        }
-
-        for (int j = 0; j < 256; j++) {
-            outw_ptr(&io_port->data, *src);
-
-            src++;
-
-            if (!wait_ready(io_port)) {
-                return false;
-            }
-        }
-    }
-
-    if (!wait_ready(io_port)) {
-        return false;
-    }
-
-    return true;
 }
 
 bool disc_read(uint64_t lba, uint64_t sector_count, void * dst) {
-    ata_pio_io_port_t * io_port = device_io_port();
-
-    if (lba > 0xFFFFFF || sector_count > 0xFF) {
-        return read48(
-            io_port,
-            disc_devices[selected_device].drive == DEVICE_DRIVE_MASTER ? READ48_DRIVE_SELECT_MASTER : READ48_DRIVE_SELECT_SLAVE,
-            lba,
-            sector_count,
-            dst
-        );
-    }
-    else {
-        return read28(
-            io_port,
-            disc_devices[selected_device].drive == DEVICE_DRIVE_MASTER ? READ28_DRIVE_SELECT_MASTER : READ28_DRIVE_SELECT_SLAVE,
-            lba,
-            sector_count,
-            dst
-        );
-    }
+    if (disc_read28(lba, sector_count, dst) == sector_count) return true;
+    else return false;
 }
 
 bool disc_write(uint64_t lba, uint64_t sector_count, const void * src) {
-    ata_pio_io_port_t * io_port = device_io_port();
-
-    if (lba > 0xFFFFFF || sector_count > 0xFF) {
-        return write48(
-            io_port,
-            disc_devices[selected_device].drive == DEVICE_DRIVE_MASTER ? READ48_DRIVE_SELECT_MASTER : READ48_DRIVE_SELECT_SLAVE,
-            lba,
-            sector_count,
-            src
-        );
-    }
-    else {
-        return write28(
-            io_port,
-            disc_devices[selected_device].drive == DEVICE_DRIVE_MASTER ? READ28_DRIVE_SELECT_MASTER : READ28_DRIVE_SELECT_SLAVE,
-            lba,
-            sector_count,
-            src
-        );
-    }
+    if (disc_write28(lba, sector_count, src) == sector_count) return true;
+    else return false;
 }

@@ -10,6 +10,7 @@ KN_OBJS+=$(KN_OD_64)/util/string/strcmp.o
 KN_OBJS+=$(KN_OD_64)/util/string/strcmpn.o
 KN_OBJS+=$(KN_OD_64)/util/string/strlen.o
 KN_OBJS+=$(KN_OD_64)/util/string/strcpy.o
+KN_OBJS+=$(KN_OD_64)/util/string/writestr.o
 
 KN_OBJS+=$(KN_OD_64)/util/math/pow.o
 
@@ -56,6 +57,7 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/dup.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/unmount.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/mkdir.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/remove.o
 
 KN_OBJS+=$(KN_OD_64)/interface/interface.o
 KN_OBJS+=$(KN_OD_64)/interface/interface_map.o

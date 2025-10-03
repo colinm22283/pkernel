@@ -10,8 +10,10 @@
 #define PCI_SLOT_MAX (32)
 #define PCI_FUNC_MAX (8)
 
-#define PCI_CLASS_IDE_CONTROLLER (0x01)
+#define PCI_CLASS_MASS_STORAGE_CONTROLLER (0x01)
+
 #define PCI_SUBCLASS_IDE_CONTROLLER (0x01)
+
 #define PCI_CLASS_PAIR_IDE_CONTROLLER (0x0101)
 
 typedef struct {
@@ -57,7 +59,7 @@ static inline bool pci_exists(pci_address_t pci) {
     else return true;
 }
 
-static inline uint32_t pci_get_class_pair(pci_address_t pci) {
+static inline uint16_t pci_get_class_pair(pci_address_t pci) {
     return pci_read_word(pci, 10);
 }
 

@@ -66,6 +66,24 @@ typedef struct {
     uint8_t _reserved         : 1;
 } __PACKED ata_pio_drive_address_t;
 
+#define ATA_PIO_IO_DATA_OFFSET (0)
+#define ATA_PIO_IO_ERROR_OFFSET (1)
+#define ATA_PIO_IO_FEATURES_OFFSET (1)
+#define ATA_PIO_IO_SECTOR_COUNT_OFFSET (2)
+#define ATA_PIO_IO_SECTOR_NUMBER_OFFSET (3)
+#define ATA_PIO_IO_LBA_LOW_OFFSET (3)
+#define ATA_PIO_IO_CYLINDER_LOW_OFFSET (4)
+#define ATA_PIO_IO_LBA_MID_OFFSET (4)
+#define ATA_PIO_IO_CYLINDER_HIGH_OFFSET (5)
+#define ATA_PIO_IO_LBA_HIGH_OFFSET (5)
+#define ATA_PIO_IO_DRIVE_HEAD_OFFSET (6)
+#define ATA_PIO_IO_STATUS_OFFSET (7)
+#define ATA_PIO_IO_COMMAND_OFFSET (7)
+
+#define ATA_PIO_CONTROL_STATUS_OFFSET (0)
+#define ATA_PIO_CONTROL_DEVICE_CONTROL_OFFSET (1)
+#define ATA_PIO_CONTROL_DRIVE_ADDRESS_OFFSET (2)
+
 typedef struct {
     structure_port_t data;
     union {

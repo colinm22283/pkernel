@@ -47,6 +47,9 @@ typedef struct pci_watcher_s {
     struct pci_watcher_s * prev;
 } pci_watcher_t;
 
+extern uint64_t pci_device_count;
+extern pci_device_t ** pci_devices;
+
 void pci_init(void);
 
 pci_watcher_t * pci_watch(pci_probe_t * probe, void * private);

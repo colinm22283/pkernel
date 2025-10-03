@@ -17,6 +17,9 @@ typedef struct {
     error_number_t (* lookup)(struct fs_directory_entry_s * dirent, struct fs_directory_entry_node_s * dirent_node, struct fs_node_s * node);
 
     fs_directory_entry_node_t * (* create)(struct fs_directory_entry_s * parent, struct fs_node_s * _node, const char * name, fs_file_type_t type);
+    error_number_t (* delete)(struct fs_directory_entry_s * dirent);
+
+
     fs_directory_entry_node_t * (* link)(struct fs_directory_entry_s * dirent, struct fs_directory_entry_s * subdirent, const char * name);
     error_number_t (* unlink)(struct fs_node_s * node, struct fs_node_s * subnode, const char * name);
 

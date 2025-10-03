@@ -25,6 +25,12 @@ pkfs_directory_t open_filesystem(device_t * device, filesystem_page_address_t ro
     if (!disc_read(device, root_address, 1, &root_page)) return 0;
 
     if (strcmpn(root_page.signature, FILESYSTEM_ROOT_SIGNATURE, 4) != 0) {
+        vga_print("Oh narts... ");
+        vga_print_hex(root_page.signature[0]);
+        vga_print("\n");
+
+        asm volatile ("hlt");
+
         return 0;
     }
 
@@ -368,4 +374,69 @@ uint64_t read_file(device_t * device, pkfs_file_t file, char * buffer, uint64_t 
 
 uint64_t write_file(device_t * device, pkfs_file_t file, const char * buffer, uint64_t size, uint64_t offset) {
     return 0;
+}
+
+bool delete_file(device_t * device, filesystem_page_address_t root_address, pkfs_file_t file) {
+    filesystem_root_page_t root_page;
+    if (!disc_read(device, root_address, 1, &root_page)) return 0;
+
+    static filesystem_file_node_page_t file_node;
+    if (!disc_read(device, file, 1, &file_node)) return 0;
+
+    filesystem_page_address_t addr = file_node.root_data_address;
+
+    while (addr != 0) {
+        static filesystem_file_data_page_t data_node;
+        if (!disc_read(device, addr, 1, &data_node)) return 0;
+
+        filesystem_page_address_t next = data_node.next_data_address;
+
+        if (addr < root_page.first_free) root_page.first_free = addr;
+        data_node.tag.in_use = false;
+
+        if (!disc_write(device, addr, 1, &data_node)) return 0;
+
+        addr = next;
+    }
+
+    if (file < root_page.first_free) root_page.first_free = file;
+    file_node.tag.in_use = false;
+
+    pkfs_directory_t dir = file_node.parent_directory_address;
+
+    static filesystem_directory_node_page_t dir_node;
+    if (!disc_read(device, dir, 1, &dir_node)) return 0;
+
+    filesystem_page_address_t index_addr = dir_node.directory_index_address;
+    while (index_addr != 0) {
+        static filesystem_directory_index_page_t index_node;
+        if (!disc_read(device, index_addr, 1, &index_node)) return 0;
+
+        bool found = false;
+
+        for (uint64_t i = 0; i < FILESYSTEM_DIRECTORY_INDEX_CHILDREN_SIZE; i++) {
+            if (index_node.children[i] == file) {
+                for (uint64_t j = i; j < FILESYSTEM_DIRECTORY_INDEX_CHILDREN_SIZE - 1; j++) {
+                    index_node.children[j] = index_node.children[j + 1];
+                }
+                index_node.children[FILESYSTEM_DIRECTORY_INDEX_CHILDREN_SIZE - 1] = 0;
+
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            if (!disc_write(device, index_addr, 1, &index_node)) return 0;
+
+            break;
+        }
+        else {
+            index_addr = index_node.next_index_address;
+        }
+    }
+
+    if (!disc_write(device, root_address, 1, &root_page)) return 0;
+
+    return true;
 }

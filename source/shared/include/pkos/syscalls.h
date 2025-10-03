@@ -150,3 +150,11 @@ static inline error_number_t mkdir(const char * path) {
 
     return ret;
 }
+
+static inline error_number_t remove(const char * path) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_REMOVE), "S" ((uint64_t) path) : "memory", "cc");
+
+    return ret;
+}

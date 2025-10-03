@@ -138,6 +138,18 @@ fs_directory_entry_node_t * create(struct fs_directory_entry_s * parent, struct 
     }
 }
 
+error_number_t delete(fs_directory_entry_t * dirent) {
+    pkfs_fs_node_t * node = (pkfs_fs_node_t *) dirent->node;
+
+    if (dirent->type == FS_DIRECTORY) {
+        return ERROR_UNIMPLEMENTED;
+    }
+    else {
+        if (delete_file(dirent->superblock->device, 64, node->file_page)) return ERROR_OK;
+        else return ERROR_UNKNOWN;
+    }
+}
+
 fs_directory_entry_node_t * link(fs_directory_entry_t * dirent, fs_directory_entry_t * subdirent, const char * name) {
     return NULL;
 }
@@ -166,6 +178,8 @@ fs_superblock_ops_t superblock_ops = {
     .lookup = lookup,
 
     .create = create,
+    .delete = delete,
+
     .link = link,
 
     .write = write,

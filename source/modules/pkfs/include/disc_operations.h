@@ -20,3 +20,5 @@ bool link_node(device_t * device, pkfs_directory_t directory, filesystem_page_ad
 
 uint64_t read_file(device_t * device, pkfs_file_t file, char * buffer, uint64_t size, uint64_t offset);
 uint64_t write_file(device_t * device, pkfs_file_t file, const char * buffer, uint64_t size, uint64_t offset);
+
+bool delete_file(device_t * device, filesystem_page_address_t root_address, pkfs_file_t file);

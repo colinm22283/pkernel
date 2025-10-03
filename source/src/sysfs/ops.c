@@ -7,6 +7,8 @@
 
 #include <util/heap/heap.h>
 
+#include "debug/vga_print.h"
+
 error_number_t sysfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
     sysfs_fs_node_t * node = (sysfs_fs_node_t *) dirent->node;
 
@@ -78,12 +80,19 @@ fs_directory_entry_node_t * sysfs_create(struct fs_directory_entry_s * parent, s
     return dirent_node;
 }
 
+error_number_t sysfs_delete(struct fs_directory_entry_s * dirent) {
+    fs_directory_entry_release(dirent);
+
+    return ERROR_OK;
+}
+
 const fs_superblock_ops_t sysfs_superblock_ops = {
     .alloc_node = sysfs_alloc_node,
     .free_node  = sysfs_free_node,
 
     .list = sysfs_list,
     .create = sysfs_create,
+    .delete = sysfs_delete,
 
     .read = sysfs_read,
     .write = sysfs_write,

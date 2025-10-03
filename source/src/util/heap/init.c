@@ -7,10 +7,43 @@
 #include <paging/bitmap.h>
 #include <paging/temp_page.h>
 
+#include <sysfs/sysfs.h>
+
 #include <util/math/div_up.h>
 #include <util/memory/memset.h>
+#include <util/string/writestr.h>
 
 #include <sys/paging/page_type.h>
+
+enum {
+    SYSFS_CAPACITY = 0,
+    SYSFS_USAGE = 1,
+};
+
+int64_t heap_sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offset) {
+    if (offset != 0) return 0;
+
+    switch (id) {
+        case SYSFS_CAPACITY: {
+            return (int64_t) writestr(data, size, offset, heap_total());
+        } break;
+
+        case SYSFS_USAGE: {
+            return (int64_t) writestr(data, size, offset, heap_usage());
+        } break;
+
+        default: break;
+    }
+    return 0;
+}
+
+int64_t heap_sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offset) {
+    switch (id) {
+        default: break;
+    }
+
+    return 0;
+}
 
 void heap_init(void) {
     {
@@ -81,4 +114,9 @@ void heap_init(void) {
     tail_tag->prev_size = sector_size;
     tail_tag->next_size = 0;
     tail_tag->next_reserved = false;
+}
+
+void heap_init_sysfs(void) {
+    sysfs_add_entry("heap/usage", SYSFS_USAGE, heap_sysfs_read, heap_sysfs_write);
+    sysfs_add_entry("heap/capacity", SYSFS_CAPACITY, heap_sysfs_read, heap_sysfs_write);
 }

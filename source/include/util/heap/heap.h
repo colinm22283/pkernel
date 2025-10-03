@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 void heap_init(void);
+void heap_init_sysfs(void);
 
 void * heap_alloc(uint64_t size_bytes);
 void heap_free(void * alloc);

@@ -14,6 +14,7 @@
 
 #include <util/heap/heap.h>
 #include <util/memory/memcpy.h>
+#include <util/string/writestr.h>
 
 #include <sys/asm/sti.h>
 #include <sys/asm/cli.h>
@@ -40,32 +41,7 @@ int64_t sched_sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offse
                 process_count++;
             }
 
-            char buffer[20];
-
-            uint64_t num = process_count;
-            for (uint64_t i = 0; i < 20; i++) {
-                buffer[19 - i] = (char) ('0' + (num % 10));
-                num /= 10;
-            }
-
-            uint64_t base = 0;
-            uint64_t real_size = 20;
-            for (uint64_t i = 0; i < 20; i++) {
-                if (buffer[i] != '0') break;
-                else {
-                    base++;
-                    real_size--;
-                }
-            }
-
-            if (offset >= real_size) return 0;
-            if (size + offset >= real_size) size = real_size - offset;
-
-            for (uint64_t i = 0; i < size; i++) {
-                data[i] = buffer[base + offset + i];
-            }
-
-            return (int64_t) size;
+            return (int64_t) writestr(data, size, offset, process_count);
         }
 
         default: break;

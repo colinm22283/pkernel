@@ -1,12 +1,17 @@
 #include <stddef.h>
 
 #include <process/process.h>
+#include <process/scheduler.h>
 #include <process/user_vaddrs.h>
 #include <process/address_translation.h>
+
+#include <sysfs/sysfs.h>
 
 #include <util/heap/heap.h>
 
 #include <util/memory/memcpy.h>
+
+#include <util/string/writestr.h>
 
 #include <defs.h>
 
@@ -16,6 +21,41 @@
 #include <sys/asm/cli.h>
 
 #include <sys/wait_for_interrupt.h>
+
+enum {
+    SYSFS_PPID = 0b0000,
+};
+
+#define SYSFS_PROC_ID(pid, key) (((pid) << 4) | (key))
+#define SYSFS_PROC_PID(id) ((id) >> 4)
+#define SYSFS_PROC_KEY(id) ((id) & 0b1111)
+
+int64_t proc_sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offset) {
+    if (offset != 0) return 0;
+
+    pid_t pid = SYSFS_PROC_PID(id);
+
+    switch (SYSFS_PROC_KEY(id)) {
+        case SYSFS_PPID: {
+            process_t * process = scheduler_get_id(pid);
+
+            if (process == NULL) return 0;
+
+            return (int64_t) writestr(data, size, offset, process->parent_id);
+        }
+
+        default: break;
+    }
+    return 0;
+}
+
+int64_t proc_sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offset) {
+    switch (id) {
+        default: break;
+    }
+
+    return 0;
+}
 
 void process_init(
     process_t * process,
@@ -70,6 +110,11 @@ void process_init(
 
     process->argc = 0;
     process->argv = NULL;
+
+    char path[40] = "proc/";
+    uint64_t size = writestr(path + 5, 20, 0, process->id);
+    strcpy(&path[5 + size], "/ppid");
+    sysfs_add_entry(path, SYSFS_PROC_ID(process->id, SYSFS_PPID), proc_sysfs_read, proc_sysfs_write);
 }
 
 void process_init_fork(
@@ -117,9 +162,19 @@ void process_init_fork(
         process->argc = 0;
         process->argv = NULL;
     }
+
+    char path[40] = "proc/";
+    uint64_t size = writestr(path + 5, 20, 0, process->id);
+    strcpy(&path[5 + size], "/ppid");
+    sysfs_add_entry(path, SYSFS_PROC_ID(process->id, SYSFS_PPID), proc_sysfs_read, proc_sysfs_write);
 }
 
 void process_free(process_t * process) {
+    char path[40] = "proc/";
+    uint64_t size = writestr(path + 5, 20, 0, process->id);
+    strcpy(&path[5 + size], "/ppid");
+    sysfs_remove_entry(path);
+
     // TODO: finish
     if (process->argc != 0) heap_free(process->argv);
 

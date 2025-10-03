@@ -93,6 +93,7 @@ __NORETURN void kernel_main(void) {
     sysfs_init();
 
     scheduler_sysfs_init();
+    heap_init_sysfs();
 
     fs_mount("devfs", dev_dirent, NULL);
     fs_mount("sysfs", sys_dirent, NULL);
@@ -101,8 +102,6 @@ __NORETURN void kernel_main(void) {
     fs_directory_entry_release(sys_dirent);
 
     if (!static_module_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_MODULE_INIT_ERROR);
-
-    vga_print("Static Modules Initialized!\n");
 
     fs_directory_entry_t * disc_dirent = fs_open_path(&fs_root, "dev/disc0");
     device_t * disc_dev = devfs_open(disc_dirent->node);
@@ -115,13 +114,19 @@ __NORETURN void kernel_main(void) {
 
     fs_mount_root("pkfs", disc_dev);
 
+    vga_print("PKFS Mounted\n");
+
     dev_dirent = fs_open_path(&fs_root, "dev");
     fs_mount("devfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
+    vga_print("DevFS Mounted\n");
+
     dev_dirent = fs_open_path(&fs_root, "sys");
     fs_mount("sysfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
+
+    vga_print("SysFS Mounted\n");
 
     fs_directory_entry_t * test_file_dirent = fs_open_path(&fs_root, "bin/init");
 
@@ -212,12 +217,6 @@ __NORETURN void kernel_main(void) {
     process_file_table_set(&init_process->file_table, stdin, kbd_dirent, OPEN_READ);
 
     process_start(init_process);
-
-    vga_print("HEAP USAGE: ");
-    vga_print_hex(heap_usage());
-    vga_print(" / ");
-    vga_print_hex(heap_total());
-    vga_print("\n");
 
     vga_print("Starting Init Process\n");
     scheduler_start();

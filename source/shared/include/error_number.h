@@ -30,10 +30,13 @@ typedef enum {
 
     ERROR_IS_DIR,
     ERROR_NOT_DIR,
+    ERROR_DIR_NOT_EMPTY,
     
     ERROR_NOT_REG,
 
     ERROR_NOT_DEV,
 
     ERROR_MUST_BLOCK,
+
+    ERROR_EXISTS,
 } error_number_t;
