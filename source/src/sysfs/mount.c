@@ -24,5 +24,20 @@ error_number_t sysfs_mount(fs_superblock_t * superblock) {
 }
 
 error_number_t sysfs_unmount(fs_superblock_t * superblock) {
+    for (uint64_t i = 0; i < sysfs_mount_count; i++) {
+        if (sysfs_mounts[i].mount_point == superblock->mount_point) {
+
+
+            sysfs_mount_count--;
+            for (uint64_t j = i; j < sysfs_mount_count; j++) {
+                sysfs_mounts[j] = sysfs_mounts[j + 1];
+            }
+
+            sysfs_mounts = heap_realloc(sysfs_mounts, (sysfs_mount_count + 1) * sizeof(sysfs_mount_t));
+
+            break;
+        }
+    }
+
     return ERROR_UNIMPLEMENTED;
 }

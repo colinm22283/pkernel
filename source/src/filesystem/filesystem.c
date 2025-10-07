@@ -377,6 +377,7 @@ error_number_t fs_remove(fs_directory_entry_t * dirent) {
     if (dirent->parent != NULL) {
         dirent->parent_node->next->prev = dirent->parent_node->prev;
         dirent->parent_node->prev->next = dirent->parent_node->next;
+        heap_free(dirent->parent_node->name);
         heap_free(dirent->parent_node);
 
         dirent->parent = NULL;

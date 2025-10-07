@@ -45,7 +45,6 @@ static inline status_pack_t wait_ready(void) {
         (!status.bits.error) &&
         (!status.bits.drive_fault)
     ) {
-        vga_print("yep\n");
         status.num = pio_read8(current_control_port, ATA_PIO_CONTROL_STATUS_OFFSET);
     }
 
@@ -71,6 +70,12 @@ static inline void disc_reset(void) {
     pio_write8(current_control_port, ATA_PIO_CONTROL_DEVICE_CONTROL_OFFSET, 0);
 
     for (uint8_t i = 0; i < 4; i++) pio_read8(current_control_port, ATA_PIO_CONTROL_STATUS_OFFSET);
+}
+
+static inline void cache_flush(void) {
+    pio_write8(current_io_port, ATA_PIO_IO_COMMAND_OFFSET, ATA_PIO_COMMAND_CACHE_FLUSH);
+
+    wait_ready();
 }
 
 void disc_select(port_t io_port, port_t control_port, device_drive_t drive) {
@@ -200,6 +205,8 @@ uint32_t disc_write28(uint32_t lba, uint8_t sector_count, const uint16_t * src) 
 
         read_status_long(current_io_port);
     }
+
+    cache_flush();
 
     return sector_count;
 }

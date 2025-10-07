@@ -20,7 +20,7 @@ typedef struct {
 } sysfs_mount_t;
 
 typedef struct sysfs_entry_s {
-    const char * path;
+    char * path;
 
     sysfs_id_t id;
     sysfs_read_op_t * read;

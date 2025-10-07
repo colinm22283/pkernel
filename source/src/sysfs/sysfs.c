@@ -32,7 +32,8 @@ error_number_t sysfs_init(void) {
 error_number_t sysfs_add_entry(const char * path, sysfs_id_t id, sysfs_read_op_t * read_op, sysfs_write_op_t * write_op) {
     sysfs_entry_t * entry = heap_alloc(sizeof(sysfs_entry_t));
 
-    entry->path = path;
+    entry->path = heap_alloc(strlen(path) + 1);
+    strcpy(entry->path, path);
 
     entry->id = id;
     entry->read = read_op;
@@ -65,11 +66,16 @@ error_number_t sysfs_remove_entry(const char * path) {
             entry->next->prev = entry->prev;
             entry->prev->next = entry->next;
 
+            heap_free(entry->path);
             heap_free(entry);
+
+            break;
         }
     }
 
     for (uint64_t i = 0; i < sysfs_mount_count; i++) {
+        vga_print("go\n");
+
         fs_directory_entry_t * dirent = fs_open_path(sysfs_mounts[i].mount_point, path);
         if (dirent == NULL) return ERROR_FS_NO_ENT;
 
@@ -81,7 +87,10 @@ error_number_t sysfs_remove_entry(const char * path) {
             // vga_print("Delete ");
             // vga_print_hex(dirent->references);
             // vga_print("\n");
+            vga_print("DEL\n");
             if (fs_remove(dirent) != ERROR_OK) break;
+
+            if (parent == NULL) break;
 
             dirent = parent;
         }
