@@ -8,20 +8,22 @@
 #include <device/device.h>
 #include <device/devfs.h>
 
+#include <process/scheduler.h>
+
 #include <sys/ports.h>
 #include <sys/asm/in.h>
+#include <sys/interrupt/interrupt_code.h>
 
 #include <key_lut.h>
 
-#include "debug/vga_print.h"
-#include "process/scheduler.h"
+#include <debug/vga_print.h>
 
 device_t * device;
 
 volatile bool char_ready;
 volatile char current_char;
 
-bool keyboard_handler(interrupt_channel_t channel, void * cookie) {
+bool keyboard_handler(interrupt_code_t channel, void * cookie) {
     unsigned char input_char = (unsigned char) inb(PORT_KB_IN);
     bool released = input_char >= 0x80;
 

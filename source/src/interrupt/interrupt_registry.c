@@ -3,6 +3,8 @@
 
 #include <interrupt/interrupt_registry.h>
 
+#include <sys/interrupt/interrupt_code.h>
+
 #include <entry_error.h>
 
 typedef struct {
@@ -11,17 +13,17 @@ typedef struct {
     interrupt_handler_t handler;
 } interrupt_registry_node_t;
 
-interrupt_registry_node_t interrupt_registry_nodes[IC_LENGTH];
+interrupt_registry_node_t interrupt_registry_nodes[IC_MAX];
 
 void interrupt_registry_init(void) {
-    for (uint64_t i = 0; i < IC_LENGTH; i++) {
+    for (uint64_t i = 0; i < IC_MAX; i++) {
         interrupt_registry_nodes[i].active = false;
         interrupt_registry_nodes[i].handler = NULL;
         interrupt_registry_nodes[i].cookie = NULL;
     }
 }
 
-bool interrupt_registry_register(interrupt_channel_t channel, interrupt_handler_t handler, void * cookie) {
+bool interrupt_registry_register(interrupt_code_t channel, interrupt_handler_t handler, void * cookie) {
     if (interrupt_registry_nodes[channel].active) return false;
 
     interrupt_registry_nodes[channel].handler = handler;
@@ -32,7 +34,7 @@ bool interrupt_registry_register(interrupt_channel_t channel, interrupt_handler_
     return true;
 }
 
-bool interrupt_registry_free(interrupt_channel_t channel) {
+bool interrupt_registry_free(interrupt_code_t channel) {
     if (!interrupt_registry_nodes[channel].active) return false;
 
     interrupt_registry_nodes[channel].handler = NULL;
@@ -43,7 +45,7 @@ bool interrupt_registry_free(interrupt_channel_t channel) {
     return true;
 }
 
-void interrupt_registry_invoke(interrupt_channel_t channel) {
+void interrupt_registry_invoke(interrupt_code_t channel) {
     if (interrupt_registry_nodes[channel].active) {
         interrupt_registry_nodes[channel].handler(channel, interrupt_registry_nodes[channel].cookie);
     }

@@ -1,0 +1,25 @@
+#pragma once
+
+#include <interrupt/interrupt_registry.h>
+
+enum {
+    IC_NMI = IC_CUSTOM_BASE,
+    IC_BP_INT3,
+    IC_OVF,
+    IC_BOUND_RANGE,
+    IC_DEVICE_NOT_AVAIL,
+    IC_DOUBLE_FAULT,
+    IC_COPROC_SEGMENT_OVERRUN,
+    IC_INVALID_TSS,
+    IC_SEGMENT_NOT_PRESENT,
+    IC_STACK_SEGMENT_FAULT,
+    IC_GENERAL_PROTECTION_FAULT,
+    IC_X87_FPU,
+    IC_ALIGNMENT_CHECK,
+    IC_MACHINE_CHECK,
+    IC_SIMD_FPU_ERROR,
+
+    IC_KEYBOARD,
+
+    IC_MAX,
+};

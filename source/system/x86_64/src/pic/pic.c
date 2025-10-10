@@ -1,8 +1,10 @@
-#include <interrupt/pic.h>
-#include <interrupt/idt.h>
-#include <interrupt/handlers_entries.h>
+#include <sys/interrupt/interrupt_entries.h>
 
-#include <memory/gdt.h>
+#include <sys/pic/pic.h>
+
+#include <sys/idt/idt.h>
+
+#include <sys/gdt/gdt.h>
 
 #include <sys/ports.h>
 #include <sys/asm/out.h>

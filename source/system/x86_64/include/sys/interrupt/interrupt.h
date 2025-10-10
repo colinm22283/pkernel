@@ -1,8 +1,3 @@
-//
-// Created by colin on 10/9/25.
-//
+#pragma once
 
-#ifndef INTERRUPT_H
-#define INTERRUPT_H
-
-#endif //INTERRUPT_H
+void interrupt_init();

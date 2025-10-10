@@ -3,7 +3,7 @@
 #include <paging/tables.h>
 #include <paging/kernel_translation.h>
 
-#include <memory/gdt.h>
+#include <sys/gdt/gdt.h>
 
 #include <sys/isr/isr.h>
 

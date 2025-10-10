@@ -1,12 +1,9 @@
 #include <stddef.h>
 
-#include <entry.h>
-
 #include <sys/halt.h>
 #include <sys/asm/sti.h>
 
 #include <memory/primary_region.h>
-#include <memory/gdt.h>
 
 #include <paging/init.h>
 #include <paging/manager.h>
@@ -48,17 +45,14 @@
 
 #include <pkos/defs.h>
 
-#include <debug/vga_print.h>
+#include <sys/setup.h>
 
-void user_entry(void);
-extern char user_data_start[];
+#include <debug/vga_print.h>
 
 #define VIDEO_MEMORY ((uint8_t *) 0xA0000)
 
 __NORETURN void kernel_main(void) {
     primary_region_init();
-
-    gdt_init();
 
     paging_init();
 
@@ -68,9 +62,10 @@ __NORETURN void kernel_main(void) {
 
     if (!paging_init_stage2()) kernel_entry_error(KERNEL_ENTRY_ERROR_PAGING_PHASE_2_ERROR);
 
+    sys_setup_phase2();
+
     interface_map_init();
 
-    interrupt_init();
     interrupt_registry_init();
 
     timers_init();

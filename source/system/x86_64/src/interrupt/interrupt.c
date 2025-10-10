@@ -1,20 +1,20 @@
-#include <interrupt/init.h>
-#include <interrupt/idt.h>
-#include <../../system/x86_64/include/sys/interrupt/interrupt_entries.h>
-#include <../../system/x86_64/include/sys/pic/pic.h>
 #include <interrupt/apic.h>
 
 #include <syscall/syscall_handler_entry.h>
 
-#include <memory/gdt.h>
+#include <sys/interrupt/interrupt.h>
+#include <sys/interrupt/interrupt_entries.h>
+
+#include <sys/pic/pic.h>
+
+#include <sys/idt/idt.h>
+
+#include <sys/gdt/gdt.h>
 
 #include <sys/asm/lidt.h>
 #include <sys/asm/cli.h>
-#include <sys/asm/sti.h>
 
-#include <entry_error.h>
-
-void interrupt_init(void) {
+void interrupt_init() {
     cli();
 
     idt.div0                     = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, div0_handler_entry);
@@ -40,8 +40,8 @@ void interrupt_init(void) {
     idt._res1 = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, null_handler_entry);
     idt._res2 = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, null_handler_entry);
 
-    for (uint16_t i = 0; i < 8; i++) idt.mapped_irqs[i] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, null_pic1_handler);
-    for (uint16_t i = 8; i < 16; i++) idt.mapped_irqs[i] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, null_pic2_handler);
+    for (uint16_t i = 0; i < 8; i++) idt.mapped_irqs[i] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, null_pic1_handler_entry);
+    for (uint16_t i = 8; i < 16; i++) idt.mapped_irqs[i] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, null_pic2_handler_entry);
 
     idt.system_interrupt = DEFINE_IDT64_ENTRY_USER_INTERRUPT(GDT_KERNEL_CODE, syscall_handler_entry);
 
@@ -55,5 +55,4 @@ void interrupt_init(void) {
     }
 
     lidt(&idt_ptr);
-//    sti();
 }

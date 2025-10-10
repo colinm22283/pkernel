@@ -8,8 +8,6 @@
 
 #include <task/enter_user_mode.h>
 
-#include <memory/gdt.h>
-
 #include <event/event.h>
 
 #include <sysfs/sysfs.h>
@@ -23,6 +21,8 @@
 #include <sys/asm/hlt.h>
 
 #include <sys/wait_for_interrupt.h>
+
+#include <sys/gdt/gdt.h>
 
 #include <debug/vga_print.h>
 

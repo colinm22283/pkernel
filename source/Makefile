@@ -34,9 +34,7 @@ KN_OBJS+=$(KN_OD_64)/paging/manager.o
 
 KN_OBJS+=$(KN_OD_64)/memory/memory_map.o
 KN_OBJS+=$(KN_OD_64)/memory/primary_region.o
-KN_OBJS+=$(KN_OD_64)/memory/gdt.o
 
-KN_OBJS+=$(KN_OD_64)/task/tss.o
 KN_OBJS+=$(KN_OD_64)/task/enter_user_mode.o
 
 KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler_entry.o
@@ -106,37 +104,33 @@ KN_OBJS+=$(KN_OD_64)/sysfs/sysfs.o
 KN_OBJS+=$(KN_OD_64)/sysfs/ops.o
 KN_OBJS+=$(KN_OD_64)/sysfs/mount.o
 
-KN_OBJS+=$(KN_OD_64)/interrupt/init.o
-KN_OBJS+=$(KN_OD_64)/interrupt/idt.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handler_entries.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/init.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/idt.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handler_entries.o
 KN_OBJS+=$(KN_OD_64)/interrupt/interrupt_registry.o
-KN_OBJS+=$(KN_OD_64)/interrupt/pic.o
-KN_OBJS+=$(KN_OD_64)/interrupt/apic.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/div0.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/nmi.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/bp_int3.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/ovf.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/bound_range.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/invalid_opcode.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/device_not_avail.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/double_fault.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/coproc_segment_overrun.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/invalid_tss.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/segment_not_present.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/stack_segment_fault.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/general_protection_fault.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/page_fault.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/x87_fpu.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/alignment_check.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/machine_check.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/simd_fpu_error.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/timer_handler.o
-KN_OBJS+=$(KN_OD_64)/interrupt/handlers/keyboard_handler.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/div0.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/nmi.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/bp_int3.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/ovf.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/bound_range.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/invalid_opcode.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/device_not_avail.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/double_fault.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/coproc_segment_overrun.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/invalid_tss.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/segment_not_present.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/stack_segment_fault.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/general_protection_fault.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/page_fault.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/x87_fpu.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/alignment_check.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/machine_check.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/simd_fpu_error.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/timer_handler.o
+#KN_OBJS+=$(KN_OD_64)/interrupt/handlers/keyboard_handler.o
 
-KN_OBJS+=$(KN_OD_64)/entry.o
 KN_OBJS+=$(KN_OD_64)/main.o
 KN_OBJS+=$(KN_OD_64)/entry_error.o
-KN_OBJS+=$(KN_OD_64)/user.o
 
 OPTIMIZATION=3
 

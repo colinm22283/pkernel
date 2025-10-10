@@ -1,7 +1,5 @@
 #pragma once
 
-#include <entry.h>
-
 #include <memory/kernel.h>
 #include <memory/primary_region.h>
 

@@ -69,7 +69,7 @@ static inline void timer_update(timer_t * timer) {
 }
 
 uint64_t timers_interrupt_count = 0;
-bool timers_interrupt_handler(__MAYBE_UNUSED interrupt_channel_t channel, __MAYBE_UNUSED void * cookie) {
+bool timers_interrupt_handler(__MAYBE_UNUSED interrupt_code_t channel, __MAYBE_UNUSED void * cookie) {
     timers_update();
 
     timers_interrupt_count = 0;

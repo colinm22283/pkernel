@@ -1,5 +1,5 @@
 #pragma once
 
-#include <interrupt/handlers_entries.h>
+#include <../../system/x86_64/include/sys/interrupt/interrupt_entries.h>
 
 extern interrupt_entry_t syscall_handler_entry;
