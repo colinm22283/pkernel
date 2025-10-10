@@ -69,12 +69,10 @@ static inline void timer_update(timer_t * timer) {
 }
 
 uint64_t timers_interrupt_count = 0;
-bool timers_interrupt_handler(__MAYBE_UNUSED interrupt_code_t channel, __MAYBE_UNUSED void * cookie) {
+void timers_interrupt_handler(__MAYBE_UNUSED interrupt_code_t channel, __MAYBE_UNUSED interrupt_state_record_t * isr, __MAYBE_UNUSED void * error_code) {
     timers_update();
 
     timers_interrupt_count = 0;
-
-    return true;
 }
 
 void timers_init(void) {
@@ -86,7 +84,7 @@ void timers_init(void) {
     timers_tail.prev = &timers_head;
     timers_tail.next = NULL;
 
-    interrupt_registry_register(IC_TIMER, timers_interrupt_handler, NULL);
+    interrupt_registry_register(IC_TIMER, timers_interrupt_handler);
 }
 
 void timers_update(void) {

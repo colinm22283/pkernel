@@ -132,8 +132,6 @@ pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr);
 
 pman_mapping_t * pman_context_prepare_write(struct process_s * process, pman_mapping_t * mapping);
 
-void pman_page_fault_handler(interrupt_state_record_t * isr, page_fault_error_code_t error_code);
-
 static inline pman_context_t * pman_kernel_context(void) {
     extern pman_context_t kernel_context;
 

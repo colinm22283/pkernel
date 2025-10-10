@@ -23,7 +23,7 @@ device_t * device;
 volatile bool char_ready;
 volatile char current_char;
 
-bool keyboard_handler(interrupt_code_t channel, void * cookie) {
+void keyboard_handler(interrupt_code_t channel, interrupt_state_record_t * isr, void * error_code) {
     unsigned char input_char = (unsigned char) inb(PORT_KB_IN);
     bool released = input_char >= 0x80;
 
@@ -35,8 +35,6 @@ bool keyboard_handler(interrupt_code_t channel, void * cookie) {
 
         event_invoke_once(device->read_ready);
     }
-
-    return true;
 }
 
 bool get_char(char * c) {
@@ -57,7 +55,7 @@ uint64_t write(device_t * dev, const char * buffer, uint64_t size) {
 }
 uint64_t read(device_t * dev, char * buffer, uint64_t size) {
     if (!has_char()) {
-        event_await(scheduler_current_thread(), dev->read_ready);
+        // event_await(scheduler_current_thread(), dev->read_ready);
     }
 
     if (has_char() && size > 0) {
@@ -83,7 +81,7 @@ bool init(void) {
     if (!io_arbitrator_reserve(PORT_KB_IN)) return false;
     inb(PORT_KB_IN);
 
-    if (!interrupt_registry_register(IC_KEYBOARD, keyboard_handler, NULL)) return false;
+    if (!interrupt_registry_register(IC_KEYBOARD, keyboard_handler)) return false;
 
     return true;
 }

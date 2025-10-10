@@ -58,6 +58,8 @@ __NORETURN void kernel_main(void) {
 
     heap_init();
 
+    interrupt_registry_init();
+
     pman_init();
 
     if (!paging_init_stage2()) kernel_entry_error(KERNEL_ENTRY_ERROR_PAGING_PHASE_2_ERROR);
@@ -65,8 +67,6 @@ __NORETURN void kernel_main(void) {
     sys_setup_phase2();
 
     interface_map_init();
-
-    interrupt_registry_init();
 
     timers_init();
 

@@ -54,7 +54,6 @@ export KN_OBJS+=$(SYSTEM_OBJ_DIR)/isr/resume_isr_kernel.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/isr/store_isr.o
 
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/interrupt.o
-export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/idt.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/interrupt_entries.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/null_handlers.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/exception_handlers.o
@@ -65,6 +64,8 @@ export KN_OBJS+=$(SYSTEM_OBJ_DIR)/pic/pic.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/tss/tss.o
 
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/gdt/gdt.o
+
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/idt/idt.o
 
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/entry.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/setup.o

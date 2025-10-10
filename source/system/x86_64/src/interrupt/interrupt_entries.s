@@ -28,6 +28,36 @@
     call \handler
 .endm
 
+.macro EXCEPTION_WITH_CODE_INTERRUPT name, handler
+.global \name
+\name:
+    pushf
+    push 8(%rsp)
+    push %r15
+    push %r14
+    push %r13
+    push %r12
+    push %r11
+    push %r10
+    push %r9
+    push %r8
+    push 104(%rsp)
+    push %rbp
+    push %rdi
+    push %rsi
+    push %rdx
+    push %rcx
+    push %rbx
+    push %rax
+
+    lea  144(%rsp), %rsi
+
+    movq %rsp, %rdi
+
+    cld
+    call \handler
+.endm
+
 .macro PIC1_INTERRUPT name, handler
 .global \name
 \name:
@@ -106,7 +136,7 @@ EXCEPTION_INTERRUPT invalid_tss_handler_entry, invalid_tss_handler
 EXCEPTION_INTERRUPT segment_not_present_handler_entry, segment_not_present_handler
 EXCEPTION_INTERRUPT stack_segment_fault_handler_entry, stack_segment_fault_handler
 EXCEPTION_INTERRUPT general_protection_fault_handler_entry, general_protection_fault_handler
-EXCEPTION_INTERRUPT page_fault_handler_entry, page_fault_handler
+EXCEPTION_WITH_CODE_INTERRUPT page_fault_handler_entry, page_fault_handler
 EXCEPTION_INTERRUPT x87_fpu_handler_entry, x87_fpu_handler
 EXCEPTION_INTERRUPT alignment_check_handler_entry, alignment_check_handler
 EXCEPTION_INTERRUPT machine_check_handler_entry, machine_check_handler

@@ -5,6 +5,8 @@
 
 #include <process/scheduler.h>
 
+#include <interrupt/interrupt_registry.h>
+
 #include <device/device.h>
 
 #include <util/heap/heap.h>
@@ -23,9 +25,11 @@
 #include <debug/vga_print.h>
 #include <util/heap/internal.h>
 
-#include "pkos/syscalls.h"
+#include <pkos/syscalls.h>
 
 pman_context_t kernel_context;
+
+void pman_page_fault_handler(interrupt_code_t channel, interrupt_state_record_t * isr, void * _error_code);
 
 void pman_init(void) {
     kernel_context.top_level_table_allocation.vaddr = NULL;
@@ -40,6 +44,8 @@ void pman_init(void) {
     kernel_context.head.prev = NULL;
     kernel_context.tail.next = NULL;
     kernel_context.tail.prev = &kernel_context.head;
+
+    interrupt_registry_register(IC_PAGE_FAULT, pman_page_fault_handler);
 }
 
 pman_context_t * pman_new_context(void) {
@@ -477,14 +483,16 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
     else return mapping;
 }
 
-void pman_page_fault_handler(__MAYBE_UNUSED interrupt_state_record_t * isr, page_fault_error_code_t error_code) {
+void pman_page_fault_handler(interrupt_code_t channel, interrupt_state_record_t * isr, void * _error_code) {
+    page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
+
     heap_check();
 
     process_t * current_process = scheduler_current_process();
 
     pman_context_t * current_context;
 
-    if (error_code.user) current_context = current_process->paging_context;
+    if (error_code->user) current_context = current_process->paging_context;
     else current_context = pman_kernel_context();
 
     void * fault_vaddr = read_fault_vaddr();
@@ -496,11 +504,11 @@ void pman_page_fault_handler(__MAYBE_UNUSED interrupt_state_record_t * isr, page
 
         if (out_file != NULL) file_write(out_file, "PAGE FAULT: Bad address\n", 24);
 
-        if (error_code.present) vga_print("Reason: PROTECTION VIOLATION\n");
+        if (error_code->present) vga_print("Reason: PROTECTION VIOLATION\n");
         else vga_print("Reason: NOT PRESENT\n");
-        if (error_code.write) vga_print("WRITE\n");
-        if (error_code.instruction_fetch) vga_print("INSTRUCTION FETCH\n");
-        if (error_code.user) vga_print("USER\n");
+        if (error_code->write) vga_print("WRITE\n");
+        if (error_code->instruction_fetch) vga_print("INSTRUCTION FETCH\n");
+        if (error_code->user) vga_print("USER\n");
         
         vga_print("Fault VAddr: ");
         vga_print_hex((uint64_t) fault_vaddr);
@@ -523,5 +531,5 @@ void pman_page_fault_handler(__MAYBE_UNUSED interrupt_state_record_t * isr, page
         return;
     }
 
-    if (!error_code.user) halt();
+    if (!error_code->user) halt();
 }
