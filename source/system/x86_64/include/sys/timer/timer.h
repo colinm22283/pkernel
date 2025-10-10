@@ -1,0 +1,5 @@
+#pragma once
+
+#define TIMER_QUANTUM_PS (838095)
+
+#define TIMER_QUANTUM_NS ((TIMER_QUANTUM_PS) / 1000)

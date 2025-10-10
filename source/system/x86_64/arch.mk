@@ -58,6 +58,7 @@ export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/idt.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/interrupt_entries.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/null_handlers.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/exception_handlers.o
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/pic_handlers.o
 
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/pic/pic.o
 
