@@ -37,25 +37,25 @@ KN_OBJS+=$(KN_OD_64)/memory/primary_region.o
 
 KN_OBJS+=$(KN_OD_64)/task/enter_user_mode.o
 
-KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler_entry.o
-KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/open.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/write.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/read.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/seek.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/exit.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/readdir.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/chdir.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/fork.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/exec.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/map.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/pipe.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/dup.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/unmount.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/mkdir.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/remove.o
+#KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler_entry.o
+#KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/open.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/write.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/read.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/seek.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/exit.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/readdir.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/chdir.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/fork.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/exec.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/map.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/pipe.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/dup.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/unmount.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/mkdir.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/remove.o
 
 KN_OBJS+=$(KN_OD_64)/interface/interface.o
 KN_OBJS+=$(KN_OD_64)/interface/interface_map.o
@@ -86,9 +86,6 @@ KN_OBJS+=$(KN_OD_64)/timer/timer.o
 
 KN_OBJS+=$(KN_OD_64)/pci/pci.o
 
-KN_OBJS+=$(KN_OD_64)/event/event.o
-KN_OBJS+=$(KN_OD_64)/event/waiter.o
-
 #KN_OBJS+=$(KN_OD_64)/process/process.o
 #KN_OBJS+=$(KN_OD_64)/process/scheduler.o
 #KN_OBJS+=$(KN_OD_64)/process/address_translation.o
@@ -96,6 +93,8 @@ KN_OBJS+=$(KN_OD_64)/event/waiter.o
 #KN_OBJS+=$(KN_OD_64)/process/thread_table.o
 #KN_OBJS+=$(KN_OD_64)/process/signal.o
 #KN_OBJS+=$(KN_OD_64)/process/signal_trampoline.o
+
+KN_OBJS+=$(KN_OD_64)/process/thread.o
 
 KN_OBJS+=$(KN_OD_64)/scheduler/scheduler.o
 KN_OBJS+=$(KN_OD_64)/scheduler/core.o

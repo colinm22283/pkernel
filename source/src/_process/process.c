@@ -20,7 +20,7 @@
 #include <sys/asm/sti.h>
 #include <sys/asm/cli.h>
 
-#include <sys/wait_for_interrupt.h>
+#include <../../system/x86_64/include/sys/interrupt/wait_for_interrupt.h>
 
 enum {
     SYSFS_PPID = 0b0000,

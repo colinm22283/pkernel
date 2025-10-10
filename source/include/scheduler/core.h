@@ -2,8 +2,15 @@
 
 #include <stddef.h>
 
-typedef struct {
+#include <process/process.h>
 
+#include <paging/manager.h>
+
+typedef struct {
+    pman_context_t * paging_context;
+
+    process_t * current_process;
+    thread_t * current_thread;
 } scheduler_core_t;
 
 extern size_t core_count;

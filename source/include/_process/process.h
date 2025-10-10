@@ -11,7 +11,7 @@
 #include <_process/thread_table.h>
 #include <_process/signal.h>
 
-#include <sys/isr/isr.h>
+#include <sys/tsr/tsr.h>
 
 typedef uint64_t process_id_t;
 

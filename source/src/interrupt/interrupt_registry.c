@@ -41,7 +41,7 @@ bool interrupt_registry_free(interrupt_code_t channel) {
     return true;
 }
 
-void interrupt_registry_invoke(interrupt_code_t channel, interrupt_state_record_t * isr, void * interrupt_code) {
+void interrupt_registry_invoke(interrupt_code_t channel, task_state_record_t * isr, void * interrupt_code) {
     if (interrupt_registry_nodes[channel].active) {
         interrupt_registry_nodes[channel].handler(channel, isr, interrupt_code);
     }

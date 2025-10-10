@@ -8,8 +8,6 @@
 #include <device/device.h>
 #include <device/devfs.h>
 
-#include <_process/scheduler.h>
-
 #include <sys/ports.h>
 #include <sys/asm/in.h>
 #include <sys/interrupt/interrupt_code.h>
@@ -23,7 +21,7 @@ device_t * device;
 volatile bool char_ready;
 volatile char current_char;
 
-void keyboard_handler(interrupt_code_t channel, interrupt_state_record_t * isr, void * error_code) {
+void keyboard_handler(interrupt_code_t channel, task_state_record_t * isr, void * error_code) {
     unsigned char input_char = (unsigned char) inb(PORT_KB_IN);
     bool released = input_char >= 0x80;
 
@@ -32,8 +30,6 @@ void keyboard_handler(interrupt_code_t channel, interrupt_state_record_t * isr, 
 
         char_ready = true;
         current_char = (char) translated_char;
-
-        event_invoke_once(device->read_ready);
     }
 }
 

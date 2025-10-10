@@ -4,7 +4,7 @@
 
 #include <paging/manager.h>
 
-#include <sys/isr/isr.h>
+#include <sys/tsr/tsr.h>
 
 #include <pkos/types.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sys/isr/isr.h>
+#include <sys/tsr/tsr.h>
 
 void _store_isr(interrupt_state_record_t * isr);
 

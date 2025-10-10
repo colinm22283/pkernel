@@ -20,7 +20,7 @@
 #include <sys/asm/cli.h>
 #include <sys/asm/hlt.h>
 
-#include <sys/wait_for_interrupt.h>
+#include <../../system/x86_64/include/sys/interrupt/wait_for_interrupt.h>
 
 #include <sys/gdt/gdt.h>
 

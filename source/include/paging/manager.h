@@ -9,7 +9,7 @@
 
 #include <sys/paging/pml4t.h>
 #include <sys/exceptions/page_fault_error_code.h>
-#include <sys/isr/isr.h>
+#include <sys/tsr/tsr.h>
 
 #include <defs.h>
 
@@ -114,6 +114,7 @@ static inline void pman_add_reference(pman_mapping_t * mapping) {
 void pman_init(void);
 
 pman_context_t * pman_new_context(void);
+pman_context_t * pman_new_kernel_context(void);
 error_number_t pman_free_context(pman_context_t * context);
 
 void pman_context_load_table(pman_context_t * context);

@@ -22,8 +22,6 @@
 
 #include <timer/timer.h>
 
-#include <event/event.h>
-
 #include <io/arbitrator.h>
 
 #include <filesystem/filesystem.h>
@@ -35,7 +33,7 @@
 
 #include <modules/init.h>
 
-#include <_process/scheduler.h>
+#include <scheduler/scheduler.h>
 
 #include <application/application_start_table.h>
 
@@ -70,7 +68,7 @@ __NORETURN void kernel_main(void) {
 
     timers_init();
 
-    event_manager_init();
+    // event_manager_init();
 
     io_arbitrator_init();
 
@@ -91,7 +89,7 @@ __NORETURN void kernel_main(void) {
     devfs_init();
     sysfs_init();
 
-    scheduler_sysfs_init();
+    // scheduler_sysfs_init();
     heap_init_sysfs();
 
     fs_mount("devfs", dev_dirent, NULL);
@@ -218,5 +216,5 @@ __NORETURN void kernel_main(void) {
     // process_start(init_process);
 
     vga_print("Starting Init Process\n");
-    scheduler_start();
+    scheduler_yield();
 }

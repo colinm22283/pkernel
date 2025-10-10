@@ -9,6 +9,8 @@ typedef enum {
     SP_HIGH,
     SP_MEDIUM,
     SP_LOW,
+
+    SP_COUNT,
 } scheduler_priority_t;
 
 void scheduler_init(void);

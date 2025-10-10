@@ -4,8 +4,6 @@
 
 #include <device/operations.h>
 
-#include <event/event.h>
-
 typedef enum {
     DT_CHARACTER,
     DT_BLOCK,
@@ -20,8 +18,6 @@ typedef struct {
 
 typedef struct device_s {
     device_type_t type;
-
-    event_t * read_ready;
 
     char * name;
     void * private;

@@ -35,8 +35,6 @@ device_t * device_create_char(const char * name, void * private, device_char_ope
     strcpy(new_node->device.name, name);
     new_node->device.private = private;
 
-    new_node->device.read_ready = event_init();
-
     memcpy(&new_node->device.char_ops, operations, sizeof(device_char_operations_t));
     memcpy(&new_node->device.char_data, data, sizeof(device_char_data_t));
 
@@ -55,8 +53,6 @@ device_t * device_create_block(const char * name, void * private, device_block_o
     new_node->device.name = heap_alloc(strlen(name) + 1);
     strcpy(new_node->device.name, name);
     new_node->device.private = private;
-
-    new_node->device.read_ready = event_init();
 
     memcpy(&new_node->device.block_ops, operations, sizeof(device_block_operations_t ));
     memcpy(&new_node->device.block_data, data, sizeof(device_block_data_t));

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include <sys/isr/isr.h>
+#include <sys/tsr/tsr.h>
 
 #include <defs.h>
 

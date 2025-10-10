@@ -24,4 +24,4 @@ typedef struct __PACKED {
         r15, // 120
         rip, // 128
         flags; // 132
-} interrupt_state_record_t;
+} task_state_record_t;

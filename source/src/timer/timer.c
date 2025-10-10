@@ -69,7 +69,7 @@ static inline void timer_update(timer_t * timer) {
 }
 
 uint64_t timers_interrupt_count = 0;
-void timers_interrupt_handler(__MAYBE_UNUSED interrupt_code_t channel, __MAYBE_UNUSED interrupt_state_record_t * isr, __MAYBE_UNUSED void * error_code) {
+void timers_interrupt_handler(__MAYBE_UNUSED interrupt_code_t channel, __MAYBE_UNUSED task_state_record_t * isr, __MAYBE_UNUSED void * error_code) {
     timers_update();
 
     timers_interrupt_count = 0;

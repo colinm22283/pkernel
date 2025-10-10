@@ -43,7 +43,7 @@ void interrupt_init() {
     for (uint16_t i = 0; i < 8; i++) idt.mapped_irqs[i] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, null_pic1_handler_entry);
     for (uint16_t i = 8; i < 16; i++) idt.mapped_irqs[i] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, null_pic2_handler_entry);
 
-    idt.system_interrupt = DEFINE_IDT64_ENTRY_USER_INTERRUPT(GDT_KERNEL_CODE, syscall_handler_entry);
+    // idt.system_interrupt = DEFINE_IDT64_ENTRY_USER_INTERRUPT(GDT_KERNEL_CODE, syscall_handler_entry);
 
     interrupt_pic_mask_all();
 
