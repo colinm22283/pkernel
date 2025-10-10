@@ -2,7 +2,7 @@
 
 #include <event/event.h>
 
-#include <process/scheduler.h>
+#include <_process/scheduler.h>
 
 #include <util/heap/heap.h>
 #include <util/memory/memset.h>

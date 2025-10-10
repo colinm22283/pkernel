@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-#include <process/scheduler.h>
+#include <_process/scheduler.h>
 
 #include <timer/timer.h>
 

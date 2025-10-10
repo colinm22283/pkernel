@@ -25,8 +25,8 @@
 
 #include <device/device.h>
 
-#include <process/address_translation.h>
-#include <process/scheduler.h>
+#include <_process/address_translation.h>
+#include <_process/scheduler.h>
 
 #include <application/application_start_table.h>
 

@@ -1,8 +1,8 @@
 #include <stddef.h>
 
-#include <process/scheduler.h>
+#include <_process/scheduler.h>
 
-#include <process/address_translation.h>
+#include <_process/address_translation.h>
 
 #include <syscall/handlers/pipe.h>
 

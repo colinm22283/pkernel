@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-#include <process/file_table.h>
+#include <_process/file_table.h>
 
 #include <util/heap/heap.h>
 

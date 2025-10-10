@@ -3,7 +3,7 @@
 #include <paging/manager.h>
 #include <paging/kernel_translation.h>
 
-#include <process/scheduler.h>
+#include <_process/scheduler.h>
 
 #include <interrupt/interrupt_registry.h>
 

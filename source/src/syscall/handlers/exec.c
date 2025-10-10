@@ -4,9 +4,9 @@
 
 #include <filesystem/file.h>
 
-#include <process/process.h>
-#include <process/scheduler.h>
-#include <process/address_translation.h>
+#include <_process/process.h>
+#include <_process/scheduler.h>
+#include <_process/address_translation.h>
 
 #include <application/application_start_table.h>
 

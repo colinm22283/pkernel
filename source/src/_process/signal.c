@@ -1,9 +1,9 @@
 #include <stddef.h>
 
-#include <process/process.h>
-#include <process/signal.h>
+#include <_process/process.h>
+#include <_process/signal.h>
 
-#include <process/address_translation.h>
+#include <_process/address_translation.h>
 
 #include <util/heap/heap.h>
 #include <util/memory/memcpy.h>

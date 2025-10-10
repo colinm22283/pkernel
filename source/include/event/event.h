@@ -2,7 +2,7 @@
 
 #include <event/waiter.h>
 
-#include <process/thread_table.h>
+#include <_process/thread_table.h>
 
 #include <error_number.h>
 

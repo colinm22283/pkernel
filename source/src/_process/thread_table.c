@@ -1,7 +1,7 @@
 #include <stddef.h>
 
-#include <process/thread_table.h>
-#include <process/process.h>
+#include <_process/thread_table.h>
+#include <_process/process.h>
 
 #include <util/heap/heap.h>
 #include <util/memory/memset.h>

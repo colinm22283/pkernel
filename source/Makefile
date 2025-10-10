@@ -89,13 +89,16 @@ KN_OBJS+=$(KN_OD_64)/pci/pci.o
 KN_OBJS+=$(KN_OD_64)/event/event.o
 KN_OBJS+=$(KN_OD_64)/event/waiter.o
 
-KN_OBJS+=$(KN_OD_64)/process/process.o
-KN_OBJS+=$(KN_OD_64)/process/scheduler.o
-KN_OBJS+=$(KN_OD_64)/process/address_translation.o
-KN_OBJS+=$(KN_OD_64)/process/file_table.o
-KN_OBJS+=$(KN_OD_64)/process/thread_table.o
-KN_OBJS+=$(KN_OD_64)/process/signal.o
-KN_OBJS+=$(KN_OD_64)/process/signal_trampoline.o
+#KN_OBJS+=$(KN_OD_64)/process/process.o
+#KN_OBJS+=$(KN_OD_64)/process/scheduler.o
+#KN_OBJS+=$(KN_OD_64)/process/address_translation.o
+#KN_OBJS+=$(KN_OD_64)/process/file_table.o
+#KN_OBJS+=$(KN_OD_64)/process/thread_table.o
+#KN_OBJS+=$(KN_OD_64)/process/signal.o
+#KN_OBJS+=$(KN_OD_64)/process/signal_trampoline.o
+
+KN_OBJS+=$(KN_OD_64)/scheduler/scheduler.o
+KN_OBJS+=$(KN_OD_64)/scheduler/core.o
 
 KN_OBJS+=$(KN_OD_64)/device/device.o
 KN_OBJS+=$(KN_OD_64)/device/devfs.o

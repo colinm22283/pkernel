@@ -1,9 +1,9 @@
 #include <stddef.h>
 
-#include <process/process.h>
-#include <process/scheduler.h>
-#include <process/user_vaddrs.h>
-#include <process/address_translation.h>
+#include <_process/process.h>
+#include <_process/scheduler.h>
+#include <_process/user_vaddrs.h>
+#include <_process/address_translation.h>
 
 #include <sysfs/sysfs.h>
 

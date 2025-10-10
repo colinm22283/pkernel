@@ -8,7 +8,7 @@
 #include <device/device.h>
 #include <device/devfs.h>
 
-#include <process/scheduler.h>
+#include <_process/scheduler.h>
 
 #include <sys/ports.h>
 #include <sys/asm/in.h>

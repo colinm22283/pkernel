@@ -2,8 +2,8 @@
 
 #include <syscall/handlers/read.h>
 
-#include <process/address_translation.h>
-#include <process/scheduler.h>
+#include <_process/address_translation.h>
+#include <_process/scheduler.h>
 
 int64_t syscall_read(fd_t fd, char * _buffer, uint64_t size) {
     process_t * current_process = scheduler_current_process();
