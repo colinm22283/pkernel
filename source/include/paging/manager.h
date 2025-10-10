@@ -5,12 +5,11 @@
 #include <paging/bitmap.h>
 #include <paging/physical_allocator.h>
 
-#include <interrupt/interrupt_state_record.h>
-
 #include <error_number.h>
 
 #include <sys/paging/pml4t.h>
 #include <sys/exceptions/page_fault_error_code.h>
+#include <sys/isr/isr.h>
 
 #include <defs.h>
 

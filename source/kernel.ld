@@ -37,6 +37,8 @@ SECTIONS {
         . += 4096;
         . = ALIGN(8);
         _stack_top = .;
+
+        _stack_size = _stack_top - _stack_base;
     } > kernel_memory
 
     _data_end = .;

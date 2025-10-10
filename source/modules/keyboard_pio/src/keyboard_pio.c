@@ -14,6 +14,7 @@
 #include <key_lut.h>
 
 #include "debug/vga_print.h"
+#include "process/scheduler.h"
 
 device_t * device;
 
@@ -30,7 +31,7 @@ bool keyboard_handler(interrupt_channel_t channel, void * cookie) {
         char_ready = true;
         current_char = (char) translated_char;
 
-        // event_invoke_once(device->read_ready);
+        event_invoke_once(device->read_ready);
     }
 
     return true;
@@ -53,7 +54,9 @@ uint64_t write(device_t * dev, const char * buffer, uint64_t size) {
     return 0;
 }
 uint64_t read(device_t * dev, char * buffer, uint64_t size) {
-    // if (!has_char()) event_await(dev->read_ready);
+    if (!has_char()) {
+        event_await(scheduler_current_thread(), dev->read_ready);
+    }
 
     if (has_char() && size > 0) {
         get_char(buffer);

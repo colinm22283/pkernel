@@ -1,5 +1,4 @@
 #include <interrupt/interrupt_registry.h>
-#include <interrupt/interrupt_state_record.h>
 
 #include <paging/kernel_translation.h>
 #include <paging/tables.h>
@@ -9,6 +8,8 @@
 
 #include <sys/paging/load_page_table.h>
 #include <sys/paging/read_page_table.h>
+
+#include <sys/isr/isr.h>
 
 void pic1_timer_handler(interrupt_state_record_t * isr) {
     uint64_t old_pml4t_paddr = read_page_table();

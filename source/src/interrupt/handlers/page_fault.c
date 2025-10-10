@@ -1,5 +1,3 @@
-#include <interrupt/interrupt_state_record.h>
-
 #include <paging/kernel_translation.h>
 #include <paging/tables.h>
 #include <paging/manager.h>
@@ -11,6 +9,8 @@
 
 #include <sys/paging/load_page_table.h>
 #include <sys/paging/read_page_table.h>
+
+#include <sys/isr/isr.h>
 
 #include <debug/vga_print.h>
 

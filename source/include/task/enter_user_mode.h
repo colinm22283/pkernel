@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include <interrupt/interrupt_state_record.h>
+#include <sys/isr/isr.h>
 
 #include <defs.h>
 

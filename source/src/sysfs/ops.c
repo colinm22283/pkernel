@@ -81,7 +81,6 @@ fs_directory_entry_node_t * sysfs_create(struct fs_directory_entry_s * parent, s
 }
 
 error_number_t sysfs_delete(struct fs_directory_entry_s * dirent) {
-    vga_print("DELETE\n");
     fs_directory_entry_release(dirent);
 
     return ERROR_OK;

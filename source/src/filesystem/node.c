@@ -21,14 +21,8 @@ void fs_node_add_reference(fs_node_t * node) {
 void fs_node_release(fs_directory_entry_t * dirent) {
     dirent->node->references--;
 
-    vga_print("yerp ");
-    vga_print_hex(dirent->node->references);
-    vga_print("\n");
-
     if (dirent->node->references == 0) {
-        vga_print("test\n");
         if (dirent->node->delete) {
-            vga_print("test\n");
             dirent->superblock->superblock_ops->delete(dirent);
         }
 

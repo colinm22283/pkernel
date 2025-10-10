@@ -10,6 +10,8 @@
 
 #include <memory/gdt.h>
 
+#include <event/event.h>
+
 #include <sysfs/sysfs.h>
 
 #include <util/heap/heap.h>
@@ -19,6 +21,8 @@
 #include <sys/asm/sti.h>
 #include <sys/asm/cli.h>
 #include <sys/asm/hlt.h>
+
+#include <sys/wait_for_interrupt.h>
 
 #include <debug/vga_print.h>
 
@@ -135,6 +139,8 @@ process_t * scheduler_get_id(process_id_t id) {
 
 __NORETURN void scheduler_start(void) {
     while (true) {
+        event_manager_resume();
+
         if (current_process != &scheduler_tail) {
             switch (current_process->state) {
                 case PS_RUNNING: {
@@ -187,8 +193,7 @@ __NORETURN void scheduler_start(void) {
             current_process = scheduler_head.next;
         }
 
-        // sti();
-        // while (true) hlt();
+        wait_for_interrupt();
     }
 }
 

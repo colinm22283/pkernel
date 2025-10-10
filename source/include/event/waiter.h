@@ -1,11 +1,20 @@
 #pragma once
 
-#include <interrupt/interrupt_state_record.h>
+#include <paging/manager.h>
 
-struct process_thread_s;
+#include <sys/isr/isr.h>
 
-typedef struct {
-    struct process_thread_s * thread;
+#include <defs.h>
+
+typedef struct event_waiter_s {
+    struct event_s * event;
+
+    pman_mapping_t * stack_mapping;
 
     interrupt_state_record_t isr;
+
+    struct event_waiter_s * next;
+    struct event_waiter_s * prev;
 } event_waiter_t;
+
+__NORETURN void event_waiter_resume_and_free(event_waiter_t * waiter);

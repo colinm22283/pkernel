@@ -4,7 +4,7 @@
 
 #include <paging/manager.h>
 
-#include <interrupt/interrupt_state_record.h>
+#include <sys/isr/isr.h>
 
 #include <pkos/types.h>
 
@@ -14,6 +14,7 @@ typedef enum {
     TS_RUNNING,
     TS_WAIT_CHILD,
     TS_WAIT_IO,
+    TS_WAIT_EVENT,
 } process_thread_state_t;
 
 typedef union {
@@ -27,6 +28,10 @@ typedef union {
         char * buffer;
         uint64_t size;
     } io;
+
+    struct {
+        struct event_waiter_s * waiter;
+    } event;
 } process_thread_wait_info_t;
 
 typedef struct process_thread_s {
@@ -36,6 +41,7 @@ typedef struct process_thread_s {
 
     interrupt_state_record_t isr;
 
+    pman_mapping_t * kernel_stack;
     pman_mapping_t * stack;
 } process_thread_t;
 

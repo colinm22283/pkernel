@@ -25,6 +25,8 @@
 
 #include <timer/timer.h>
 
+#include <event/event.h>
+
 #include <io/arbitrator.h>
 
 #include <filesystem/filesystem.h>
@@ -72,6 +74,8 @@ __NORETURN void kernel_main(void) {
     interrupt_registry_init();
 
     timers_init();
+
+    event_manager_init();
 
     io_arbitrator_init();
 

@@ -48,10 +48,15 @@ export CXXFLAGS64=-fno-rtti $(CFLAGS64)
 export ASMFLAGS=
 
 export SYSTEM_DIR=$(SOURCE_DIR)/system/x86_64
+export SYSTEM_MAKE_SCRIPT=$(SOURCE_DIR)/system/x86_64
+export SYSTEM_OBJ_DIR=$(OBJ_DIR)/64/system/x86_64/src
 
 export INCLUDE_DIRS=$(SYSTEM_DIR)/include
 
 export LDSCRIPTS=$(SYSTEM_DIR)/linker/memory.ld $(SYSTEM_DIR)/linker/global.ld
+
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/isr/resume_isr_kernel.o
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/isr/store_isr.o
 
 endif
 
