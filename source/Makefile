@@ -94,6 +94,7 @@ KN_OBJS+=$(KN_OD_64)/pci/pci.o
 #KN_OBJS+=$(KN_OD_64)/process/signal.o
 #KN_OBJS+=$(KN_OD_64)/process/signal_trampoline.o
 
+KN_OBJS+=$(KN_OD_64)/process/process.o
 KN_OBJS+=$(KN_OD_64)/process/thread.o
 
 KN_OBJS+=$(KN_OD_64)/scheduler/scheduler.o

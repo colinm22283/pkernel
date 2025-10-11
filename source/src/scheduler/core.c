@@ -13,6 +13,10 @@ void scheduler_cores_init(void) {
     cores = heap_alloc(core_count * sizeof(scheduler_core_t));
 
     for (size_t i = 0; i < core_count; i++) {
-        cores[i].paging_context = pman_new_kernel_context();
+        cores[i].current_thread = NULL;
     }
+}
+
+scheduler_core_t * scheduler_current_core(void) {
+    return &cores[0];
 }

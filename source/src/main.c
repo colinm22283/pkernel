@@ -15,6 +15,11 @@
 #include <interrupt/init.h>
 #include <interrupt/interrupt_registry.h>
 
+#include <process/process.h>
+#include <process/user_vaddrs.h>
+
+#include <scheduler/scheduler.h>
+
 #include <device/device.h>
 #include <device/devfs.h>
 
@@ -152,6 +157,22 @@ __NORETURN void kernel_main(void) {
     vga_print_hex(start_table.bss_size);
     vga_print("\n");
 
+    process_t * init_process = process_create();
+
+    void * process_text = process_create_segment(init_process, PROCESS_TEXT_USER_VADDR, start_table.text_size, PMAN_PROT_EXECUTE);
+
+    vga_print("Load text\n");
+
+    test_file_dirent->superblock->superblock_ops->read(
+        test_file_dirent,
+        process_text,
+        start_table.text_size,
+        sizeof(application_start_table_t),
+        &read_bytes
+    );
+
+
+
     // process_t * init_process = scheduler_queue(
     //     0,
     //     MAX(start_table.text_size, 100),
@@ -159,16 +180,6 @@ __NORETURN void kernel_main(void) {
     //     MAX(start_table.rodata_size, 100),
     //     MAX(start_table.bss_size, 100),
     //     8192
-    // );
-    //
-    // vga_print("Load text\n");
-    //
-    // test_file_dirent->superblock->superblock_ops->read(
-    //     test_file_dirent,
-    //     (char *) init_process->text->shared.lender->vaddr,
-    //     start_table.text_size,
-    //     sizeof(application_start_table_t),
-    //     &read_bytes
     // );
     //
     // // vga_print("RELEASE\n");
