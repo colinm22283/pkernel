@@ -7,15 +7,27 @@ process_t * process_create(void) {
 
     process->paging_context = pman_new_context();
 
+    process->thread_count = 0;
+    process->thread_capacity = 1;
+    process->threads = heap_alloc(process->thread_capacity * sizeof(thread_t *));
+
     return process;
 }
 
 process_t * process_create_fork(process_t * parent) {
     process_t * process = process_create();
 
-
-
     return process;
+}
+
+void process_add_thread(process_t * process, thread_t * thread) {
+    process->threads[process->thread_count++] = thread;
+
+    if (process->thread_count == process->thread_capacity) {
+        process->thread_capacity *= 2;
+
+        process->threads = heap_realloc(process->threads, process->thread_capacity * sizeof(thread_t *));
+    }
 }
 
 void * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot) {

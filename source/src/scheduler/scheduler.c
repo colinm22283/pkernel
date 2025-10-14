@@ -38,20 +38,32 @@ __NORETURN void scheduler_yield(void) {
     scheduler_core_t * current_core = scheduler_current_core();
 
     if (current_core->current_thread != NULL) {
+        scheduler_queue(current_core->current_thread);
 
+        current_core->current_thread = NULL;
     }
 
     while (1) {
         for (size_t i = 0; i < TP_COUNT; i++) {
-            if (scheduler_queues[i].head.next != &scheduler_queues[i].tail) {
+            while (scheduler_queues[i].head.next != &scheduler_queues[i].tail) {
                 thread_t * thread = scheduler_queues[i].head.next;
 
                 thread->prev->next = thread->next;
                 thread->next->prev = thread->prev;
 
-                current_core->current_thread = thread;
+                switch (thread->state) {
+                    case TS_RUNNING: {
+                        current_core->current_thread = thread;
 
-                thread_resume(scheduler_queues[i].head.next);
+                        thread_resume(thread);
+                    } break;
+
+                    case TS_STOPPED: break;
+
+                    case TS_DEAD: {
+                        thread_free(thread);
+                    } break;
+                }
             }
         }
 

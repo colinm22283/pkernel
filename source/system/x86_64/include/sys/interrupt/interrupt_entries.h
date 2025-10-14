@@ -22,6 +22,8 @@ extern interrupt_entry_t alignment_check_handler_entry;
 extern interrupt_entry_t machine_check_handler_entry;
 extern interrupt_entry_t simd_fpu_error_handler_entry;
 
+extern interrupt_entry_t syscall_handler_entry;
+
 extern interrupt_entry_t null_pic1_handler_entry;
 extern interrupt_entry_t null_pic2_handler_entry;
 

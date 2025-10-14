@@ -50,8 +50,11 @@ export INCLUDE_DIRS=$(SYSTEM_DIR)/include
 
 export LDSCRIPTS=$(SYSTEM_DIR)/linker/memory.ld $(SYSTEM_DIR)/linker/global.ld
 
-export KN_OBJS+=$(SYSTEM_OBJ_DIR)/isr/resume_isr_kernel.o
-export KN_OBJS+=$(SYSTEM_OBJ_DIR)/isr/store_isr.o
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/tsr/resume_tsr_kernel.o
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/tsr/resume_tsr_user.o
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/tsr/store_tsr.o
+
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/syscall/syscall_handler.o
 
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/interrupt.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/interrupt/interrupt_entries.o

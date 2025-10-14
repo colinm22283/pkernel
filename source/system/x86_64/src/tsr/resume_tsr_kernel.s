@@ -1,11 +1,11 @@
 .code64
 
-.global enter_user_mode
-enter_user_mode: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx: tsr
+.global _resume_isr_kernel
+_resume_isr_kernel: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx: tsr
     cli
 
-    or    $0b11, %rdi
-    or    $0b11, %rsi
+    and   $(~0b11), %rdi
+    and   $(~0b11), %rsi
 
     mov   %si,   %ds
     mov   %si,   %es

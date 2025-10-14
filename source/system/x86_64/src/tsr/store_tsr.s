@@ -1,7 +1,7 @@
 .code64
 
 .global _store_isr
-_store_isr: # rdi: isr
+_store_isr: # rdi: tsr
     mov %rax,   0(%rdi)
     mov %rbx,   8(%rdi)
     mov %rcx,  16(%rdi)

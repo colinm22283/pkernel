@@ -5,7 +5,12 @@
 
 #include <util/heap/heap.h>
 
+#include <util/memory/memset.h>
+
 #include <sys/tsr/resume_tsr.h>
+#include <sys/tsr/tsr_set_stack.h>
+
+#include "scheduler/scheduler.h"
 
 thread_t * thread_create_user(pman_context_t * user_context, process_t * parent) {
     thread_t * thread = heap_alloc(sizeof(thread_t));
@@ -22,6 +27,10 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
     pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, DEFAULT_THREAD_STACK_SIZE);
     thread->stack_mapping = pman_context_add_shared(user_context, PMAN_PROT_WRITE, kernel_mapping, NULL);
     pman_context_unmap(kernel_mapping);
+
+    memset(&thread->tsr, 0, sizeof(task_state_record_t));
+
+    tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * 0x1000);
 
     thread->next = NULL;
     thread->prev = NULL;
@@ -41,6 +50,10 @@ thread_t * thread_create_kernel(void) {
     thread->twin_thread = NULL;
 
     thread->stack_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, DEFAULT_THREAD_STACK_SIZE);
+
+    tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * 0x1000);
+
+    memset(&thread->tsr, 0, sizeof(task_state_record_t));
 
     thread->next = NULL;
     thread->prev = NULL;
@@ -62,14 +75,19 @@ void thread_run(thread_t * thread) {
     thread->state = TS_RUNNING;
 }
 
+void thread_load_pc(thread_t * thread, void * pc) {
+    tsr_load_pc(&thread->tsr, pc);
+}
+
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
             // resume_tsr_kernel(&thread->tsr);
+            scheduler_yield();
         } break;
 
         case TL_USER: {
-
+            resume_tsr_user(&thread->tsr, thread->process->paging_context);
         } break;
     }
 }

@@ -49,10 +49,15 @@
 #include <pkos/defs.h>
 
 #include <sys/setup.h>
+#include <sys/interrupt/interrupt_code.h>
 
 #include <debug/vga_print.h>
 
 #define VIDEO_MEMORY ((uint8_t *) 0xA0000)
+
+void test() {
+    halt();
+}
 
 __NORETURN void kernel_main(void) {
     primary_region_init();
@@ -63,6 +68,8 @@ __NORETURN void kernel_main(void) {
 
     interrupt_registry_init();
 
+    interrupt_registry_register(IC_GENERAL_PROTECTION_FAULT, test);
+
     pman_init();
 
     if (!paging_init_stage2()) kernel_entry_error(KERNEL_ENTRY_ERROR_PAGING_PHASE_2_ERROR);
@@ -72,8 +79,6 @@ __NORETURN void kernel_main(void) {
     interface_map_init();
 
     timers_init();
-
-    // event_manager_init();
 
     io_arbitrator_init();
 
@@ -161,6 +166,8 @@ __NORETURN void kernel_main(void) {
 
     void * process_text = process_create_segment(init_process, PROCESS_TEXT_USER_VADDR, start_table.text_size, PMAN_PROT_EXECUTE);
 
+    process_add_thread(init_process, thread_create_user(init_process->paging_context, init_process));
+
     vga_print("Load text\n");
 
     test_file_dirent->superblock->superblock_ops->read(
@@ -170,8 +177,13 @@ __NORETURN void kernel_main(void) {
         sizeof(application_start_table_t),
         &read_bytes
     );
+    thread_load_pc(init_process->threads[0], PROCESS_TEXT_USER_VADDR);
 
+    thread_run(init_process->threads[0]);
+    scheduler_queue(init_process->threads[0]);
 
+    vga_print("Starting Init Process\n");
+    scheduler_yield();
 
     // process_t * init_process = scheduler_queue(
     //     0,
@@ -225,7 +237,4 @@ __NORETURN void kernel_main(void) {
     // process_file_table_set(&init_process->file_table, stdin, kbd_dirent, OPEN_READ);
     //
     // process_start(init_process);
-
-    vga_print("Starting Init Process\n");
-    scheduler_yield();
 }

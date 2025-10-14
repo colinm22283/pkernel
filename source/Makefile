@@ -37,8 +37,7 @@ KN_OBJS+=$(KN_OD_64)/memory/primary_region.o
 
 KN_OBJS+=$(KN_OD_64)/task/enter_user_mode.o
 
-#KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler_entry.o
-#KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler.o
+KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/open.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/write.o

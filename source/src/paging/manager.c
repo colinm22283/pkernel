@@ -64,7 +64,7 @@ pman_context_t * pman_new_context(void) {
 
     valloc_init(&context->valloc);
 
-    valloc_reserve(&context->valloc, (void *) 0, (uint64_t) KERNEL_END);
+    valloc_reserve(&context->valloc, (void *) 0, DIV_UP((uint64_t) KERNEL_END, 0x8000000000) * 0x8000000000);
 
     context->head.next = &context->tail;
     context->head.prev = NULL;
@@ -90,7 +90,7 @@ pman_context_t * pman_new_kernel_context(void) {
 
     valloc_init(&context->valloc);
 
-    valloc_reserve(&context->valloc, (void *) 0, DIV_UP((uint64_t) KERNEL_END, 0x8000000000) * 0x8000000000);
+    valloc_reserve(&context->valloc, (void *) 0, (uint64_t) KERNEL_END);
 
     context->head.next = &context->tail;
     context->head.prev = NULL;
@@ -512,6 +512,8 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 }
 
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr, void * _error_code) {
+    halt();
+
     // page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
     //
     // heap_check();
@@ -543,7 +545,7 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr
     //     vga_print("\n");
     //
     //     vga_print("Proc RSP: ");
-    //     vga_print_hex(isr->rsp);
+    //     vga_print_hex(tsr->rsp);
     //     vga_print("\n");
     //
     //     process_kill(current_process);

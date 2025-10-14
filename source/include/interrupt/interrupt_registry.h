@@ -11,6 +11,7 @@ typedef enum {
     IC_INVALID_OPCODE,
     IC_PAGE_FAULT,
     IC_TIMER,
+    IC_SYSCALL,
 
     IC_CUSTOM_BASE,
 } interrupt_code_t;

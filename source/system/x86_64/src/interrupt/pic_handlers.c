@@ -19,7 +19,7 @@ __NORETURN void pic1_keyboard_handler(task_state_record_t * isr) {
 
     load_page_table((void *) new_pml4t_paddr);
 
-    // if (old_pml4t_paddr != new_pml4t_paddr) process_load_isr(scheduler_current_process(), isr);
+    // if (old_pml4t_paddr != new_pml4t_paddr) process_load_isr(scheduler_current_process(), tsr);
 
     interrupt_registry_invoke(IC_KEYBOARD, isr, NULL);
 
@@ -32,7 +32,7 @@ __NORETURN void pic1_timer_handler(task_state_record_t * isr) {
 
     load_page_table((void *) new_pml4t_paddr);
 
-    // if (old_pml4t_paddr != new_pml4t_paddr) process_load_isr(scheduler_current_process(), isr);
+    // if (old_pml4t_paddr != new_pml4t_paddr) process_load_isr(scheduler_current_process(), tsr);
 
     interrupt_registry_invoke(IC_TIMER, isr, NULL);
 

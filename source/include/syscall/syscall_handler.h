@@ -1,4 +1,8 @@
-#include <syscall/syscall_handler.h>
+#pragma once
+
+#include <stdint.h>
+
+#include <sys/tsr/tsr.h>
 
 void syscall_handler(
     uint64_t syscall_number,
@@ -9,7 +13,4 @@ void syscall_handler(
     uint64_t arg4,
     uint64_t arg5,
     task_state_record_t * tsr
-) {
-
-}
-
+);
