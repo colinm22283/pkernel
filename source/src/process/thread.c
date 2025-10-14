@@ -3,14 +3,17 @@
 #include <process/thread.h>
 #include <process/process.h>
 
+#include <scheduler/scheduler.h>
+
 #include <util/heap/heap.h>
 
 #include <util/memory/memset.h>
 
 #include <sys/tsr/resume_tsr.h>
 #include <sys/tsr/tsr_set_stack.h>
+#include <sys/tsr/tsr_load_pc.h>
 
-#include "scheduler/scheduler.h"
+#include "debug/vga_print.h"
 
 thread_t * thread_create_user(pman_context_t * user_context, process_t * parent) {
     thread_t * thread = heap_alloc(sizeof(thread_t));
@@ -73,6 +76,8 @@ void thread_free(thread_t * thread) {
 
 void thread_run(thread_t * thread) {
     thread->state = TS_RUNNING;
+
+    scheduler_queue(thread);
 }
 
 void thread_load_pc(thread_t * thread, void * pc) {
@@ -82,8 +87,11 @@ void thread_load_pc(thread_t * thread, void * pc) {
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
-            // resume_tsr_kernel(&thread->tsr);
-            scheduler_yield();
+            vga_print("KERNEL RESUME: ");
+            vga_print_hex(thread->tsr.rip);
+            vga_print("\n");
+
+            resume_tsr_kernel(&thread->tsr);
         } break;
 
         case TL_USER: {

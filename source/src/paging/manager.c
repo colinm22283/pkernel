@@ -512,10 +512,22 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 }
 
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr, void * _error_code) {
+    page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
+
+    void * fault_vaddr = read_fault_vaddr();
+
+    if (error_code->present) vga_print("Reason: PROTECTION VIOLATION\n");
+    else vga_print("Reason: NOT PRESENT\n");
+    if (error_code->write) vga_print("WRITE\n");
+    if (error_code->instruction_fetch) vga_print("INSTRUCTION FETCH\n");
+    if (error_code->user) vga_print("USER\n");
+
+    vga_print("Fault VAddr: ");
+    vga_print_hex((uint64_t) fault_vaddr);
+    vga_print("\n");
+
     halt();
 
-    // page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
-    //
     // heap_check();
     //
     // process_t * current_process = scheduler_current_process();

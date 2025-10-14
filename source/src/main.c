@@ -180,7 +180,6 @@ __NORETURN void kernel_main(void) {
     thread_load_pc(init_process->threads[0], PROCESS_TEXT_USER_VADDR);
 
     thread_run(init_process->threads[0]);
-    scheduler_queue(init_process->threads[0]);
 
     vga_print("Starting Init Process\n");
     scheduler_yield();

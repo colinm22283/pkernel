@@ -1,7 +1,7 @@
 .code64
 
-.global _store_isr
-_store_isr: # rdi: tsr
+.global _store_tsr_and_yield
+_store_tsr_and_yield: # rdi: tsr
     mov %rax,   0(%rdi)
     mov %rbx,   8(%rdi)
     mov %rcx,  16(%rdi)
@@ -20,8 +20,13 @@ _store_isr: # rdi: tsr
     mov %r15, 120(%rdi)
 
     pushf
+    mov (%rsp), %rax
+    mov %rax, 136(%rdi)
     add $8, %rsp
 
-    #mov %rip, 128(%rdi)
+    mov $_store_tsr_and_yield_return, 128(%rdi)
 
+    jmp scheduler_yield
+
+_store_tsr_and_yield_return:
     ret

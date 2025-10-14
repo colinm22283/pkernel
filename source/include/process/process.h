@@ -3,6 +3,7 @@
 #include <stddef.h>
 
 #include <process/thread.h>
+#include <process/file_table.h>
 
 #include <paging/manager.h>
 
@@ -12,6 +13,8 @@ typedef struct process_s {
     size_t thread_count;
     size_t thread_capacity;
     thread_t ** threads;
+
+    file_table_t file_table;
 
     struct process_s * next;
     struct process_s * prev;

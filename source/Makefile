@@ -38,9 +38,9 @@ KN_OBJS+=$(KN_OD_64)/memory/primary_region.o
 KN_OBJS+=$(KN_OD_64)/task/enter_user_mode.o
 
 KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/open.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/write.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/open.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/write.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/read.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/seek.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/exit.o
@@ -95,9 +95,11 @@ KN_OBJS+=$(KN_OD_64)/pci/pci.o
 
 KN_OBJS+=$(KN_OD_64)/process/process.o
 KN_OBJS+=$(KN_OD_64)/process/thread.o
+KN_OBJS+=$(KN_OD_64)/process/file_table.o
 
 KN_OBJS+=$(KN_OD_64)/scheduler/scheduler.o
 KN_OBJS+=$(KN_OD_64)/scheduler/core.o
+KN_OBJS+=$(KN_OD_64)/scheduler/event.o
 
 KN_OBJS+=$(KN_OD_64)/device/device.o
 KN_OBJS+=$(KN_OD_64)/device/devfs.o

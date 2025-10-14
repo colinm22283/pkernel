@@ -142,7 +142,7 @@ EXCEPTION_INTERRUPT alignment_check_handler_entry, alignment_check_handler
 EXCEPTION_INTERRUPT machine_check_handler_entry, machine_check_handler
 EXCEPTION_INTERRUPT simd_fpu_error_handler_entry, simd_fpu_error_handler
 
-EXCEPTION_INTERRUPT syscall_handler_entry, syscall_handler
+EXCEPTION_INTERRUPT syscall_handler_entry, syscall_handler_wrapper
 
 PIC1_INTERRUPT null_pic1_handler_entry, null_handler
 PIC1_INTERRUPT pic1_keyboard_handler_entry, pic1_keyboard_handler

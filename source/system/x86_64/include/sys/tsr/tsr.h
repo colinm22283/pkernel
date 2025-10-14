@@ -23,9 +23,5 @@ typedef struct __PACKED {
         r14, // 112
         r15, // 120
         rip, // 128
-        flags; // 132
+        flags; // 136
 } task_state_record_t;
-
-static inline void tsr_load_pc(task_state_record_t * tsr, void * pc) {
-    tsr->rip = (uint64_t) pc;
-}

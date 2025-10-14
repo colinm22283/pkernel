@@ -81,6 +81,7 @@ __NORETURN void bound_range_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void invalid_opcode_handler(task_state_record_t * isr) {
+    hlt();
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
 
@@ -172,6 +173,7 @@ __NORETURN void stack_segment_fault_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void general_protection_fault_handler(task_state_record_t * isr) {
+    hlt();
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
 

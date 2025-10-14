@@ -5,6 +5,18 @@
 
 #include <sys/interrupt/wait_for_interrupt.h>
 
+#include <util/heap/heap.h>
+#include <util/memory/memcpy.h>
+
+#include <sys/tsr/store_tsr_and_yield.h>
+#include <sys/tsr/tsr_set_stack.h>
+#include <sys/tsr/tsr_load_task.h>
+#include <sys/tsr/tsr_load_return.h>
+
+#include <sys/halt.h>
+
+#include <debug/vga_print.h>
+
 #define SCHEDULER_QUANTUM (0)
 
 typedef struct {
@@ -25,13 +37,73 @@ void scheduler_init(void) {
 }
 
 void scheduler_queue(thread_t * thread) {
-    scheduler_queue_t * queue = &scheduler_queues[thread->priority];
+    if (thread->state == TS_RUNNING) {
+        scheduler_queue_t * queue = &scheduler_queues[thread->priority];
 
-    thread->prev = queue->tail.prev;
-    thread->next = &queue->tail;
+        thread->prev = queue->tail.prev;
+        thread->next = &queue->tail;
 
-    queue->tail.prev->next = thread;
-    queue->tail.prev = thread;
+        queue->tail.prev->next = thread;
+        queue->tail.prev = thread;
+    }
+}
+
+void scheduler_await(event_t * event) {
+    scheduler_core_t * current_core = scheduler_current_core();
+
+    current_core->current_thread->state = TS_WAITING;
+
+    waiter_t * waiter = heap_alloc(sizeof(waiter_t));
+
+    waiter->completed = false;
+    waiter->thread = current_core->current_thread;
+
+    waiter->next = &event->waiter_tail;
+    waiter->prev = event->waiter_tail.prev;
+    event->waiter_tail.prev->next = waiter;
+    event->waiter_tail.prev = waiter;
+
+    store_tsr_and_yield(&current_core->current_thread->tsr);
+}
+
+void scheduler_load_tsr(task_state_record_t * tsr) {
+    scheduler_core_t * current_core = scheduler_current_core();
+
+    memcpy(&current_core->current_thread->tsr, tsr, sizeof(task_state_record_t));
+}
+
+void scheduler_start_twin(void (*task_handler)(task_state_record_t * tsr)) {
+    scheduler_core_t * current_core = scheduler_current_core();
+
+    current_core->current_thread->state = TS_WAITING;
+
+    thread_t * twin = current_core->current_thread->twin_thread;
+
+    current_core->current_thread = NULL;
+
+    tsr_load_task(&twin->tsr, task_handler);
+    tsr_set_stack(
+        &twin->tsr,
+        twin->stack_mapping->vaddr,
+        twin->stack_mapping->size_pages * 0x1000
+    );
+
+    thread_run(twin);
+}
+
+__NORETURN void scheduler_return_twin(uint64_t ret_val) {
+    scheduler_core_t * current_core = scheduler_current_core();
+
+    current_core->current_thread->state = TS_STOPPED;
+
+    thread_t * twin = current_core->current_thread->twin_thread;
+
+    current_core->current_thread = NULL;
+
+    tsr_load_return(&twin->tsr, ret_val);
+
+    thread_run(twin);
+    scheduler_yield();
 }
 
 __NORETURN void scheduler_yield(void) {
@@ -58,7 +130,7 @@ __NORETURN void scheduler_yield(void) {
                         thread_resume(thread);
                     } break;
 
-                    case TS_STOPPED: break;
+                    case TS_WAITING: case TS_STOPPED: break;
 
                     case TS_DEAD: {
                         thread_free(thread);

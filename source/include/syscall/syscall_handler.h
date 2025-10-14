@@ -4,7 +4,7 @@
 
 #include <sys/tsr/tsr.h>
 
-void syscall_handler(
+uint64_t syscall_handler(
     uint64_t syscall_number,
     uint64_t arg0,
     uint64_t arg1,

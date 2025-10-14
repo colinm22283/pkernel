@@ -16,6 +16,7 @@ typedef enum {
 typedef enum {
     TS_RUNNING,
     TS_STOPPED,
+    TS_WAITING,
     TS_DEAD
 } thread_state_t;
 

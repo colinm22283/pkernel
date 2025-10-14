@@ -1,11 +1,11 @@
 .code64
 
-.global _resume_isr_kernel
-_resume_isr_kernel: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx: tsr
+.global _resume_tsr_kernel
+_resume_tsr_kernel: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx: tsr
     cli
 
-    and   $(~0b11), %rdi
-    and   $(~0b11), %rsi
+    and   $(~0x0000000000000003), %rdi
+    and   $(~0x0000000000000003), %rsi
 
     mov   %si,   %ds
     mov   %si,   %es
@@ -24,8 +24,8 @@ _resume_isr_kernel: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx:
 
     # flags
     pushf
-    mov   $0b1000000000, %rax
-    or    %rax, (%rsp)
+    mov   $(~0b100000000), %rax
+    and   %rax, (%rsp)
 
     push  %rdi # CS selector
     push  %r9  # instruction pointer
