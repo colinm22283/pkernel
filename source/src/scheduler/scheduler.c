@@ -78,10 +78,11 @@ void scheduler_start_twin(void (*task_handler)(task_state_record_t * tsr)) {
     current_core->current_thread->state = TS_WAITING;
 
     thread_t * twin = current_core->current_thread->twin_thread;
+    thread_t * user_thread = current_core->current_thread;
 
     current_core->current_thread = NULL;
 
-    tsr_load_task(&twin->tsr, task_handler);
+    tsr_load_task(&twin->tsr, &user_thread->tsr, task_handler);
     tsr_set_stack(
         &twin->tsr,
         twin->stack_mapping->vaddr,

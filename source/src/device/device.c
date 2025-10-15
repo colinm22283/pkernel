@@ -38,6 +38,8 @@ device_t * device_create_char(const char * name, void * private, device_char_ope
     memcpy(&new_node->device.char_ops, operations, sizeof(device_char_operations_t));
     memcpy(&new_node->device.char_data, data, sizeof(device_char_data_t));
 
+    new_node->device.read_ready = event_init();
+
     new_node->next = devices_head.next;
     new_node->prev = &devices_head;
     devices_head.next->prev = new_node;
@@ -56,6 +58,8 @@ device_t * device_create_block(const char * name, void * private, device_block_o
 
     memcpy(&new_node->device.block_ops, operations, sizeof(device_block_operations_t ));
     memcpy(&new_node->device.block_data, data, sizeof(device_block_data_t));
+
+    new_node->device.read_ready = event_init();
 
     new_node->next = devices_head.next;
     new_node->prev = &devices_head;

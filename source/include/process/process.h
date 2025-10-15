@@ -16,6 +16,8 @@ typedef struct process_s {
 
     file_table_t file_table;
 
+    fs_directory_entry_t * working_dir;
+
     struct process_s * next;
     struct process_s * prev;
 } process_t;
@@ -23,8 +25,13 @@ typedef struct process_s {
 process_t * process_create(void);
 process_t * process_create_fork(process_t * parent);
 
+void process_free(process_t * process);
+
 void process_add_thread(process_t * process, thread_t * thread);
 
 void * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot);
 
-void process_free(process_t * process);
+void * process_user_to_kernel(process_t * process, const void * user_vaddr);
+
+fs_directory_entry_t * process_open_path(process_t * process, const char * path);
+fs_directory_entry_t * process_make_path(process_t * process, const char * path, fs_file_type_t type);

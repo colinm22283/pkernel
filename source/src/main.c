@@ -34,6 +34,7 @@
 
 #include <util/string/strlen.h>
 #include <util/memory/memcpy.h>
+#include <util/memory/memset.h>
 #include <util/math/max.h>
 
 #include <modules/init.h>
@@ -164,76 +165,53 @@ __NORETURN void kernel_main(void) {
 
     process_t * init_process = process_create();
 
-    void * process_text = process_create_segment(init_process, PROCESS_TEXT_USER_VADDR, start_table.text_size, PMAN_PROT_EXECUTE);
+    if (start_table.text_size > 0) {
+        void * process_text = process_create_segment(init_process, PROCESS_TEXT_USER_VADDR, start_table.text_size, PMAN_PROT_EXECUTE);
+        test_file_dirent->superblock->superblock_ops->read(
+            test_file_dirent,
+            process_text,
+            start_table.text_size,
+            sizeof(application_start_table_t),
+            &read_bytes
+        );
+    }
+
+    if (start_table.data_size > 0) {
+        void * process_data = process_create_segment(init_process, PROCESS_DATA_USER_VADDR, start_table.data_size, PMAN_PROT_EXECUTE);
+
+        test_file_dirent->superblock->superblock_ops->read(
+            test_file_dirent,
+            process_data,
+            start_table.data_size,
+            sizeof(application_start_table_t) + start_table.text_size,
+            &read_bytes
+        );
+    }
+
+    if (start_table.rodata_size > 0) {
+        void * process_rodata = process_create_segment(init_process, PROCESS_RODATA_USER_VADDR, start_table.rodata_size, PMAN_PROT_EXECUTE);
+
+        test_file_dirent->superblock->superblock_ops->read(
+            test_file_dirent,
+            process_rodata,
+            start_table.rodata_size,
+            sizeof(application_start_table_t) + start_table.text_size + start_table.data_size,
+            &read_bytes
+        );
+    }
+
+    if (start_table.bss_size > 0) {
+        void * process_bss = process_create_segment(init_process, PROCESS_BSS_USER_VADDR, start_table.bss_size, PMAN_PROT_EXECUTE);
+
+        memset(process_bss, 0, start_table.bss_size);
+    }
 
     process_add_thread(init_process, thread_create_user(init_process->paging_context, init_process));
 
-    vga_print("Load text\n");
-
-    test_file_dirent->superblock->superblock_ops->read(
-        test_file_dirent,
-        process_text,
-        start_table.text_size,
-        sizeof(application_start_table_t),
-        &read_bytes
-    );
     thread_load_pc(init_process->threads[0], PROCESS_TEXT_USER_VADDR);
 
     thread_run(init_process->threads[0]);
 
     vga_print("Starting Init Process\n");
     scheduler_yield();
-
-    // process_t * init_process = scheduler_queue(
-    //     0,
-    //     MAX(start_table.text_size, 100),
-    //     MAX(start_table.data_size, 100),
-    //     MAX(start_table.rodata_size, 100),
-    //     MAX(start_table.bss_size, 100),
-    //     8192
-    // );
-    //
-    // // vga_print("RELEASE\n");
-    // // fs_directory_entry_release(test_file_node->parent_directory_entry);
-    // // vga_print("DONE\n");
-    //
-    // vga_print("Read text bytes: 0x");
-    // vga_print_hex(read_bytes);
-    // vga_print("\n");
-    //
-    // vga_print("Load data\n");
-    //
-    // test_file_dirent->superblock->superblock_ops->read(
-    //     test_file_dirent,
-    //     (char *) init_process->data->shared.lender->vaddr,
-    //     start_table.data_size,
-    //     sizeof(application_start_table_t) + start_table.text_size,
-    //     &read_bytes
-    // );
-    //
-    // vga_print("Read data bytes: 0x");
-    // vga_print_hex(read_bytes);
-    // vga_print("\n");
-    //
-    // vga_print("Load rodata\n");
-    //
-    // test_file_dirent->superblock->superblock_ops->read(
-    //     test_file_dirent,
-    //     (char *) init_process->rodata->shared.lender->vaddr,
-    //     start_table.rodata_size,
-    //     sizeof(application_start_table_t) + start_table.text_size + start_table.data_size,
-    //     &read_bytes
-    // );
-    //
-    // vga_print("Read rodata bytes: 0x");
-    // vga_print_hex(read_bytes);
-    // vga_print("\n");
-    //
-    // fs_directory_entry_t * tty_dirent = fs_open_path(&fs_root, "dev/tty");
-    // process_file_table_set(&init_process->file_table, stdout, tty_dirent, OPEN_WRITE);
-    //
-    // fs_directory_entry_t * kbd_dirent = fs_open_path(&fs_root, "dev/kbd");
-    // process_file_table_set(&init_process->file_table, stdin, kbd_dirent, OPEN_READ);
-    //
-    // process_start(init_process);
 }

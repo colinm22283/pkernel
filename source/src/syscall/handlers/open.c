@@ -1,8 +1,6 @@
 #include <stddef.h>
 
-#include <_process/scheduler.h>
-
-#include <_process/address_translation.h>
+#include <scheduler/scheduler.h>
 
 #include <syscall/handlers/open.h>
 
@@ -23,7 +21,7 @@ int64_t syscall_open(const char * _path, open_options_t options) {
         else return ERROR_FS_NO_ENT;
     }
 
-    fd_t fd = process_file_table_open(&current_process->file_table, node, options);
+    fd_t fd = file_table_open(&current_process->file_table, node, options);
 
     return fd;
 }

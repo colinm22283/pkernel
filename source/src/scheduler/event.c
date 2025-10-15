@@ -24,8 +24,6 @@ void event_free(event_t * event) {
 
 void event_invoke(event_t * event) {
     if (event->waiter_head.next != &event->waiter_tail) {
-        vga_print("Found thread\n");
-
         waiter_t * waiter = event->waiter_head.next;
 
         event->waiter_head.next = event->waiter_head.next->next;

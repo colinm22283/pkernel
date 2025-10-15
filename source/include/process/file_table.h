@@ -3,9 +3,15 @@
 #include <filesystem/file.h>
 
 typedef struct {
-    size_t file_count, file_capacity;
+    size_t file_capacity;
     fs_file_t ** files;
 } file_table_t;
 
 void file_table_init(file_table_t * file_table);
 void file_table_free(file_table_t * file_table);
+
+error_number_t file_table_dup(file_table_t * file_table, fd_t dst, fd_t src);
+fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, open_options_t options);
+fs_file_t * file_table_get(file_table_t * file_table, fd_t fd);
+
+error_number_t file_table_close(file_table_t * file_table, fd_t fd);

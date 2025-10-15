@@ -8,6 +8,8 @@
 #include <device/device.h>
 #include <device/devfs.h>
 
+#include <scheduler/scheduler.h>
+
 #include <sys/ports.h>
 #include <sys/asm/in.h>
 #include <sys/interrupt/interrupt_code.h>
@@ -30,6 +32,8 @@ void keyboard_handler(interrupt_code_t channel, task_state_record_t * isr, void 
 
         char_ready = true;
         current_char = (char) translated_char;
+
+        event_invoke(device->read_ready);
     }
 }
 
@@ -50,8 +54,8 @@ uint64_t write(device_t * dev, const char * buffer, uint64_t size) {
     return 0;
 }
 uint64_t read(device_t * dev, char * buffer, uint64_t size) {
-    if (!has_char()) {
-        // event_await(scheduler_current_thread(), dev->read_ready);
+    while (!has_char()) {
+        scheduler_await(dev->read_ready);
     }
 
     if (has_char() && size > 0) {

@@ -39,9 +39,9 @@ KN_OBJS+=$(KN_OD_64)/task/enter_user_mode.o
 
 KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/open.o
-KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
+#KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/write.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/read.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/read.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/seek.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/exit.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/readdir.o

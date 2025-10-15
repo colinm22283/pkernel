@@ -30,18 +30,17 @@ uint64_t syscall_handler(
     uint64_t arg2,
     uint64_t arg3,
     uint64_t arg4,
-    uint64_t arg5,
     task_state_record_t * tsr
 ) {
     switch (syscall_number) {
         case SYSCALL_OPEN: return syscall_open((const char *) arg0, arg1); break;
 
-        case SYSCALL_CLOSE: return syscall_close((fd_t) arg0); break;
+        // case SYSCALL_CLOSE: return syscall_close((fd_t) arg0); break;
 
         case SYSCALL_WRITE: return syscall_write((fd_t) arg0, (const char *) arg1, arg2); break;
 
-        // case SYSCALL_READ: return syscall_read((fd_t) arg0, (char *) arg1, arg2);
-        //
+        case SYSCALL_READ: return syscall_read((fd_t) arg0, (char *) arg1, arg2);
+
         // case SYSCALL_SEEK: return syscall_seek((fd_t) arg0, (int64_t) arg1, arg2);
         //
         // case SYSCALL_EXIT: syscall_exit(arg0);

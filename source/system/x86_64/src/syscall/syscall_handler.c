@@ -12,9 +12,7 @@
 #include "debug/vga_print.h"
 
 void syscall_handler_task(task_state_record_t * tsr) {
-    vga_print("test\n");
-
-    uint64_t return_val = syscall_handler(tsr->rax, tsr->rsi, tsr->rdi, tsr->rdx, tsr->rcx, tsr->r8, tsr->r9, tsr);
+    uint64_t return_val = syscall_handler(tsr->rax, tsr->rsi, tsr->rdx, tsr->rcx, tsr->r8, tsr->r9, tsr);
 
     scheduler_return_twin(return_val);
 }

@@ -26,6 +26,7 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
 
     thread->twin_thread = thread_create_kernel();
     thread->twin_thread->twin_thread = thread;
+    thread->twin_thread->process = parent;
 
     pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, DEFAULT_THREAD_STACK_SIZE);
     thread->stack_mapping = pman_context_add_shared(user_context, PMAN_PROT_WRITE, kernel_mapping, NULL);
@@ -87,10 +88,6 @@ void thread_load_pc(thread_t * thread, void * pc) {
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
-            vga_print("KERNEL RESUME: ");
-            vga_print_hex(thread->tsr.rip);
-            vga_print("\n");
-
             resume_tsr_kernel(&thread->tsr);
         } break;
 
