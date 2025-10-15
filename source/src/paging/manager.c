@@ -463,50 +463,35 @@ pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) 
 
 pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t * mapping) {
     if (mapping->type == PMAN_MAPPING_BORROWED) {
-        // TODO
-        // pman_protection_flags_t mapping_protection = mapping->protection;
-        // void * mapping_vaddr = mapping->vaddr;
-        // pman_context_t * context = mapping->context;
-        //
-        // pman_mapping_t ** matching_mapping = NULL;
-        // if (process->text == mapping) matching_mapping = &process->text;
-        // if (process->data == mapping) matching_mapping = &process->data;
-        // if (process->rodata == mapping) matching_mapping = &process->rodata;
-        // if (process->bss == mapping) matching_mapping = &process->bss;
-        // for (uint64_t i = 0; i < process->thread_table.thread_count; i++) {
-        //     if (process->thread_table.threads[i]->stack == mapping) {
-        //         matching_mapping = &process->thread_table.threads[i]->stack;
-        //     }
-        // }
-        //
-        // pman_mapping_t * root_mapping = get_root_mapping(mapping);
-        //
-        // pman_mapping_t * kernel_alloc = pman_context_add_alloc(
-        //     pman_kernel_context(),
-        //     PMAN_PROT_WRITE,
-        //     NULL,
-        //     root_mapping->size_pages * 0x1000
-        // );
-        //
-        // memcpy(kernel_alloc->vaddr, root_mapping->vaddr, root_mapping->size_pages * 0x1000);
-        //
-        // pman_context_unmap(mapping);
-        //
-        // pman_mapping_t * user_mapping = pman_context_add_shared(
-        //     context,
-        //     mapping_protection,
-        //     kernel_alloc,
-        //     mapping_vaddr
-        // );
-        //
-        // pman_context_unmap(kernel_alloc);
-        //
-        // if (matching_mapping != NULL) {
-        //     *matching_mapping = user_mapping;
-        // }
+        vga_print("PREP\n");
 
-        // return user_mapping;
-        return NULL;
+        pman_protection_flags_t mapping_protection = mapping->protection;
+        void * mapping_vaddr = mapping->vaddr;
+        pman_context_t * context = mapping->context;
+
+        pman_mapping_t * root_mapping = get_root_mapping(mapping);
+
+        pman_mapping_t * kernel_alloc = pman_context_add_alloc(
+            pman_kernel_context(),
+            PMAN_PROT_WRITE,
+            NULL,
+            root_mapping->size_pages * 0x1000
+        );
+
+        memcpy(kernel_alloc->vaddr, root_mapping->vaddr, root_mapping->size_pages * 0x1000);
+
+        pman_context_unmap(mapping);
+
+        pman_mapping_t * user_mapping = pman_context_add_shared(
+            context,
+            mapping_protection,
+            kernel_alloc,
+            mapping_vaddr
+        );
+
+        pman_context_unmap(kernel_alloc);
+
+        return user_mapping;
     }
     else return mapping;
 }
@@ -516,62 +501,58 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr
 
     void * fault_vaddr = read_fault_vaddr();
 
-    if (error_code->present) vga_print("Reason: PROTECTION VIOLATION\n");
-    else vga_print("Reason: NOT PRESENT\n");
-    if (error_code->write) vga_print("WRITE\n");
-    if (error_code->instruction_fetch) vga_print("INSTRUCTION FETCH\n");
-    if (error_code->user) vga_print("USER\n");
+    heap_check();
 
-    vga_print("Fault VAddr: ");
-    vga_print_hex((uint64_t) fault_vaddr);
+    process_t * current_process = scheduler_current_process();
+
+    pman_context_t * current_context;
+
+    if (error_code->user) current_context = current_process->paging_context;
+    else current_context = pman_kernel_context();
+
+    pman_mapping_t * mapping = pman_context_get_vaddr(current_context, fault_vaddr);
+
+    vga_print("Mapping: ");
+    vga_print_hex((intptr_t) mapping);
     vga_print("\n");
 
-    halt();
+    if (mapping == NULL) {
+        fs_file_t * out_file = file_table_get(&current_process->file_table, stdout);
 
-    // heap_check();
-    //
-    // process_t * current_process = scheduler_current_process();
-    //
-    // pman_context_t * current_context;
-    //
-    // if (error_code->user) current_context = current_process->paging_context;
-    // else current_context = pman_kernel_context();
-    //
-    // void * fault_vaddr = read_fault_vaddr();
-    //
-    // pman_mapping_t * mapping = pman_context_get_vaddr(current_context, fault_vaddr);
-    //
-    // if (mapping == NULL) {
-    //     fs_file_t * out_file = process_file_table_get(&current_process->file_table, stdout);
-    //
-    //     if (out_file != NULL) file_write(out_file, "PAGE FAULT: Bad address\n", 24);
-    //
-    //     if (error_code->present) vga_print("Reason: PROTECTION VIOLATION\n");
-    //     else vga_print("Reason: NOT PRESENT\n");
-    //     if (error_code->write) vga_print("WRITE\n");
-    //     if (error_code->instruction_fetch) vga_print("INSTRUCTION FETCH\n");
-    //     if (error_code->user) vga_print("USER\n");
-    //
-    //     vga_print("Fault VAddr: ");
-    //     vga_print_hex((uint64_t) fault_vaddr);
-    //     vga_print("\n");
-    //
-    //     vga_print("Proc RSP: ");
-    //     vga_print_hex(tsr->rsp);
-    //     vga_print("\n");
-    //
-    //     process_kill(current_process);
-    //     return;
-    // }
-    //
-    // if (pman_context_prepare_write(scheduler_current_process(), mapping) == NULL) {
-    //     fs_file_t * out_file = process_file_table_get(&current_process->file_table, stdout);
-    //
-    //     if (out_file != NULL) file_write(out_file, "PAGE FAULT: Unwritable\n", 23);
-    //
-    //     process_kill(current_process);
-    //     return;
-    // }
-    //
-    // if (!error_code->user) halt();
+        if (out_file != NULL) file_write(out_file, "PAGE FAULT: Bad address\n", 24);
+
+        if (error_code->present) vga_print("Reason: PROTECTION VIOLATION\n");
+        else vga_print("Reason: NOT PRESENT\n");
+        if (error_code->write) vga_print("WRITE\n");
+        if (error_code->instruction_fetch) vga_print("INSTRUCTION FETCH\n");
+        if (error_code->user) vga_print("USER\n");
+
+        vga_print("Fault VAddr: ");
+        vga_print_hex((uint64_t) fault_vaddr);
+        vga_print("\n");
+
+        process_kill(current_process);
+        return;
+    }
+
+    if (pman_context_prepare_write(scheduler_current_process(), mapping) == NULL) {
+        fs_file_t * out_file = file_table_get(&current_process->file_table, stdout);
+
+        if (out_file != NULL) file_write(out_file, "PAGE FAULT: Unwritable\n", 23);
+
+        if (error_code->present) vga_print("Reason: PROTECTION VIOLATION\n");
+        else vga_print("Reason: NOT PRESENT\n");
+        if (error_code->write) vga_print("WRITE\n");
+        if (error_code->instruction_fetch) vga_print("INSTRUCTION FETCH\n");
+        if (error_code->user) vga_print("USER\n");
+
+        vga_print("Fault VAddr: ");
+        vga_print_hex((uint64_t) fault_vaddr);
+        vga_print("\n");
+
+        process_kill(current_process);
+        return;
+    }
+
+    if (!error_code->user) halt();
 }

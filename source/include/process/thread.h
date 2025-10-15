@@ -47,6 +47,7 @@ typedef struct thread_s {
 } thread_t;
 
 thread_t * thread_create_user(pman_context_t * pman_context, struct process_s * parent);
+thread_t * thread_create_fork(pman_context_t * user_context, struct process_s * parent, thread_t * target);
 thread_t * thread_create_kernel(void);
 
 void thread_free(thread_t * thread);

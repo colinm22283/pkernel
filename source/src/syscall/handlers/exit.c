@@ -1,4 +1,4 @@
-#include <_process/scheduler.h>
+#include <scheduler/scheduler.h>
 
 #include <syscall/handlers/exit.h>
 
@@ -11,5 +11,5 @@ __NORETURN void syscall_exit(__MAYBE_UNUSED uint64_t exit_code) {
 
     process_kill(current_process);
 
-    scheduler_start();
+    scheduler_yield();
 }

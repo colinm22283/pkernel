@@ -2,10 +2,15 @@
 
 #include <util/heap/heap.h>
 
+#include <util/memory/memcpy.h>
+
 process_t * process_create(void) {
     process_t * process = heap_alloc(sizeof(process_t));
 
     process->paging_context = pman_new_context();
+
+    process->id = 1;
+    process->parent_id = 0;
 
     process->thread_count = 0;
     process->thread_capacity = 1;
@@ -20,6 +25,21 @@ process_t * process_create(void) {
 
 process_t * process_create_fork(process_t * parent) {
     process_t * process = process_create();
+
+    for (pman_mapping_t * mapping = parent->paging_context->head.next; mapping != &parent->paging_context->tail; mapping = mapping->next) {
+        if (mapping->protection & PMAN_PROT_SHARED) {
+            vga_print("oh dear\n");
+        }
+        else {
+            pman_context_add_borrowed(process->paging_context, mapping->protection, get_root_mapping(mapping), mapping->vaddr);
+        }
+    }
+
+    thread_t * new_thread = thread_create_fork(process->paging_context, process, parent->threads[0]);
+
+    process_add_thread(process, new_thread);
+
+    thread_run(new_thread);
 
     return process;
 }
@@ -65,6 +85,13 @@ void * process_user_to_kernel(process_t * process, const void * user_vaddr) {
     }
 
     return NULL;
+}
+
+void process_kill(process_t * process) {
+    for (size_t i = 0; i < process->thread_count; i++) {
+        process->threads[i]->process = NULL;
+        process->threads[i]->state = TS_DEAD;
+    }
 }
 
 fs_directory_entry_t * process_open_path(process_t * process, const char * path) {

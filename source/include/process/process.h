@@ -10,6 +10,9 @@
 typedef struct process_s {
     pman_context_t * paging_context;
 
+    pid_t id;
+    pid_t parent_id;
+
     size_t thread_count;
     size_t thread_capacity;
     thread_t ** threads;
@@ -32,6 +35,8 @@ void process_add_thread(process_t * process, thread_t * thread);
 void * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot);
 
 void * process_user_to_kernel(process_t * process, const void * user_vaddr);
+
+void process_kill(process_t * process);
 
 fs_directory_entry_t * process_open_path(process_t * process, const char * path);
 fs_directory_entry_t * process_make_path(process_t * process, const char * path, fs_file_type_t type);

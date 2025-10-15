@@ -42,14 +42,14 @@ uint64_t syscall_handler(
         case SYSCALL_READ: return syscall_read((fd_t) arg0, (char *) arg1, arg2);
 
         // case SYSCALL_SEEK: return syscall_seek((fd_t) arg0, (int64_t) arg1, arg2);
-        //
-        // case SYSCALL_EXIT: syscall_exit(arg0);
+
+        case SYSCALL_EXIT: syscall_exit(arg0);
         //
         // case SYSCALL_READDIR: return syscall_readdir((fd_t) arg0, (directory_entry_t *) arg1, arg2);
         //
         // case SYSCALL_CHDIR: return syscall_chdir((const char *) arg0);
         //
-        // case SYSCALL_FORK: return syscall_fork(); break;
+        case SYSCALL_FORK: return syscall_fork(); break;
         //
         // case SYSCALL_EXEC: return syscall_exec(
         //     (const char *) arg0,
