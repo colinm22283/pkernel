@@ -55,7 +55,6 @@ void scheduler_await(event_t * event) {
 
     waiter_t * waiter = heap_alloc(sizeof(waiter_t));
 
-    waiter->completed = false;
     waiter->thread = current_core->current_thread;
 
     waiter->next = &event->waiter_tail;

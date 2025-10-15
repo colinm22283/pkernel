@@ -80,6 +80,8 @@ bool init(void) {
 
     if (!io_arbitrator_reserve(PORT_KB_IN)) return false;
     inb(PORT_KB_IN);
+    inb(PORT_KB_IN);
+    inb(PORT_KB_IN);
 
     if (!interrupt_registry_register(IC_KEYBOARD, keyboard_handler)) return false;
 

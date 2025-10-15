@@ -4,6 +4,8 @@
 
 #include <util/memory/memcpy.h>
 
+#include "sys/tsr/tsr_load_return.h"
+
 process_t * process_create(void) {
     process_t * process = heap_alloc(sizeof(process_t));
 
@@ -26,6 +28,8 @@ process_t * process_create(void) {
 process_t * process_create_fork(process_t * parent) {
     process_t * process = process_create();
 
+    process->parent_id = parent->id;
+
     for (pman_mapping_t * mapping = parent->paging_context->head.next; mapping != &parent->paging_context->tail; mapping = mapping->next) {
         if (mapping->protection & PMAN_PROT_SHARED) {
             vga_print("oh dear\n");
@@ -39,7 +43,10 @@ process_t * process_create_fork(process_t * parent) {
 
     process_add_thread(process, new_thread);
 
-    thread_run(new_thread);
+    file_table_clone(&process->file_table, &parent->file_table);
+
+    fs_directory_entry_add_reference(parent->working_dir);
+    process->working_dir = parent->working_dir;
 
     return process;
 }

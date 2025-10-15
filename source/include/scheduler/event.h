@@ -3,8 +3,6 @@
 #include <process/thread.h>
 
 typedef struct waiter_s {
-    bool completed;
-
     thread_t * thread;
 
     struct waiter_s * next;

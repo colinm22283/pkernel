@@ -56,11 +56,7 @@ thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent,
     thread->twin_thread->twin_thread = thread;
     thread->twin_thread->process = parent;
 
-    vga_print_hex((intptr_t) target->stack_mapping->vaddr);
-    vga_print("\n");
     thread->stack_mapping = pman_context_get_vaddr(user_context, target->stack_mapping->vaddr);
-    vga_print_hex((intptr_t) thread->stack_mapping);
-    vga_print("\n");
 
     memcpy(&thread->tsr, &target->tsr, sizeof(task_state_record_t));
 

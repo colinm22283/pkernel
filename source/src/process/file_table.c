@@ -60,6 +60,20 @@ void file_table_free(file_table_t * file_table) {
     heap_free(file_table->files);
 }
 
+void file_table_clone(file_table_t * dst, file_table_t * src) {
+    dst->file_capacity = src->file_capacity;
+    dst->files = heap_realloc(dst->files, dst->file_capacity * sizeof(fs_file_t *));
+
+    for (size_t i = 0; i < src->file_capacity; i++) {
+        if (src->files[i] != NULL) {
+            dst->files[i] = heap_alloc(sizeof(fs_file_t));
+
+            file_clone(dst->files[i], src->files[i]);
+        }
+        else dst->files[i] = NULL;
+    }
+}
+
 error_number_t file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
     if (src >= file_table->file_capacity || file_table->files[src] == NULL) return ERROR_BAD_FD;
 
