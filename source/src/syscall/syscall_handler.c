@@ -51,11 +51,11 @@ uint64_t syscall_handler(
         //
         case SYSCALL_FORK: return syscall_fork(); break;
         //
-        // case SYSCALL_EXEC: return syscall_exec(
-        //     (const char *) arg0,
-        //     (const char **) arg1,
-        //     (uint64_t) arg2
-        // ); break;
+        case SYSCALL_EXEC: return syscall_exec(
+            (const char *) arg0,
+            (const char **) arg1,
+            (uint64_t) arg2
+        ); break;
         //
         // case SYSCALL_MAP: return (uint64_t) syscall_map((fd_t) arg0, (void *) arg1, arg2, arg3, arg4); break;
         //
@@ -67,9 +67,9 @@ uint64_t syscall_handler(
         // // } break;
         //
         // case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (open_options_t) arg1); break;
-        //
-        // case SYSCALL_DUP: return syscall_dup((fd_t) arg0, (fd_t) arg1); break;
-        //
+
+        case SYSCALL_DUP: return syscall_dup((fd_t) arg0, (fd_t) arg1);
+
         // case SYSCALL_MOUNT: return syscall_mount(
         //     (const char *) arg0,
         //     (const char *) arg1,

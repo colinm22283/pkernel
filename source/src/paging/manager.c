@@ -463,8 +463,6 @@ pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) 
 
 pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t * mapping) {
     if (mapping->type == PMAN_MAPPING_BORROWED) {
-        vga_print("PREP\n");
-
         pman_protection_flags_t mapping_protection = mapping->protection;
         void * mapping_vaddr = mapping->vaddr;
         pman_context_t * context = mapping->context;
@@ -491,12 +489,14 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 
         pman_context_unmap(kernel_alloc);
 
+        process_remap(process, mapping, user_mapping);
+
         return user_mapping;
     }
     else return mapping;
 }
 
-void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr, void * _error_code) {
+void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr, void * _error_code) {
     page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
 
     void * fault_vaddr = read_fault_vaddr();
@@ -512,10 +512,6 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr
 
     pman_mapping_t * mapping = pman_context_get_vaddr(current_context, fault_vaddr);
 
-    vga_print("Mapping: ");
-    vga_print_hex((intptr_t) mapping);
-    vga_print("\n");
-
     if (mapping == NULL) {
         fs_file_t * out_file = file_table_get(&current_process->file_table, stdout);
 
@@ -530,6 +526,12 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr
         vga_print("Fault VAddr: ");
         vga_print_hex((uint64_t) fault_vaddr);
         vga_print("\n");
+
+        vga_print("Fault IP: ");
+        vga_print_hex(tsr->rip);
+        vga_print("\n");
+
+        halt();
 
         process_kill(current_process);
         return;

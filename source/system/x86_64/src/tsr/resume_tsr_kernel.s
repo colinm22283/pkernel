@@ -23,6 +23,7 @@ _resume_tsr_kernel: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx:
     push  %r8  # stack pointer
 
     # flags
+    cli
     pushf
     mov   $(~0b100000000), %rax
     and   %rax, (%rsp)

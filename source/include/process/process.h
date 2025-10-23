@@ -36,6 +36,8 @@ void * process_create_segment(process_t * process, void * vaddr, size_t size, pm
 
 void * process_user_to_kernel(process_t * process, const void * user_vaddr);
 
+void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping);
+
 void process_kill(process_t * process);
 
 fs_directory_entry_t * process_open_path(process_t * process, const char * path);

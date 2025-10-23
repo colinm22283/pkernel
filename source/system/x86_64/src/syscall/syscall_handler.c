@@ -7,10 +7,6 @@
 #include <sys/paging/read_page_table.h>
 #include <sys/paging/load_page_table.h>
 
-#include <sys/halt.h>
-
-#include "debug/vga_print.h"
-
 void syscall_handler_task(task_state_record_t * tsr) {
     uint64_t return_val = syscall_handler(tsr->rax, tsr->rsi, tsr->rdx, tsr->rcx, tsr->r8, tsr->r9, tsr);
 

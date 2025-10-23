@@ -4,9 +4,10 @@
 
 #include <filesystem/file.h>
 
-#include <_process/process.h>
-#include <_process/scheduler.h>
-#include <_process/address_translation.h>
+#include <process/process.h>
+#include <process/user_vaddrs.h>
+
+#include <scheduler/scheduler.h>
 
 #include <application/application_start_table.h>
 
@@ -17,7 +18,12 @@
 
 #include <sys/halt.h>
 
+#include <sys/tsr/tsr_load_pc.h>
+#include <sys/tsr/tsr_set_stack.h>
+
 error_number_t syscall_exec(const char * path, const char ** _argv, uint64_t argc) {
+    process_t * current_process = scheduler_current_process();
+
     fs_directory_entry_t * test_file_dirent = process_open_path(
         scheduler_current_process(),
         process_user_to_kernel(
@@ -41,36 +47,65 @@ error_number_t syscall_exec(const char * path, const char ** _argv, uint64_t arg
     application_start_table_t start_table;
     test_file_dirent->superblock->superblock_ops->read(test_file_dirent, (char *) &start_table, sizeof(application_start_table_t), 0, &read_bytes);
 
-    process_t * current_process = scheduler_current_process();
+    pman_mapping_t * old_text = pman_context_get_vaddr(current_process->paging_context, PROCESS_TEXT_USER_VADDR);
+    pman_mapping_t * old_data = pman_context_get_vaddr(current_process->paging_context, PROCESS_DATA_USER_VADDR);
+    pman_mapping_t * old_rodata = pman_context_get_vaddr(current_process->paging_context, PROCESS_RODATA_USER_VADDR);
+    pman_mapping_t * old_bss = pman_context_get_vaddr(current_process->paging_context, PROCESS_BSS_USER_VADDR);
 
-    current_process->text   = pman_context_resize(current_process->text,   MAX(100, start_table.text_size));
-    current_process->data   = pman_context_resize(current_process->data,   MAX(100, start_table.data_size));
-    current_process->rodata = pman_context_resize(current_process->rodata, MAX(100, start_table.rodata_size));
-    current_process->bss    = pman_context_resize(current_process->bss,    MAX(100, start_table.bss_size));
+    pman_mapping_t * text;
+    pman_mapping_t * data;
+    pman_mapping_t * rodata;
 
-    pman_context_prepare_write(current_process, current_process->text);
+    if (old_text != NULL) text = pman_context_resize(old_text, MAX(100, start_table.text_size));
+    else {
+        pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, MAX(100, start_table.text_size));
+        text = pman_context_add_shared(current_process->paging_context, PMAN_PROT_EXECUTE, kernel_mapping, PROCESS_TEXT_USER_VADDR);
+        pman_context_unmap(kernel_mapping);
+    }
 
+    if (old_data != NULL) data = pman_context_resize(old_data, MAX(100, start_table.data_size));
+    else {
+        pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, MAX(100, start_table.data_size));
+        data = pman_context_add_shared(current_process->paging_context, PMAN_PROT_WRITE, kernel_mapping, PROCESS_DATA_USER_VADDR);
+        pman_context_unmap(kernel_mapping);
+    }
+
+    if (old_rodata != NULL) rodata = pman_context_resize(old_rodata, MAX(100, start_table.rodata_size));
+    else {
+        pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, MAX(100, start_table.rodata_size));
+        rodata = pman_context_add_shared(current_process->paging_context, 0, kernel_mapping, PROCESS_RODATA_USER_VADDR);
+        pman_context_unmap(kernel_mapping);
+    }
+
+    if (old_bss != NULL) pman_context_resize(old_bss, MAX(100, start_table.bss_size));
+    else {
+        pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, MAX(100, start_table.bss_size));
+        pman_context_add_shared(current_process->paging_context, PMAN_PROT_WRITE, kernel_mapping, PROCESS_BSS_USER_VADDR);
+        pman_context_unmap(kernel_mapping);
+    }
+
+    pman_context_prepare_write(current_process, text);
     test_file_dirent->superblock->superblock_ops->read(
         test_file_dirent,
-        (char *) get_root_mapping(current_process->text)->vaddr,
+        (char *) get_root_mapping(text)->vaddr,
         start_table.text_size,
         sizeof(application_start_table_t),
         &read_bytes
     );
 
-    pman_context_prepare_write(current_process, current_process->data);
+    pman_context_prepare_write(current_process, data);
     test_file_dirent->superblock->superblock_ops->read(
         test_file_dirent,
-        (char *) current_process->data->shared.lender->vaddr,
+        (char *) get_root_mapping(data)->vaddr,
         start_table.data_size,
         sizeof(application_start_table_t) + start_table.text_size,
         &read_bytes
     );
 
-    pman_context_prepare_write(current_process, current_process->rodata);
+    pman_context_prepare_write(current_process, rodata);
     test_file_dirent->superblock->superblock_ops->read(
         test_file_dirent,
-        (char *) current_process->rodata->shared.lender->vaddr,
+        (char *) get_root_mapping(rodata)->vaddr,
         start_table.rodata_size,
         sizeof(application_start_table_t) + start_table.text_size + start_table.data_size,
         &read_bytes
@@ -78,22 +113,27 @@ error_number_t syscall_exec(const char * path, const char ** _argv, uint64_t arg
 
     fs_directory_entry_release(test_file_dirent);
 
-    current_process->thread_table.threads[0]->isr.rip = (uint64_t) current_process->text->vaddr;
-    current_process->thread_table.threads[0]->isr.rsp = ((intptr_t) current_process->thread_table.threads[0]->stack->vaddr + current_process->thread_table.threads[0]->stack->size_pages * 0x1000 - 1) & ~0b111;
+    tsr_load_pc(&current_process->threads[0]->tsr, PROCESS_TEXT_USER_VADDR);
 
-    if (argc != 0) {
-        const char ** argv = process_user_to_kernel(current_process, _argv);
+    tsr_set_stack(
+        &current_process->threads[0]->tsr,
+        current_process->threads[0]->stack_mapping->vaddr,
+        current_process->threads[0]->stack_mapping->size_pages * 0x1000
+    );
 
-        const char * kern_argv[argc];
-        for (uint64_t i = 0; i < argc; i++) {
-            kern_argv[i] = process_user_to_kernel(current_process, argv[i]);
-        }
-
-        process_push_args(current_process, kern_argv, argc);
-    }
-    else {
-        process_push_args(current_process, NULL, 0);
-    }
+    // if (argc != 0) {
+    //     const char ** argv = process_user_to_kernel(current_process, _argv);
+    //
+    //     const char * kern_argv[argc];
+    //     for (uint64_t i = 0; i < argc; i++) {
+    //         kern_argv[i] = process_user_to_kernel(current_process, argv[i]);
+    //     }
+    //
+    //     process_push_args(current_process, kern_argv, argc);
+    // }
+    // else {
+    //     process_push_args(current_process, NULL, 0);
+    // }
 
     return ERROR_OK;
 }
