@@ -116,6 +116,12 @@ __NORETURN void thread_resume(thread_t * thread) {
         } break;
 
         case TL_USER: {
+            // vga_print("RESUME IP: ");
+            // vga_print_hex(thread->tsr.rip);
+            // vga_print(" FOR ");
+            // vga_print_hex(thread->process->id);
+            // vga_print("\n");
+
             resume_tsr_user(&thread->tsr, thread->process->paging_context);
         } break;
     }

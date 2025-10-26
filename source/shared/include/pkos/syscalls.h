@@ -158,3 +158,11 @@ static inline error_number_t remove(const char * path) {
 
     return ret;
 }
+
+static inline fd_t openat(fd_t fd, const char * path, open_options_t options) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_OPENAT), "S" ((uint64_t) fd), "d" ((uint64_t) path), "c" (options) : "memory", "cc");
+
+    return ret;
+}

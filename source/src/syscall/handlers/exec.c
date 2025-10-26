@@ -84,32 +84,38 @@ error_number_t syscall_exec(const char * path, const char ** _argv, uint64_t arg
         pman_context_unmap(kernel_mapping);
     }
 
-    pman_context_prepare_write(current_process, text);
-    test_file_dirent->superblock->superblock_ops->read(
-        test_file_dirent,
-        (char *) get_root_mapping(text)->vaddr,
-        start_table.text_size,
-        sizeof(application_start_table_t),
-        &read_bytes
-    );
+    if (start_table.text_size != 0) {
+        pman_context_prepare_write(current_process, text);
+        test_file_dirent->superblock->superblock_ops->read(
+            test_file_dirent,
+            (char *) get_root_mapping(text)->vaddr,
+            start_table.text_size,
+            sizeof(application_start_table_t),
+            &read_bytes
+        );
+    }
 
-    pman_context_prepare_write(current_process, data);
-    test_file_dirent->superblock->superblock_ops->read(
-        test_file_dirent,
-        (char *) get_root_mapping(data)->vaddr,
-        start_table.data_size,
-        sizeof(application_start_table_t) + start_table.text_size,
-        &read_bytes
-    );
+    if (start_table.data_size != 0) {
+        pman_context_prepare_write(current_process, data);
+        test_file_dirent->superblock->superblock_ops->read(
+            test_file_dirent,
+            (char *) get_root_mapping(data)->vaddr,
+            start_table.data_size,
+            sizeof(application_start_table_t) + start_table.text_size,
+            &read_bytes
+        );
+    }
 
-    pman_context_prepare_write(current_process, rodata);
-    test_file_dirent->superblock->superblock_ops->read(
-        test_file_dirent,
-        (char *) get_root_mapping(rodata)->vaddr,
-        start_table.rodata_size,
-        sizeof(application_start_table_t) + start_table.text_size + start_table.data_size,
-        &read_bytes
-    );
+    if (start_table.rodata_size != 0) {
+        pman_context_prepare_write(current_process, rodata);
+        test_file_dirent->superblock->superblock_ops->read(
+            test_file_dirent,
+            (char *) get_root_mapping(rodata)->vaddr,
+            start_table.rodata_size,
+            sizeof(application_start_table_t) + start_table.text_size + start_table.data_size,
+            &read_bytes
+        );
+    }
 
     fs_directory_entry_release(test_file_dirent);
 

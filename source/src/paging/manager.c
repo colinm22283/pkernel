@@ -410,22 +410,23 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
         } break;
 
         case PMAN_MAPPING_BORROWED: {
+            vga_print("Borrow resize\n");
             pman_context_t * context = mapping->context;
             pman_protection_flags_t prot = mapping->protection;
             void * vaddr = mapping->vaddr;
 
             pman_mapping_t * new_lender = pman_context_add_alloc(
                 pman_kernel_context(),
-                mapping->borrowed.lender->protection,
+                PMAN_PROT_WRITE,
                 NULL,
                 size
             );
 
-            memcpy(new_lender->vaddr, mapping->borrowed.lender->vaddr, mapping->size_pages * 0x1000);
+            memcpy(new_lender->vaddr, get_root_mapping(mapping)->vaddr, mapping->size_pages * 0x1000);
 
             pman_context_unmap(mapping);
 
-            pman_mapping_t * new_borrow = pman_context_add_borrowed(
+            pman_mapping_t * new_mapping = pman_context_add_shared(
                 context,
                 prot,
                 new_lender,
@@ -434,7 +435,7 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
 
             pman_context_unmap(new_lender);
 
-            return new_borrow;
+            return new_mapping;
         } break;
 
         // TODO: add cases

@@ -6,12 +6,14 @@
 
 #include "sys/tsr/tsr_load_return.h"
 
+pid_t current_pid = 0;
+
 process_t * process_create(void) {
     process_t * process = heap_alloc(sizeof(process_t));
 
     process->paging_context = pman_new_context();
 
-    process->id = 1;
+    process->id = current_pid++;
     process->parent_id = 0;
 
     process->thread_count = 0;

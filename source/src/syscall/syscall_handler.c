@@ -84,6 +84,8 @@ uint64_t syscall_handler(
         //
         // case SYSCALL_REMOVE: return syscall_remove((const char *) arg0); break;
 
+        case SYSCALL_OPENAT: return syscall_openat((fd_t) arg0, (const char *) arg1, (open_options_t) arg2);
+
         default: return ERROR_BAD_SYSCALL; break;
     }
 }

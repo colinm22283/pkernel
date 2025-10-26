@@ -95,6 +95,17 @@ fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, ope
     return file_table_add(file_table, file);
 }
 
+fd_t file_table_openat(file_table_t * file_table, fd_t fd, fs_directory_entry_t * node, open_options_t options) {
+    fs_file_t * file = heap_alloc(sizeof(fs_file_t));
+
+    error_number_t init_result = file_init(file, node, options);
+    if (init_result != ERROR_OK) return init_result;
+
+    file_table_set(file_table, fd, file);
+
+    return fd;
+}
+
 fs_file_t * file_table_get(file_table_t * file_table, fd_t fd) {
     if (fd >= file_table->file_capacity || file_table->files[fd] == NULL) return NULL;
 
