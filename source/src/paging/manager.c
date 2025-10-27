@@ -532,8 +532,6 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         vga_print_hex(tsr->rip);
         vga_print("\n");
 
-        halt();
-
         process_kill(current_process);
         return;
     }

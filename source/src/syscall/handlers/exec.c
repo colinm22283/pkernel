@@ -127,19 +127,19 @@ error_number_t syscall_exec(const char * path, const char ** _argv, uint64_t arg
         current_process->threads[0]->stack_mapping->size_pages * 0x1000
     );
 
-    // if (argc != 0) {
-    //     const char ** argv = process_user_to_kernel(current_process, _argv);
-    //
-    //     const char * kern_argv[argc];
-    //     for (uint64_t i = 0; i < argc; i++) {
-    //         kern_argv[i] = process_user_to_kernel(current_process, argv[i]);
-    //     }
-    //
-    //     process_push_args(current_process, kern_argv, argc);
-    // }
-    // else {
-    //     process_push_args(current_process, NULL, 0);
-    // }
+    if (argc != 0) {
+        const char ** argv = process_user_to_kernel(current_process, _argv);
+
+        const char * kern_argv[argc];
+        for (uint64_t i = 0; i < argc; i++) {
+            kern_argv[i] = process_user_to_kernel(current_process, argv[i]);
+        }
+
+        process_push_args(current_process, kern_argv, argc);
+    }
+    else {
+        process_push_args(current_process, NULL, 0);
+    }
 
     return ERROR_OK;
 }

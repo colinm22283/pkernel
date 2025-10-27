@@ -4,7 +4,7 @@
 
 #include <util/memory/memcpy.h>
 
-#include "sys/tsr/tsr_load_return.h"
+#include <sys/push_args.h>
 
 pid_t current_pid = 0;
 
@@ -56,6 +56,10 @@ process_t * process_create_fork(process_t * parent) {
 void process_free(process_t * process) {
     file_table_free(&process->file_table);
 
+    if (process->argc != 0) heap_free(process->argv);
+
+    pman_free_context(process->paging_context);
+
     heap_free(process);
 }
 
@@ -100,6 +104,57 @@ void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mappi
     for (size_t i = 0; i < process->thread_count; i++) {
         if (process->threads[i]->stack_mapping == old_mapping) process->threads[i]->stack_mapping = new_mapping;
     }
+}
+
+void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
+    if (process->argc != 0) {
+        heap_free(process->argv);
+    }
+
+    if (argc == 0) {
+        process->argc = 0;
+        process->argv = NULL;
+    }
+    else {
+        process->argc = argc;
+        process->argv = heap_alloc(argc * sizeof(const char *));
+
+        uint64_t required_size = 0;
+        for (uint64_t i = 0; i < argc; i++) {
+            required_size += strlen(argv[i]) + 1;
+        }
+
+        pman_mapping_t * kern_mapping = pman_context_add_alloc(
+            pman_kernel_context(),
+            0,
+            NULL,
+            required_size
+        );
+
+        pman_mapping_t * user_mapping = pman_context_add_shared(
+            process->paging_context,
+            0,
+            kern_mapping,
+            NULL
+        );
+
+        char * kern_buf = kern_mapping->vaddr;
+        char * user_buf = user_mapping->vaddr;
+
+        uint64_t pos = 0;
+        for (uint64_t i = 0; i < argc; i++) {
+            uint64_t len = strlen(argv[i]);
+
+            process->argv[i] = &user_buf[pos];
+
+            memcpy(&kern_buf[pos], argv[i], len + 1);
+            pos += len + 1;
+        }
+
+        pman_context_unmap(kern_mapping);
+    }
+
+    push_args(process, &process->threads[0]->tsr, process->threads[0]->stack_mapping, process->argc, process->argv);
 }
 
 void process_kill(process_t * process) {

@@ -21,6 +21,9 @@ typedef struct process_s {
 
     fs_directory_entry_t * working_dir;
 
+    uint64_t argc;
+    char ** argv;
+
     struct process_s * next;
     struct process_s * prev;
 } process_t;
@@ -37,6 +40,8 @@ void * process_create_segment(process_t * process, void * vaddr, size_t size, pm
 void * process_user_to_kernel(process_t * process, const void * user_vaddr);
 
 void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping);
+
+void process_push_args(process_t * process, const char ** argv, uint64_t argc);
 
 void process_kill(process_t * process);
 
