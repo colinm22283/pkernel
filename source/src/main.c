@@ -83,6 +83,8 @@ __NORETURN void kernel_main(void) {
 
     io_arbitrator_init();
 
+    processes_init();
+
     scheduler_init();
 
     pci_init();

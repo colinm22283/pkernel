@@ -24,14 +24,23 @@ typedef struct process_s {
     uint64_t argc;
     char ** argv;
 
+    event_t * child_finished;
+
     struct process_s * next;
     struct process_s * prev;
+
+    struct process_s * global_next;
+    struct process_s * global_prev;
 } process_t;
+
+void processes_init(void);
 
 process_t * process_create(void);
 process_t * process_create_fork(process_t * parent);
 
 void process_free(process_t * process);
+
+process_t * process_lookup(pid_t pid);
 
 void process_add_thread(process_t * process, thread_t * thread);
 

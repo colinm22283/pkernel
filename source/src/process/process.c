@@ -6,7 +6,18 @@
 
 #include <sys/push_args.h>
 
+#include <scheduler/scheduler.h>
+
 pid_t current_pid = 0;
+
+process_t process_head, process_tail;
+
+void processes_init(void) {
+    process_head.global_next = &process_tail;
+    process_head.global_prev = NULL;
+    process_tail.global_next = NULL;
+    process_tail.global_prev = &process_head;
+}
 
 process_t * process_create(void) {
     process_t * process = heap_alloc(sizeof(process_t));
@@ -23,6 +34,13 @@ process_t * process_create(void) {
     file_table_init(&process->file_table);
 
     process->working_dir = &fs_root;
+
+    process->child_finished = event_init();
+
+    process->global_next = process_head.global_next;
+    process->global_prev = &process_head;
+    process_head.global_next->global_prev = process;
+    process_head.global_next = process;
 
     return process;
 }
@@ -54,6 +72,23 @@ process_t * process_create_fork(process_t * parent) {
 }
 
 void process_free(process_t * process) {
+    vga_print("PARENT ID: ");
+    vga_print_hex(process->parent_id);
+    vga_print("\n");
+
+    process_t * parent = process_lookup(process->parent_id);
+
+    vga_print("gurp\n");
+
+    if (parent != NULL) {
+        vga_print("CHILD DONE\n");
+        event_invoke(parent->child_finished);
+    }
+
+    vga_print("EVENT FREE\n");
+
+    event_free(process->child_finished);
+
     file_table_free(&process->file_table);
 
     if (process->argc != 0) heap_free(process->argv);
@@ -61,6 +96,14 @@ void process_free(process_t * process) {
     pman_free_context(process->paging_context);
 
     heap_free(process);
+}
+
+process_t * process_lookup(pid_t pid) {
+    for (process_t * process = process_head.global_next; process != &process_tail; process = process->global_next) {
+        if (process->id == pid) return process;
+    }
+
+    return NULL;
 }
 
 void process_add_thread(process_t * process, thread_t * thread) {
@@ -158,10 +201,14 @@ void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
 }
 
 void process_kill(process_t * process) {
+    vga_print("Process kill\n");
+
     for (size_t i = 0; i < process->thread_count; i++) {
         process->threads[i]->process = NULL;
         process->threads[i]->state = TS_DEAD;
     }
+
+    process_free(process);
 }
 
 fs_directory_entry_t * process_open_path(process_t * process, const char * path) {

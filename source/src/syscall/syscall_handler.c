@@ -43,7 +43,7 @@ uint64_t syscall_handler(
 
         // case SYSCALL_SEEK: return syscall_seek((fd_t) arg0, (int64_t) arg1, arg2);
 
-        case SYSCALL_EXIT: syscall_exit(arg0);
+        case SYSCALL_EXIT: syscall_exit(arg0); return 0;
         //
         // case SYSCALL_READDIR: return syscall_readdir((fd_t) arg0, (directory_entry_t *) arg1, arg2);
         //
@@ -58,14 +58,13 @@ uint64_t syscall_handler(
         ); break;
         //
         // case SYSCALL_MAP: return (uint64_t) syscall_map((fd_t) arg0, (void *) arg1, arg2, arg3, arg4); break;
-        //
-        // // case SYSCALL_WAIT: {
-        // //     process_t * current_process = scheduler_current_process();
-        // //     process_thread_t * current_thread = scheduler_current_thread();
-        // //
-        // //     current_thread->state = TS_WAIT_CHILD;
-        // // } break;
-        //
+
+        case SYSCALL_WAIT: {
+            process_t * current_process = scheduler_current_process();
+
+            scheduler_await(current_process->child_finished);
+        } break;
+
         // case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (open_options_t) arg1); break;
 
         case SYSCALL_DUP: return syscall_dup((fd_t) arg0, (fd_t) arg1);

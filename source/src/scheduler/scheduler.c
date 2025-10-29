@@ -37,7 +37,7 @@ void scheduler_init(void) {
 }
 
 void scheduler_queue(thread_t * thread) {
-    if (thread->state == TS_RUNNING) {
+    if (thread->state == TS_RUNNING || thread->state == TS_DEAD) {
         scheduler_queue_t * queue = &scheduler_queues[thread->priority];
 
         thread->prev = queue->tail.prev;
@@ -100,13 +100,33 @@ __NORETURN void scheduler_return_twin(uint64_t ret_val) {
 
     current_core->current_thread = NULL;
 
-    tsr_load_return(&twin->tsr, ret_val);
+    if (twin->state == TS_DEAD) {
+        scheduler_queue(twin);
+        scheduler_yield();
+    }
+    else {
+        tsr_load_return(&twin->tsr, ret_val);
 
-    thread_run(twin);
-    scheduler_yield();
+        thread_run(twin);
+        scheduler_yield();
+    }
 }
 
 __NORETURN void scheduler_yield(void) {
+    // size_t proc_count = 0;
+    // for (size_t i = 0; i < TP_COUNT; i++) {
+    //     thread_t * thread = scheduler_queues[i].head.next;
+    //     while (thread != &scheduler_queues[i].tail) {
+    //         proc_count++;
+    //
+    //         thread = thread->next;
+    //     }
+    // }
+
+    // vga_print("yield ");
+    // vga_print_hex(proc_count);
+    // vga_print("\n");
+
     scheduler_core_t * current_core = scheduler_current_core();
 
     if (current_core->current_thread != NULL) {
