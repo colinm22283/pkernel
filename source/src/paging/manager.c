@@ -410,7 +410,6 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
         } break;
 
         case PMAN_MAPPING_BORROWED: {
-            vga_print("Borrow resize\n");
             pman_context_t * context = mapping->context;
             pman_protection_flags_t prot = mapping->protection;
             void * vaddr = mapping->vaddr;

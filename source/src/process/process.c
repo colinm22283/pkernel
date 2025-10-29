@@ -37,6 +37,8 @@ process_t * process_create(void) {
 
     process->child_finished = event_init();
 
+    process->argc = 0;
+
     process->global_next = process_head.global_next;
     process->global_prev = &process_head;
     process_head.global_next->global_prev = process;
@@ -72,20 +74,14 @@ process_t * process_create_fork(process_t * parent) {
 }
 
 void process_free(process_t * process) {
-    vga_print("PARENT ID: ");
-    vga_print_hex(process->parent_id);
-    vga_print("\n");
+    process->global_next->global_prev = process->global_prev;
+    process->global_prev->global_next = process->global_next;
 
     process_t * parent = process_lookup(process->parent_id);
 
-    vga_print("gurp\n");
-
     if (parent != NULL) {
-        vga_print("CHILD DONE\n");
         event_invoke(parent->child_finished);
     }
-
-    vga_print("EVENT FREE\n");
 
     event_free(process->child_finished);
 
@@ -200,9 +196,13 @@ void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
     push_args(process, &process->threads[0]->tsr, process->threads[0]->stack_mapping, process->argc, process->argv);
 }
 
-void process_kill(process_t * process) {
-    vga_print("Process kill\n");
+void process_set_working_dir(process_t * process, fs_directory_entry_t * dirent) {
+    fs_directory_entry_release(process->working_dir);
 
+    process->working_dir = dirent;
+}
+
+void process_kill(process_t * process) {
     for (size_t i = 0; i < process->thread_count; i++) {
         process->threads[i]->process = NULL;
         process->threads[i]->state = TS_DEAD;

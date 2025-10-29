@@ -52,6 +52,8 @@ void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mappi
 
 void process_push_args(process_t * process, const char ** argv, uint64_t argc);
 
+void process_set_working_dir(process_t * process, fs_directory_entry_t * dirent);
+
 void process_kill(process_t * process);
 
 fs_directory_entry_t * process_open_path(process_t * process, const char * path);

@@ -79,6 +79,7 @@ error_number_t file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
 
     fs_file_t * file = heap_alloc(sizeof(fs_file_t));
 
+    fs_directory_entry_add_reference(file_table->files[src]->dirent);
     file_init(file, file_table->files[src]->dirent, file_table->files[src]->options);
 
     file_table_set(file_table, dst, file);

@@ -13,28 +13,28 @@
 
 #include <defs.h>
 
-__NORETURN void pic1_keyboard_handler(task_state_record_t * isr) {
+__NORETURN void pic1_keyboard_handler(task_state_record_t * tsr) {
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
 
     load_page_table((void *) new_pml4t_paddr);
 
-    // if (old_pml4t_paddr != new_pml4t_paddr) process_load_isr(scheduler_current_process(), tsr);
+    if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
-    interrupt_registry_invoke(IC_KEYBOARD, isr, NULL);
+    interrupt_registry_invoke(IC_KEYBOARD, tsr, NULL);
 
     scheduler_yield();
 }
 
-__NORETURN void pic1_timer_handler(task_state_record_t * isr) {
+__NORETURN void pic1_timer_handler(task_state_record_t * tsr) {
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
 
     load_page_table((void *) new_pml4t_paddr);
 
-    // if (old_pml4t_paddr != new_pml4t_paddr) process_load_isr(scheduler_current_process(), tsr);
+    if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
-    interrupt_registry_invoke(IC_TIMER, isr, NULL);
+    interrupt_registry_invoke(IC_TIMER, tsr, NULL);
 
     scheduler_yield();
 }

@@ -49,20 +49,25 @@ void scheduler_queue(thread_t * thread) {
 }
 
 void scheduler_await(event_t * event) {
-    scheduler_core_t * current_core = scheduler_current_core();
+    if (!event->has_signal) {
+        scheduler_core_t * current_core = scheduler_current_core();
 
-    current_core->current_thread->state = TS_WAITING;
+        current_core->current_thread->state = TS_WAITING;
 
-    waiter_t * waiter = heap_alloc(sizeof(waiter_t));
+        waiter_t * waiter = heap_alloc(sizeof(waiter_t));
 
-    waiter->thread = current_core->current_thread;
+        waiter->thread = current_core->current_thread;
 
-    waiter->next = &event->waiter_tail;
-    waiter->prev = event->waiter_tail.prev;
-    event->waiter_tail.prev->next = waiter;
-    event->waiter_tail.prev = waiter;
+        waiter->next = &event->waiter_tail;
+        waiter->prev = event->waiter_tail.prev;
+        event->waiter_tail.prev->next = waiter;
+        event->waiter_tail.prev = waiter;
 
-    store_tsr_and_yield(&current_core->current_thread->tsr);
+        store_tsr_and_yield(&current_core->current_thread->tsr);
+    }
+    else {
+        event->has_signal = false;
+    }
 }
 
 void scheduler_load_tsr(task_state_record_t * tsr) {

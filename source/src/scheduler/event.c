@@ -10,6 +10,8 @@
 event_t * event_init(void) {
     event_t * event = heap_alloc(sizeof(event_t));
 
+    event->has_signal = false;
+
     event->waiter_head.next = &event->waiter_tail;
     event->waiter_head.prev = NULL;
     event->waiter_tail.next = NULL;
@@ -30,6 +32,9 @@ void event_invoke(event_t * event) {
         event->waiter_head.next->prev = &event->waiter_head;
 
         thread_run(waiter->thread);
+    }
+    else {
+        event->has_signal = true;
     }
 }
 

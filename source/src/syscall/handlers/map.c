@@ -1,4 +1,4 @@
-#include <_process/scheduler.h>
+#include <scheduler/scheduler.h>
 
 #include <syscall/handlers/map.h>
 
@@ -21,7 +21,7 @@ void * syscall_map(fd_t fd, void * map_address, uint64_t size, uint64_t offset, 
         return user_mapping->vaddr;
     }
     else {
-        fs_file_t * file = process_file_table_get(&current_process->file_table, fd);
+        fs_file_t * file = file_table_get(&current_process->file_table, fd);
 
         return file_map(file, context, map_address, size, offset);
     }

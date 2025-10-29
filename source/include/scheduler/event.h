@@ -10,6 +10,8 @@ typedef struct waiter_s {
 } waiter_t;
 
 typedef struct {
+    bool has_signal;
+
     waiter_t waiter_head, waiter_tail;
 } event_t;
 
