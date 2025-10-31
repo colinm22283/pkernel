@@ -21,6 +21,7 @@ typedef enum {
 
     ERROR_FS_IN_USE,
     ERROR_FS_NO_ENT,
+    ERROR_FS_CANT_CREATE,
 
     ERROR_BAD_FD,
     ERROR_BAD_PTR,
@@ -33,6 +34,9 @@ typedef enum {
     ERROR_DIR_NOT_EMPTY,
     
     ERROR_NOT_REG,
+
+    ERROR_NOT_SOCKET,
+    ERROR_NOT_OPEN,
 
     ERROR_NOT_DEV,
 

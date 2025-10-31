@@ -20,4 +20,7 @@ typedef enum {
     SYSCALL_MKDIR   = 16,
     SYSCALL_REMOVE  = 17,
     SYSCALL_OPENAT  = 18,
+    SYSCALL_SOCKET  = 19,
+    SYSCALL_CONNECT = 20,
+    SYSCALL_BIND    = 21,
 } syscall_number_t;

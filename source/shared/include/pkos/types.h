@@ -17,6 +17,7 @@ typedef enum {
     FS_DIRECTORY,
     FS_DEVICE,
     FS_PIPE,
+    FS_SOCKET,
 } fs_file_type_t;
 
 typedef struct {
@@ -38,3 +39,18 @@ typedef uint64_t map_options_t;
 #define MAP_ANON     ((map_options_t) 0b000000000000000000000000000000000000000000000000000100)
 
 typedef uint64_t mount_options_t;
+
+typedef enum {
+    SOCKET_UNIX,
+} socket_domain_t;
+
+typedef enum {
+    SOCKET_STREAM,
+    SOCKET_DGRAM,
+} socket_type_t;
+
+typedef struct sockaddr_s sockaddr_t;
+
+typedef struct {
+    char path[];
+} sockaddr_unix_t;

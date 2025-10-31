@@ -119,5 +119,7 @@ error_number_t file_table_close(file_table_t * file_table, fd_t fd) {
     file_close(file_table->files[fd]);
     heap_free(file_table->files[fd]);
 
+    file_table->files[fd] = NULL;
+
     return ERROR_OK;
 }

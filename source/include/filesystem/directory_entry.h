@@ -4,6 +4,7 @@
 
 #include <filesystem/types.h>
 #include <filesystem/pipe.h>
+#include <filesystem/socket.h>
 
 #include <error_number.h>
 
@@ -29,6 +30,7 @@ typedef struct fs_directory_entry_s {
     struct fs_node_s * node;
 
     pipe_t * pipe;
+    socket_t * socket;
 
     struct fs_filesystem_node_s * mounted_fs;
 

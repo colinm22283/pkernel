@@ -37,9 +37,11 @@ KN_OBJS+=$(KN_OD_64)/memory/primary_region.o
 
 KN_OBJS+=$(KN_OD_64)/task/enter_user_mode.o
 
+KN_OBJS+=$(KN_OD_64)/socket/unix.o
+
 KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/open.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/write.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/read.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/seek.o
@@ -51,10 +53,13 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/exec.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/map.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/pipe.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/dup.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/unmount.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/mkdir.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/remove.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/socket.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/connect.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/bind.o
 
 KN_OBJS+=$(KN_OD_64)/interface/interface.o
 KN_OBJS+=$(KN_OD_64)/interface/interface_map.o
@@ -76,6 +81,7 @@ KN_OBJS+=$(KN_OD_64)/filesystem/directory_entry.o
 KN_OBJS+=$(KN_OD_64)/filesystem/superblock.o
 KN_OBJS+=$(KN_OD_64)/filesystem/node.o
 KN_OBJS+=$(KN_OD_64)/filesystem/pipe.o
+KN_OBJS+=$(KN_OD_64)/filesystem/socket.o
 KN_OBJS+=$(KN_OD_64)/filesystem/file.o
 KN_OBJS+=$(KN_OD_64)/filesystem/ramfs/ramfs.o
 

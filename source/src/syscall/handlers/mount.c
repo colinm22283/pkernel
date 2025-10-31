@@ -1,8 +1,8 @@
 #include <stddef.h>
 
-#include <_process/scheduler.h>
+#include <scheduler/scheduler.h>
 
-#include <_process/address_translation.h>
+#include <process/process.h>
 
 #include <syscall/handlers/mount.h>
 

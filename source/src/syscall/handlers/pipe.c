@@ -14,7 +14,7 @@ int64_t syscall_pipe(fd_t * _fds, open_options_t options) {
     fd_t * fds = process_user_to_kernel(current_process, _fds);
     if (fds == NULL) return ERROR_BAD_PTR;
 
-    fs_directory_entry_t * dirent = fs_make_anon(FS_PIPE);
+    fs_directory_entry_t * dirent = fs_make_anon(FS_PIPE); // TODO: move pipe allocation out of make_anon
     if (dirent == NULL) return ERROR_UNKNOWN;
 
     fds[0] = process_file_table_open(&current_process->file_table, dirent, OPEN_WRITE);

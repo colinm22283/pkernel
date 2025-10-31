@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include <pkos/types.h>
 
@@ -163,6 +164,30 @@ static inline fd_t openat(fd_t fd, const char * path, open_options_t options) {
     int64_t ret;
 
     asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_OPENAT), "S" ((uint64_t) fd), "d" ((uint64_t) path), "c" (options) : "memory", "cc");
+
+    return ret;
+}
+
+static inline fd_t socket(socket_domain_t domain, socket_type_t type, uint64_t protocol) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_SOCKET), "S" ((uint64_t) domain), "d" ((uint64_t) type), "c" (protocol) : "memory", "cc");
+
+    return ret;
+}
+
+static inline fd_t connect(fd_t sock_fd, const sockaddr_t * sockaddr, size_t sockaddr_len) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_CONNECT), "S" ((uint64_t) sock_fd), "d" ((uint64_t) sockaddr), "c" ((uint64_t) sockaddr_len) : "memory", "cc");
+
+    return ret;
+}
+
+static inline fd_t bind(fd_t sock_fd, const sockaddr_t * sockaddr, size_t sockaddr_len) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_BIND), "S" ((uint64_t) sock_fd), "d" ((uint64_t) sockaddr), "c" ((uint64_t) sockaddr_len) : "memory", "cc");
 
     return ret;
 }

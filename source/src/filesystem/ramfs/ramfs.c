@@ -54,7 +54,7 @@ fs_directory_entry_node_t * ramfs_create(struct fs_directory_entry_s * parent, s
             node->data = heap_alloc(1);
         } break;
 
-        case FS_DIRECTORY: break;
+        case FS_DIRECTORY: case FS_PIPE: case FS_SOCKET: break;
 
         default: return NULL;
     }

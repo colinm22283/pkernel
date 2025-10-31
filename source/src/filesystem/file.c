@@ -42,6 +42,12 @@ int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
         return (int64_t) amount_read;
     }
 
+    if (file->dirent->type == FS_SOCKET) {
+        socket_read(file->dirent->socket, buffer, size, &amount_read);
+
+        return (int64_t) amount_read;
+    }
+
     error_number_t result = file->dirent->superblock->superblock_ops->read(file->dirent, buffer, size, file->offset, &amount_read);
     file->offset += amount_read;
 
@@ -75,7 +81,13 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
 
             error_number_t result = pipe_write(file->dirent, buffer, size, 0, &amount_written);
 
-            file->offset += amount_written;
+            return (int64_t) amount_written;
+        } break;
+
+        case FS_SOCKET: {
+            uint64_t amount_written;
+
+            error_number_t result = socket_write(file->dirent->socket, buffer, size, &amount_written);
 
             return (int64_t) amount_written;
         } break;
