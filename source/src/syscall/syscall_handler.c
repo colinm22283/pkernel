@@ -23,6 +23,8 @@
 #include <syscall/handlers/socket.h>
 #include <syscall/handlers/connect.h>
 #include <syscall/handlers/bind.h>
+#include <syscall/handlers/listen.h>
+#include <syscall/handlers/accept.h>
 
 #include <debug/vga_print.h>
 
@@ -89,6 +91,10 @@ uint64_t syscall_handler(
         case SYSCALL_CONNECT: return syscall_connect((fd_t) arg0, (const sockaddr_t *) arg1, (size_t) arg2);
 
         case SYSCALL_BIND: return syscall_bind((fd_t) arg0, (const sockaddr_t *) arg1, (size_t) arg2);
+
+        case SYSCALL_LISTEN: return syscall_listen((fd_t) arg0, (size_t) arg1);
+
+        case SYSCALL_ACCEPT: return syscall_accept((fd_t) arg0);
 
         default: return ERROR_BAD_SYSCALL; break;
     }

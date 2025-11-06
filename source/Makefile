@@ -60,6 +60,8 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/socket.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/connect.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/bind.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/accept.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/listen.o
 
 KN_OBJS+=$(KN_OD_64)/interface/interface.o
 KN_OBJS+=$(KN_OD_64)/interface/interface_map.o

@@ -176,7 +176,7 @@ static inline fd_t socket(socket_domain_t domain, socket_type_t type, uint64_t p
     return ret;
 }
 
-static inline fd_t connect(fd_t sock_fd, const sockaddr_t * sockaddr, size_t sockaddr_len) {
+static inline error_number_t connect(fd_t sock_fd, const sockaddr_t * sockaddr, size_t sockaddr_len) {
     int64_t ret;
 
     asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_CONNECT), "S" ((uint64_t) sock_fd), "d" ((uint64_t) sockaddr), "c" ((uint64_t) sockaddr_len) : "memory", "cc");
@@ -188,6 +188,22 @@ static inline fd_t bind(fd_t sock_fd, const sockaddr_t * sockaddr, size_t sockad
     int64_t ret;
 
     asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_BIND), "S" ((uint64_t) sock_fd), "d" ((uint64_t) sockaddr), "c" ((uint64_t) sockaddr_len) : "memory", "cc");
+
+    return ret;
+}
+
+static inline error_number_t listen(fd_t sock_fd, uint64_t size) {
+    int64_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_LISTEN), "S" ((uint64_t) sock_fd), "d" ((uint64_t) size) : "memory", "cc");
+
+    return ret;
+}
+
+static inline fd_t accept(fd_t sock_fd) {
+    fd_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_ACCEPT), "S" ((uint64_t) sock_fd) : "memory", "cc");
 
     return ret;
 }

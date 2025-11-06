@@ -15,8 +15,7 @@ socket_t * socket_init(socket_domain_t domain, socket_type_t type, uint64_t prot
 
     switch (socket->domain) {
         case SOCKET_UNIX: {
-            socket->unix.path = NULL;
-            socket->unix.listener = NULL;
+            socket->unix.socket = unix_socket_init();
         } break;
     }
 
@@ -41,10 +40,9 @@ error_number_t socket_connect(socket_t * socket, const sockaddr_t * _sockaddr, s
             if (dirent == NULL) return ERROR_FS_NO_ENT;
             if (dirent->type != FS_SOCKET) return ERROR_NOT_SOCKET;
 
-            socket->unix.path = heap_alloc(sockaddr_len);
-            strcpy(socket->unix.path, sockaddr->path);
+            unix_socket_t * unix_socket = dirent->socket->unix.socket;
 
-            return ERROR_OK;
+            return unix_socket_connect(socket->unix.socket, unix_socket);
         } break;
     }
 
@@ -79,12 +77,44 @@ error_number_t socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size
 
             dirent->socket = socket;
 
-            socket->unix.path = heap_alloc(sockaddr_len);
-            strcpy(socket->unix.path, sockaddr->path);
+            socket->unix.socket = unix_socket_init();
 
-            unix_socket_t * unix_socket = unix_socket_init();
+            return ERROR_OK;
+        } break;
+    }
 
-            socket->unix.listener = &unix_socket->server;
+    return ERROR_UNIMPLEMENTED;
+}
+
+error_number_t socket_listen(socket_t * socket, size_t size) {
+    switch (socket->domain) {
+        case SOCKET_UNIX: {
+            unix_socket_listen(socket->unix.socket, size);
+
+            return ERROR_OK;
+        } break;
+    }
+
+    return ERROR_UNIMPLEMENTED;
+}
+
+error_number_t socket_accept(socket_t * socket, socket_t ** _new_socket) {
+    switch (socket->domain) {
+        case SOCKET_UNIX: {
+            unix_socket_t * unix_socket;
+
+            error_number_t result = unix_socket_accept(socket->unix.socket, &unix_socket);
+            if (result != ERROR_OK) return result;
+
+            socket_t * new_socket = heap_alloc(sizeof(socket_t));
+
+            new_socket->domain = socket->domain;
+            new_socket->type = socket->type;
+            new_socket->protocol = socket->protocol;
+
+            new_socket->unix.socket = unix_socket;
+
+            *_new_socket = new_socket;
 
             return ERROR_OK;
         } break;
@@ -96,9 +126,7 @@ error_number_t socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size
 error_number_t socket_read(socket_t * socket, char * data, fs_size_t size, fs_size_t * read) {
     switch (socket->domain) {
         case SOCKET_UNIX: {
-            if (socket->unix.listener == NULL) return ERROR_NOT_OPEN;
-
-            return unix_socket_read(socket->unix.listener, data, size, read);
+            return unix_socket_read(socket->unix.socket, data, size, read);
         } break;
     }
 
@@ -106,7 +134,11 @@ error_number_t socket_read(socket_t * socket, char * data, fs_size_t size, fs_si
 }
 
 error_number_t socket_write(socket_t * socket, const char * data, fs_size_t size, fs_size_t * wrote) {
-
+    switch (socket->domain) {
+        case SOCKET_UNIX: {
+            return unix_socket_write(socket->unix.socket, data, size, wrote);
+        } break;
+    }
 
     return ERROR_UNIMPLEMENTED;
 }

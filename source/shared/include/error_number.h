@@ -36,7 +36,9 @@ typedef enum {
     ERROR_NOT_REG,
 
     ERROR_NOT_SOCKET,
-    ERROR_NOT_OPEN,
+    ERROR_NO_ADDR,
+    ERROR_CON_REFUSED,
+    ERROR_NOT_LISTENER,
 
     ERROR_NOT_DEV,
 

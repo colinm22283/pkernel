@@ -23,4 +23,6 @@ typedef enum {
     SYSCALL_SOCKET  = 19,
     SYSCALL_CONNECT = 20,
     SYSCALL_BIND    = 21,
+    SYSCALL_LISTEN  = 22,
+    SYSCALL_ACCEPT  = 23,
 } syscall_number_t;
