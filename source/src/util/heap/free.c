@@ -3,10 +3,12 @@
 
 #include <entry_error.h>
 
-#include "debug/vga_print.h"
+#include <sys/debug/print.h>
 
 void heap_free(void * alloc) {
     heap_tag_t * tag = ((heap_tag_t *) alloc) - 1;
+
+    const char * name = tag->name;
 
     alloc_size -= tag->next_size;
 
@@ -43,4 +45,8 @@ void heap_free(void * alloc) {
     }
 
     tag->next_reserved = false;
+
+    debug_print("FREE: ");
+    debug_print(name);
+    debug_print("\n");
 }

@@ -31,7 +31,11 @@ void event_invoke(event_t * event) {
         event->waiter_head.next = event->waiter_head.next->next;
         event->waiter_head.next->prev = &event->waiter_head;
 
-        thread_run(waiter->thread);
+        thread_t * thread = waiter->thread;
+
+        heap_free(waiter);
+
+        thread_run(thread);
     }
     else {
         event->has_signal = true;

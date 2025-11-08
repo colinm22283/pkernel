@@ -49,7 +49,7 @@ void pman_init(void) {
 }
 
 pman_context_t * pman_new_context(void) {
-    pman_context_t * context = heap_alloc(sizeof(pman_context_t));
+    pman_context_t * context = heap_alloc_debug(sizeof(pman_context_t), "user pman_context_t");
 
     if (!paging_talloc_alloc(&context->top_level_table_allocation)) return NULL;
 
@@ -75,7 +75,7 @@ pman_context_t * pman_new_context(void) {
 }
 
 pman_context_t * pman_new_kernel_context(void) {
-    pman_context_t * context = heap_alloc(sizeof(pman_context_t));
+    pman_context_t * context = heap_alloc_debug(sizeof(pman_context_t), "kernel pman_context_t");
 
     if (!paging_talloc_alloc(&context->top_level_table_allocation)) return NULL;
 
@@ -121,7 +121,7 @@ void pman_context_load_table(pman_context_t * context) {
 pman_mapping_t * pman_context_add_alloc(pman_context_t * context, pman_protection_flags_t prot, void * vaddr, uint64_t size) {
     uint64_t size_pages = DIV_UP(size, 0x1000);
 
-    pman_mapping_t * mapping = heap_alloc(sizeof(pman_mapping_t));
+    pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "alloc mapping");
 
     mapping->context = context;
     mapping->type = PMAN_MAPPING_ALLOC;
@@ -136,7 +136,7 @@ pman_mapping_t * pman_context_add_alloc(pman_context_t * context, pman_protectio
     palloc_alloc(&mapping->alloc.palloc, size_pages * 0x1000);
 
     mapping->alloc.mapping_count = mapping->alloc.palloc.paddr_count;
-    mapping->alloc.mappings = heap_alloc(mapping->alloc.palloc.paddr_count * sizeof(paging_mapping_t));
+    mapping->alloc.mappings = heap_alloc_debug(mapping->alloc.palloc.paddr_count * sizeof(paging_mapping_t), "alloc mapping mappings");
 
     page_data_t * current_vaddr = mapping->vaddr;
 
@@ -167,7 +167,7 @@ pman_mapping_t * pman_context_add_alloc(pman_context_t * context, pman_protectio
 pman_mapping_t * pman_context_add_map(pman_context_t * context, pman_protection_flags_t prot, void * vaddr, uint64_t paddr, uint64_t size) {
     uint64_t size_pages = DIV_UP(size, 0x1000);
 
-    pman_mapping_t * mapping = heap_alloc(sizeof(pman_mapping_t));
+    pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "map mapping");
 
     mapping->context = context;
     mapping->type = PMAN_MAPPING_MAP;
@@ -204,7 +204,7 @@ pman_mapping_t * pman_context_add_map(pman_context_t * context, pman_protection_
 pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protection_flags_t prot, pman_mapping_t * lender, void * vaddr) {
     pman_mapping_t * root_lender = get_root_mapping(lender);
 
-    pman_mapping_t * mapping = heap_alloc(sizeof(pman_mapping_t));
+    pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "borrow mapping");
 
     mapping->context = context;
     mapping->type = PMAN_MAPPING_BORROWED;
@@ -220,7 +220,7 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
         root_lender->alloc.references++;
 
         mapping->borrowed.mapping_count = root_lender->alloc.mapping_count;
-        mapping->borrowed.mappings = heap_alloc(mapping->borrowed.mapping_count * sizeof(paging_mapping_t));
+        mapping->borrowed.mappings = heap_alloc_debug(mapping->borrowed.mapping_count * sizeof(paging_mapping_t), "borrow mapping alloc mappings");
 
         page_data_t * current_vaddr = mapping->vaddr;
 
@@ -243,7 +243,7 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
         root_lender->map.references++;
 
         mapping->borrowed.mapping_count = 1;
-        mapping->borrowed.mappings = heap_alloc(mapping->borrowed.mapping_count * sizeof(paging_mapping_t));
+        mapping->borrowed.mappings = heap_alloc_debug(mapping->borrowed.mapping_count * sizeof(paging_mapping_t), "borrow mapping map mappings");
 
         paging_map_ex(
             context->top_level_table,
@@ -269,7 +269,7 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
 pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protection_flags_t prot, pman_mapping_t * lender, void * vaddr) {
     pman_mapping_t * root_lender = get_root_mapping(lender);
 
-    pman_mapping_t * mapping = heap_alloc(sizeof(pman_mapping_t));
+    pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "shared mapping");
 
     mapping->context = context;
     mapping->type = PMAN_MAPPING_SHARED;
@@ -285,7 +285,7 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
         root_lender->alloc.references++;
 
         mapping->shared.mapping_count = root_lender->alloc.mapping_count;
-        mapping->shared.mappings = heap_alloc(mapping->shared.mapping_count * sizeof(paging_mapping_t));
+        mapping->shared.mappings = heap_alloc_debug(mapping->shared.mapping_count * sizeof(paging_mapping_t), "shared mapping alloc mappings");
 
         page_data_t * current_vaddr = mapping->vaddr;
 
@@ -308,7 +308,7 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
         root_lender->map.references++;
 
         mapping->shared.mapping_count = 1;
-        mapping->shared.mappings = heap_alloc(mapping->shared.mapping_count * sizeof(paging_mapping_t));
+        mapping->shared.mappings = heap_alloc_debug(mapping->shared.mapping_count * sizeof(paging_mapping_t), "shared mapping map mappings");
 
         paging_map_ex(
             context->top_level_table,

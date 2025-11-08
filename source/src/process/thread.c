@@ -90,6 +90,8 @@ thread_t * thread_create_kernel(void) {
 }
 
 void thread_free(thread_t * thread) {
+    vga_print("Thread free\n");
+
     if (thread->twin_thread != NULL) {
         thread->twin_thread->twin_thread = NULL;
 

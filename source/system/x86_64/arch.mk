@@ -72,3 +72,6 @@ export KN_OBJS+=$(SYSTEM_OBJ_DIR)/idt/idt.o
 
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/entry.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/setup.o
+
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/panic.o
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/panic_font.o

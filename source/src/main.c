@@ -52,6 +52,8 @@
 #include <sys/setup.h>
 #include <sys/interrupt/interrupt_code.h>
 
+#include <sys/panic.h>
+
 #include <debug/vga_print.h>
 
 #define VIDEO_MEMORY ((uint8_t *) 0xA0000)

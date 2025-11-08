@@ -91,7 +91,11 @@ void process_free(process_t * process) {
 
     pman_free_context(process->paging_context);
 
+    heap_free(process->threads);
+
     heap_free(process);
+
+    heap_overview();
 }
 
 process_t * process_lookup(pid_t pid) {

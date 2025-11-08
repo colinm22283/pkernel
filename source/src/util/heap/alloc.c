@@ -6,10 +6,12 @@
 
 #include <entry_error.h>
 
+#include <sys/panic.h>
+
 #include <debug/vga_print.h>
 
 void * heap_alloc(uint64_t size_bytes) {
-    if (size_bytes == 0) kernel_entry_error(0xA552);
+    if (size_bytes == 0) panic0("Zero byte allocation");
 
     heap_tag_t * current_tag = head_tag;
 
@@ -27,7 +29,7 @@ void * heap_alloc(uint64_t size_bytes) {
         if (current_tag->next_size == 0) {
             // TODO: expand the alloc area
 
-            kernel_entry_error(0xA554);
+            panic1("Unable to find space for heap alloc", "ALLOC SIZE", size_bytes);
 
             asm volatile ("mov $0x1234, %%r8\nmov %0, %%r9\ncli\nhlt" : : "r" (current_tag) : "r8", "r9");
 
@@ -59,6 +61,10 @@ void * heap_alloc(uint64_t size_bytes) {
     }
 
     memset(current_tag + 1, 0, size_bytes);
+
+#ifdef HEAP_DEBUG
+    current_tag->name = "UNKNOWN";
+#endif
 
     return current_tag + 1;
 }

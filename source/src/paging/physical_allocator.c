@@ -10,7 +10,7 @@ error_number_t palloc_alloc(palloc_t * palloc, uint64_t size) {
     palloc->type = PALLOC_ALLOC;
     palloc->size_pages = size_pages;
     palloc->paddr_count = size_pages;
-    palloc->paddrs = heap_alloc(size_pages * sizeof(uint64_t));
+    palloc->paddrs = heap_alloc_debug(size_pages * sizeof(uint64_t), "palloc_t::paddrs normal");
 
     for (uint64_t i = 0; i < size_pages; i++) {
         palloc->paddrs[i] = bitmap_reserve();
@@ -26,7 +26,7 @@ error_number_t palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_
         palloc->type = PALLOC_CONTIGUOUS_ALLOC;
         palloc->size_pages = size_pages;
         palloc->paddr_count = 1;
-        palloc->paddrs = heap_alloc(sizeof(uint64_t));
+        palloc->paddrs = heap_alloc_debug(sizeof(uint64_t), "palloc_t::paddrs contiguous alloc");
 
         palloc->paddrs[0] = bitmap_reserve_contiguous(size_pages);
     }
@@ -36,7 +36,7 @@ error_number_t palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_
         palloc->type = PALLOC_CONTIGUOUS_MAP;
         palloc->size_pages = size_pages;
         palloc->paddr_count = 1;
-        palloc->paddrs = heap_alloc(sizeof(uint64_t));
+        palloc->paddrs = heap_alloc_debug(sizeof(uint64_t), "palloc_t::paddrs contiguous map");
 
         palloc->paddrs[0] = paddr;
     }

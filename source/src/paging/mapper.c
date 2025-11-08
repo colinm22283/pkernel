@@ -117,7 +117,7 @@ static inline void add_allocation(
 bool paging_map_ex(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr, void * vaddr, uint64_t size_pages, bool read_write, bool execute_disable, bool user_super) {
     uint64_t capacity = 1;
     mapping->allocation_count = 0;
-    mapping->allocations = heap_alloc(capacity * sizeof(paging_table_allocation_t));
+    mapping->allocations = heap_alloc_debug(capacity * sizeof(paging_table_allocation_t), "paging_mapping_t::allocations");
     mapping->vaddr = vaddr;
 
     mapping->size_pages = size_pages;
