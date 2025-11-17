@@ -12,7 +12,8 @@ include $(MAKE_SCRIPTS)
 
 .DEFAULT: all
 .PHONY: all
-all: kernel
+all:
+	cd source && $(MAKE) all
 
 .PHONY: clean
 clean:
