@@ -7,7 +7,6 @@
 #include <sys/ata/pio.h>
 #include <sys/ports.h>
 
-#include "../../../../../pkbl/source/bootloader/include/boot/disc.h"
 #include "debug/vga_print.h"
 
 typedef union {
