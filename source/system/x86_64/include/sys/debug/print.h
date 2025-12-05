@@ -2,8 +2,6 @@
 
 #include <stddef.h>
 
-#include <util/string/strlen.h>
-
 #include <sys/asm/out.h>
 
 static inline void debug_print(const char * msg) {

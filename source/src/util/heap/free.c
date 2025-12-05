@@ -8,7 +8,9 @@
 void heap_free(void * alloc) {
     heap_tag_t * tag = ((heap_tag_t *) alloc) - 1;
 
+#ifdef HEAP_DEBUG
     const char * name = tag->name;
+#endif
 
     alloc_size -= tag->next_size;
 
@@ -46,7 +48,9 @@ void heap_free(void * alloc) {
 
     tag->next_reserved = false;
 
+#ifdef HEAP_DEBUG
     debug_print("FREE: ");
     debug_print(name);
     debug_print("\n");
+#endif
 }

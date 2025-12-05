@@ -3,6 +3,7 @@ export BIN_DIR?=$(BUILD_DIR)/bin
 export MODULE_DIR?=$(BIN_DIR)/module
 export OBJ_DIR?=$(BUILD_DIR)/obj
 export SOURCE_DIR?=$(CURDIR)/source
+export MOD_SOURCE_DIR?=$(SOURCE_DIR)/modules
 
 export MAKE_DIR=$(CURDIR)/make
 export MAKE_SCRIPTS=$(MAKE_DIR)/targets16.mk $(MAKE_DIR)/targets32.mk $(MAKE_DIR)/targets64.mk
@@ -45,3 +46,4 @@ $(OBJ_DIR)/application_start_table.o: $(CURDIR)/application/application_start_ta
 	$(CC64) $(CFLAGS64) -I$(SOURCE_DIR)/shared/include $< -o $@
 
 .FORCE:
+

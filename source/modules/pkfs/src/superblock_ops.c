@@ -159,6 +159,8 @@ error_number_t write(fs_directory_entry_t * dirent, const char * buffer, uint64_
 
     *wrote = write_file(dirent->superblock->device, node->file_page, buffer, size, offset);
 
+    if (*wrote == 0) return ERROR_UNKNOWN;
+
     return ERROR_OK;
 }
 

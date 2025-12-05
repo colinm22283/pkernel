@@ -27,6 +27,7 @@ bool heap_check(void) {
 }
 
 void heap_overview(void) {
+#ifdef HEAP_DEBUG
     heap_tag_t * cur_tag = head_tag;
 
     debug_print("\n\n----------\n\n");
@@ -46,4 +47,5 @@ void heap_overview(void) {
     }
 
     debug_print("\n\n----------\n\n");
+#endif
 }

@@ -54,9 +54,9 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/map.o
 #KN_OBJS+=$(KN_OD_64)/syscall/handlers/pipe.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/dup.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/mount.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/unmount.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/mkdir.o
-#KN_OBJS+=$(KN_OD_64)/syscall/handlers/remove.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/unmount.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/mkdir.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/remove.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/socket.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/connect.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/bind.o
@@ -90,8 +90,6 @@ KN_OBJS+=$(KN_OD_64)/filesystem/ramfs/ramfs.o
 KN_OBJS+=$(KN_OD_64)/io/arbitrator.o
 
 KN_OBJS+=$(KN_OD_64)/timer/timer.o
-
-KN_OBJS+=$(KN_OD_64)/pci/pci.o
 
 #KN_OBJS+=$(KN_OD_64)/process/process.o
 #KN_OBJS+=$(KN_OD_64)/process/scheduler.o
@@ -153,7 +151,7 @@ all: kernel modules
 .PHONY: kernel
 kernel: $(BIN_DIR)/kernel.bin
 
-include modules/module.mk
+include $(MOD_SOURCE_DIR)/module.mk
 
 include $(MAKE_SCRIPTS)
 
@@ -163,3 +161,4 @@ $(BIN_DIR)/kernel.bin: $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(
 
 .PHONY: modules
 modules: $(MODULE_TARGETS)
+

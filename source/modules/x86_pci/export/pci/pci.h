@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 
+#include <mod_defs.h>
+
 #include <sys/pci/pci.h>
 
 struct pci_watcher_s;

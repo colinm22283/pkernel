@@ -7,14 +7,14 @@
 #include <util/string/strlen.h>
 
 static inline void vga_print(const char * msg) {
-    extern device_t * module_vga_terminal_device;
+    extern device_t * vga_term_device;
 
-    if (module_vga_terminal_device != NULL) {
+    if (vga_term_device != NULL) {
         uint64_t position = 0;
         uint64_t length = strlen(msg);
 
         while (position < length) {
-            position += module_vga_terminal_device->char_ops.write(module_vga_terminal_device, msg + position, length - position);
+            position += vga_term_device->char_ops.write(vga_term_device, msg + position, length - position);
         }
     }
 }

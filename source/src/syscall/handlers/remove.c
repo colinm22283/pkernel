@@ -1,5 +1,4 @@
-#include <_process/scheduler.h>
-#include <_process/address_translation.h>
+#include <scheduler/scheduler.h>
 
 #include <syscall/handlers/remove.h>
 
@@ -12,5 +11,5 @@ error_number_t syscall_remove(const char * _path) {
     fs_directory_entry_t * dirent = process_open_path(current_process, path);
     if (dirent == NULL) return ERROR_FS_NO_ENT;
 
-    fs_remove(dirent);
+    return fs_remove(dirent);
 }

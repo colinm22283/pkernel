@@ -78,11 +78,11 @@ uint64_t syscall_handler(
             (const char *) arg4
         ); break;
 
-        // case SYSCALL_UNMOUNT: return syscall_unmount((const char *) arg0); break;
-        //
-        // case SYSCALL_MKDIR: return syscall_mkdir((const char *) arg0); break;
-        //
-        // case SYSCALL_REMOVE: return syscall_remove((const char *) arg0); break;
+        case SYSCALL_UNMOUNT: return syscall_unmount((const char *) arg0); break;
+
+        case SYSCALL_MKDIR: return syscall_mkdir((const char *) arg0); break;
+
+        case SYSCALL_REMOVE: return syscall_remove((const char *) arg0); break;
 
         case SYSCALL_OPENAT: return syscall_openat((fd_t) arg0, (const char *) arg1, (open_options_t) arg2);
 

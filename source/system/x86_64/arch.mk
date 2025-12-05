@@ -20,6 +20,8 @@ export LD64=$(PREFIX64)-ld
 export OBJCOPY32=$(PREFIX32)-objcopy
 export OBJCOPY64=$(PREFIX64)-objcopy
 
+export NM64=$(PREFIX64)-nm
+
 export CFLAGS= \
 	-c \
 	-std=gnu99 \

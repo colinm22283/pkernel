@@ -89,8 +89,6 @@ __NORETURN void kernel_main(void) {
 
     scheduler_init();
 
-    pci_init();
-
     if (!device_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_DEVICE_INIT_ERROR);
 
     if (!fs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_INIT_ERROR);

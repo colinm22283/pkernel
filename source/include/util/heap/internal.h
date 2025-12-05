@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define HEAP_DEBUG
+// #define HEAP_DEBUG
 
 #define HEAP_INITIAL_SIZE (0x10000)
 

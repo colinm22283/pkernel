@@ -1,5 +1,4 @@
-#include <_process/address_translation.h>
-#include <_process/scheduler.h>
+#include <scheduler/scheduler.h>
 
 #include <syscall/handlers/unmount.h>
 
@@ -12,7 +11,5 @@ error_number_t syscall_unmount(const char * _path) {
     fs_directory_entry_t * mount_point = process_open_path(current_process, path);
     if (mount_point == NULL) return ERROR_FS_NO_ENT;
 
-    fs_unmount(mount_point);
-
-    return ERROR_OK;
+    return fs_unmount(mount_point);
 }

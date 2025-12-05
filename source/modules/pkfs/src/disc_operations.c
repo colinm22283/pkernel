@@ -12,12 +12,36 @@
 
 #include <debug/vga_print.h>
 
+#include <sys/debug/print.h>
+
 static inline bool disc_write(device_t * device, uint64_t lba, uint64_t sectors, const void * buffer) {
     return device->block_ops.write(device, buffer, sectors, lba) == sectors;
 }
 
 static inline bool disc_read(device_t * device, uint64_t lba, uint64_t sectors, void * buffer) {
     return device->block_ops.read(device, buffer, sectors, lba) == sectors;
+}
+
+static inline uint64_t alloc_page(device_t * device) {
+    static filesystem_root_page_t root_node;
+    if (!disc_read(device, FILESYSTEM_ROOT_ADDRESS, 1, &root_node)) return 0;
+
+    filesystem_page_address_t alloc_node = root_node.first_free;
+    filesystem_page_address_t node = root_node.first_free;
+
+    while (true) {
+        node++;
+
+        static filesystem_node_page_t page;
+        if (!disc_read(device, node, 1, &page)) return 0;
+
+        if (!page.tag.in_use) break;
+    }
+
+    root_node.first_free = node;
+    if (!disc_write(device, FILESYSTEM_ROOT_ADDRESS, 1, &root_node)) return 0;
+
+    return alloc_node;
 }
 
 pkfs_directory_t open_filesystem(device_t * device, filesystem_page_address_t root_address) {
@@ -373,10 +397,67 @@ uint64_t read_file(device_t * device, pkfs_file_t file, char * buffer, uint64_t 
 }
 
 uint64_t write_file(device_t * device, pkfs_file_t file, const char * buffer, uint64_t size, uint64_t offset) {
-    return 0;
+    static filesystem_file_node_page_t file_node;
+    if (!disc_read(device, file, 1, &file_node)) return 0;
+
+    debug_print("WRITE FILE\n");
+    debug_print(file_node.name);
+    debug_print("\n");
+    debug_print_hex(offset);
+    debug_print(", ");
+    debug_print_hex(size);
+    debug_print("\n");
+
+    uint64_t pos = 0;
+    uint64_t buffer_off = 0;
+    filesystem_page_address_t data_addr = file_node.root_data_address;
+    static filesystem_file_data_page_t file_data;
+    while (true) {
+        if (!disc_read(device, data_addr, 1, &file_data)) return 0;
+
+        if (offset - pos < FILESYSTEM_FILE_DATA_PAGE_SIZE) {
+            debug_print("WRITING\n");
+
+            const uint64_t write_size = MIN(size, FILESYSTEM_FILE_DATA_PAGE_SIZE - file_data.size);
+
+            memcpy(file_data.data + file_data.size, buffer + buffer_off, write_size);
+
+            buffer_off += write_size;
+            file_data.size += write_size;
+            pos += file_data.size;
+
+            if (!disc_write(device, data_addr, 1, &file_data)) return 0;
+
+            break;
+        }
+
+        if (file_data.next_data_address == 0) {
+            debug_print("NEW PAGE\n");
+
+            static filesystem_file_data_page_t new_page = {
+                .type = FILESYSTEM_PAGE_TYPE_FILE_DATA,
+                .tag = {
+                    .in_use = true,
+                },
+                .size = 0,
+                .next_data_address = 0,
+            };
+
+            new_page.prev_data_address = data_addr;
+
+            file_data.next_data_address = alloc_page(device);
+
+            if (!disc_write(device, file_data.next_data_address, 1, &new_page)) return 0;
+        }
+
+        data_addr = file_data.next_data_address;
+    }
+
+    return size;
 }
 
 bool delete_file(device_t * device, filesystem_page_address_t root_address, pkfs_file_t file) {
+    debug_print("REMOVE\n");
     filesystem_root_page_t root_page;
     if (!disc_read(device, root_address, 1, &root_page)) return 0;
 

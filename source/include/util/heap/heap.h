@@ -16,11 +16,13 @@ void * heap_realloc(void * alloc, uint64_t size_bytes);
 static inline void * heap_alloc_debug(uint64_t size_bytes, const char * name) {
     void * ret = heap_alloc(size_bytes);
 
+#ifdef HEAP_DEBUG
     debug_print("ALLOC: ");
     debug_print(name);
     debug_print("\n");
 
     ((heap_tag_t *) ret - 1)->name = name;
+#endif
 
     return ret;
 }

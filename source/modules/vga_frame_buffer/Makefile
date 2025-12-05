@@ -18,11 +18,19 @@ $(STATIC_MODULE_OUT)/modules/$(MODULE_NAME)/module.o: $(MODULE_OD_OUT)/$(MODULE_
 		--rename-section .data=.module_data \
 		--rename-section .rodata=.module_rodata \
 		--rename-section .bss=.module_bss \
+		--redefine-sym init=module_$(MODULE_NAME)_init \
+		--redefine-sym free=module_$(MODULE_NAME)_free \
 		$$( \
-			for s in `nm $(MODULE_OD_OUT)/$(MODULE_NAME).o --format=just-symbols --extern-only -U`; do \
-				echo --redefine-sym $$s="module_$(MODULE_NAME)_$$s"; \
+			$(NM64) $(MODULE_OD_OUT)/$(MODULE_NAME).o --format=sysv --extern-only -U | tail -n +7 | while IFS= read -r s; do \
+				IFS="|" set -- $$s; \
+				if [ "$$7" != ".module_export" ]; then \
+				  	if [ "$$1" != "init" ] && [ "$$1" != "free" ]; then \
+						echo --localize-symbol=$$1; \
+					fi; \
+				fi; \
 			done \
-		) $(MODULE_OD_OUT)/$(MODULE_NAME).o $@
+		) \
+		$(MODULE_OD_OUT)/$(MODULE_NAME).o $@
 
 $(MODULE_DIR)/$(MODULE_NAME).mod: $(MODULE_OD_OUT)/$(MODULE_NAME).o
 	$(MKMOD_BIN) $(MODULE_OD_OUT)/$(MODULE_NAME).o $@

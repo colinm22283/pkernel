@@ -3,6 +3,8 @@
 
 #include <pci/pci.h>
 
+#include <mod_defs.h>
+
 #include <util/heap/heap.h>
 
 uint64_t pci_device_count;
@@ -45,7 +47,43 @@ static inline void pci_bind(pci_watcher_t * watcher, pci_device_t * device) {
     watcher->bound_devices = heap_realloc(watcher->bound_devices, (watcher->bound_count + 1) * sizeof(pci_watcher_t));
 }
 
-void pci_init(void) {
+__MOD_EXPORT pci_watcher_t * pci_watch(pci_probe_t * probe, void * private) {
+    pci_watcher_t * watcher = heap_alloc(sizeof(pci_watcher_t));
+
+    watcher->probe = probe;
+    watcher->private = private;
+
+    watcher->bound_count = 0;
+    watcher->bound_devices = heap_alloc(sizeof(pci_device_t *));
+
+    watcher->next = pci_watcher_head.next;
+    watcher->prev = &pci_watcher_head;
+    pci_watcher_head.next->prev = watcher;
+    pci_watcher_head.next = watcher;
+
+    for (uint64_t i = 0; i < pci_device_count; i++) {
+        if (pci_devices[i]->binder == NULL) {
+            if (watcher->probe(pci_devices[i], watcher->private) == PCI_BIND) {
+                pci_bind(watcher, pci_devices[i]);
+            }
+        }
+    }
+
+    return watcher;
+}
+
+__MOD_EXPORT void pci_unwatch(pci_watcher_t * watcher) {
+    for (uint64_t i = 0; i < watcher->bound_count; i++) {
+        watcher->bound_devices[i]->binder = NULL;
+    }
+
+    heap_free(watcher->bound_devices);
+
+    watcher->prev->next = watcher->next;
+    watcher->next->prev = watcher->prev;
+}
+
+void init(void) {
     pci_device_count = 0;
     pci_devices = heap_alloc(sizeof(pci_device_t));
 
@@ -76,38 +114,4 @@ void pci_init(void) {
     }
 }
 
-pci_watcher_t * pci_watch(pci_probe_t * probe, void * private) {
-    pci_watcher_t * watcher = heap_alloc(sizeof(pci_watcher_t));
-
-    watcher->probe = probe;
-    watcher->private = private;
-
-    watcher->bound_count = 0;
-    watcher->bound_devices = heap_alloc(sizeof(pci_device_t *));
-
-    watcher->next = pci_watcher_head.next;
-    watcher->prev = &pci_watcher_head;
-    pci_watcher_head.next->prev = watcher;
-    pci_watcher_head.next = watcher;
-
-    for (uint64_t i = 0; i < pci_device_count; i++) {
-        if (pci_devices[i]->binder == NULL) {
-            if (watcher->probe(pci_devices[i], watcher->private) == PCI_BIND) {
-                pci_bind(watcher, pci_devices[i]);
-            }
-        }
-    }
-
-    return watcher;
-}
-
-void pci_unwatch(pci_watcher_t * watcher) {
-    for (uint64_t i = 0; i < watcher->bound_count; i++) {
-        watcher->bound_devices[i]->binder = NULL;
-    }
-
-    heap_free(watcher->bound_devices);
-
-    watcher->prev->next = watcher->next;
-    watcher->next->prev = watcher->prev;
-}
+void free(void) { }

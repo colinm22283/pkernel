@@ -1,5 +1,4 @@
-#include <_process/scheduler.h>
-#include <_process/address_translation.h>
+#include <scheduler/scheduler.h>
 
 #include <syscall/handlers/mkdir.h>
 
@@ -12,6 +11,9 @@ error_number_t syscall_mkdir(const char * _path) {
     if (path == NULL) return ERROR_BAD_PTR;
 
     fs_directory_entry_t * new_dirent = process_make_path(current_process, path, FS_DIRECTORY);
+
+    if (new_dirent == NULL) return ERROR_FS_CANT_CREATE;
+
     fs_directory_entry_release(new_dirent);
 
     return ERROR_OK;

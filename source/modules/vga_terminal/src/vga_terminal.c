@@ -16,7 +16,9 @@
 #include <font.h>
 #include <update.h>
 
-#include "debug/vga_print.h"
+#include <mod_defs.h>
+
+__MOD_EXPORT device_t * vga_term_device; // TODO: delete this
 
 device_t * device;
 devfs_entry_t * devfs_entry;
@@ -174,6 +176,8 @@ bool init(void) {
     if (devfs_entry == NULL) return false;
 
     sysfs_add_entry("vgatty/bind", SYSFS_BIND, sysfs_read, sysfs_write);
+
+    vga_term_device = device;
 
     return true;
 }
