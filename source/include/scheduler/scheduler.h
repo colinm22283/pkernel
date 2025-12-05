@@ -8,6 +8,7 @@
 #include <defs.h>
 
 void scheduler_init(void);
+void scheduler_init_sysfs(void);
 
 void scheduler_queue(thread_t * thread);
 

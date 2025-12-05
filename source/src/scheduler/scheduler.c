@@ -3,10 +3,13 @@
 
 #include <timer/timer.h>
 
+#include <sysfs/sysfs.h>
+
 #include <sys/interrupt/wait_for_interrupt.h>
 
 #include <util/heap/heap.h>
 #include <util/memory/memcpy.h>
+#include <util/string/writestr.h>
 
 #include <sys/tsr/store_tsr_and_yield.h>
 #include <sys/tsr/tsr_set_stack.h>
@@ -19,11 +22,40 @@
 
 #define SCHEDULER_QUANTUM (0)
 
+enum {
+    SYSFS_PROCESS_COUNT,
+};
+
 typedef struct {
     thread_t head, tail;
 } scheduler_queue_t;
 
 scheduler_queue_t scheduler_queues[TP_COUNT];
+
+int64_t scheduler_sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offset) {
+    if (offset != 0) return 0;
+
+    switch (id) {
+        case SYSFS_PROCESS_COUNT: {
+            size_t proc_count = 0;
+
+            for (process_t * proc = process_head.global_next; proc != &process_tail; proc = proc->global_next) proc_count++;
+
+            return (int64_t) writestr(data, size, offset, proc_count);
+        } break;
+
+        default: break;
+    }
+    return 0;
+}
+
+int64_t scheduler_sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offset) {
+    switch (id) {
+        default: break;
+    }
+
+    return 0;
+}
 
 void scheduler_init(void) {
     scheduler_cores_init();
@@ -34,6 +66,10 @@ void scheduler_init(void) {
         scheduler_queues[i].tail.next = NULL;
         scheduler_queues[i].tail.prev = &scheduler_queues[i].head;
     }
+}
+
+void scheduler_init_sysfs(void) {
+    sysfs_add_entry("sched/count", SYSFS_PROCESS_COUNT, scheduler_sysfs_read, scheduler_sysfs_write);
 }
 
 void scheduler_queue(thread_t * thread) {

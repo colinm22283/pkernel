@@ -102,7 +102,7 @@ __NORETURN void kernel_main(void) {
     devfs_init();
     sysfs_init();
 
-    // scheduler_sysfs_init();
+    scheduler_init_sysfs();
     heap_init_sysfs();
 
     fs_mount("devfs", dev_dirent, NULL);

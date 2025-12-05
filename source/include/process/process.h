@@ -33,6 +33,8 @@ typedef struct process_s {
     struct process_s * global_prev;
 } process_t;
 
+extern process_t process_head, process_tail;
+
 void processes_init(void);
 
 process_t * process_create(void);
