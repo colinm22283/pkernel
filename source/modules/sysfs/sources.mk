@@ -1,0 +1,5 @@
+INCLUDE_DIRS+=$(CURDIR)/include
+
+MODULE_OBJS+=$(MODULE_OD_64)/sysfs.o
+MODULE_OBJS+=$(MODULE_OD_64)/ops.o
+MODULE_OBJS+=$(MODULE_OD_64)/mount.o

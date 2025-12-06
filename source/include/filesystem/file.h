@@ -5,8 +5,6 @@
 #include <filesystem/node.h>
 #include <filesystem/filesystem.h>
 
-#include <device/devfs.h>
-
 #include <util/string/strlen.h>
 #include <util/string/strcpy.h>
 

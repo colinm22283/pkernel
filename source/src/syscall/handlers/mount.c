@@ -32,7 +32,7 @@ error_number_t syscall_mount(const char * _dst, const char * _src, const char * 
 
         if (dirent->type != FS_DEVICE) return ERROR_NOT_DEV;
 
-        dev = devfs_open(dirent->node);
+        dev = dirent->device;
 
         fs_directory_entry_release(dirent);
     }

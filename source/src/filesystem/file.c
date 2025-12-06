@@ -99,7 +99,7 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
 void * file_map(fs_file_t * file, pman_context_t * context, void * map_addr, uint64_t size, uint64_t offset) {
     switch (file->dirent->type) {
         case FS_DEVICE: {
-            device_t * device = devfs_open(file->dirent->node);
+            device_t * device = file->dirent->device;
 
             switch (device->type) {
                 case DT_CHARACTER: {

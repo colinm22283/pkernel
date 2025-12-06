@@ -21,7 +21,8 @@
 #include <scheduler/scheduler.h>
 
 #include <device/device.h>
-#include <device/devfs.h>
+
+#include <devfs/devfs.h>
 
 #include <sysfs/sysfs.h>
 
@@ -99,28 +100,32 @@ __NORETURN void kernel_main(void) {
     fs_directory_entry_t * dev_dirent = fs_make(&fs_root, "dev", FS_DIRECTORY);
     fs_directory_entry_t * sys_dirent = fs_make(&fs_root, "sys", FS_DIRECTORY);
 
-    devfs_init();
-    sysfs_init();
+    if (!static_module_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_MODULE_INIT_ERROR);
 
     scheduler_init_sysfs();
     heap_init_sysfs();
 
     fs_mount("devfs", dev_dirent, NULL);
-    fs_mount("sysfs", sys_dirent, NULL);
+    fs_mount("devfs", sys_dirent, NULL);
 
     fs_directory_entry_release(dev_dirent);
     fs_directory_entry_release(sys_dirent);
 
-    if (!static_module_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_MODULE_INIT_ERROR);
-
     fs_directory_entry_t * disc_dirent = fs_open_path(&fs_root, "dev/disc0");
-    device_t * disc_dev = devfs_open(disc_dirent->node);
+    debug_print_hex((uint64_t) disc_dirent);
+    debug_print("\n");
+    if (disc_dirent->type == FS_DEVICE) debug_print("is device\n");
+    device_t * disc_dev = disc_dirent->device;
+    debug_print_hex((uint64_t) disc_dev);
+    debug_print("\n");
     fs_directory_entry_release(disc_dirent);
 
     fs_unmount(dev_dirent);
     fs_directory_entry_release(dev_dirent);
 
     fs_unmount(&fs_root);
+
+    debug_print("gurp\n");
 
     fs_mount_root("pkfs", disc_dev);
 
@@ -133,7 +138,7 @@ __NORETURN void kernel_main(void) {
     vga_print("DevFS Mounted\n");
 
     dev_dirent = fs_open_path(&fs_root, "sys");
-    fs_mount("sysfs", dev_dirent, NULL);
+    fs_mount("devfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
     vga_print("SysFS Mounted\n");

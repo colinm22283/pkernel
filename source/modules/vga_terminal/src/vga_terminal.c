@@ -7,8 +7,9 @@
 
 #include <timer/timer.h>
 
-#include <device/devfs.h>
 #include <device/device.h>
+
+#include <devfs/devfs.h>
 
 #include <sysfs/sysfs.h>
 

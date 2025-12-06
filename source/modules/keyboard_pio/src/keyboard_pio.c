@@ -6,7 +6,8 @@
 #include <io/arbitrator.h>
 
 #include <device/device.h>
-#include <device/devfs.h>
+
+#include <devfs/devfs.h>
 
 #include <scheduler/scheduler.h>
 

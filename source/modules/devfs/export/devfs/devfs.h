@@ -18,5 +18,3 @@ error_number_t devfs_init(void);
 
 devfs_entry_t * devfs_register(device_t * device);
 error_number_t devfs_remove(devfs_entry_t * entry);
-
-device_t * devfs_open(fs_node_t * devfs_node);

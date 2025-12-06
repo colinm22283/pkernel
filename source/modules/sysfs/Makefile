@@ -22,10 +22,9 @@ $(STATIC_MODULE_OUT)/modules/$(MODULE_NAME)/module.o: $(MODULE_OD_OUT)/$(MODULE_
 		--redefine-sym free=module_$(MODULE_NAME)_free \
 		$$( \
 			$(NM64) $(MODULE_OD_OUT)/$(MODULE_NAME).o --format=sysv --extern-only -U | tail -n +7 | while IFS= read -r s; do \
-				symbol=$$(echo $$s | sed "s/\(\w\)|.*/\1/"); \
-				section=$$(echo $$s | sed "s/[^|]*|[^|]*|[^|]*|[^|]*|[^|]*|[^|]*|\(.*\)/\1/"); \
-				if [ "$$section" != ".module_export" ]; then \
-				  	if [ "$$symbol" != "init" ] && [ "$$symbol" != "free" ]; then \
+				IFS="|" set -- $$s; \
+				if [ "$$7" != ".module_export" ]; then \
+				  	if [ "$$1" != "init" ] && [ "$$1" != "free" ]; then \
 						echo --localize-symbol=$$1; \
 					fi; \
 				fi; \

@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include <device/device.h>
+
 #include <filesystem/types.h>
 #include <filesystem/pipe.h>
 #include <filesystem/socket.h>
@@ -29,6 +31,7 @@ typedef struct fs_directory_entry_s {
     fs_file_type_t type;
     struct fs_node_s * node;
 
+    device_t * device;
     pipe_t * pipe;
     socket_t * socket;
 

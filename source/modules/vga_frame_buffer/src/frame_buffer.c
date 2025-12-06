@@ -4,8 +4,9 @@
 #include <paging/manager.h>
 #include <paging/virtual_allocator.h>
 
-#include <device/devfs.h>
 #include <device/device.h>
+
+#include <devfs/devfs.h>
 
 #include <interface/interface_map.h>
 

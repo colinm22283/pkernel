@@ -108,11 +108,6 @@ KN_OBJS+=$(KN_OD_64)/scheduler/core.o
 KN_OBJS+=$(KN_OD_64)/scheduler/event.o
 
 KN_OBJS+=$(KN_OD_64)/device/device.o
-KN_OBJS+=$(KN_OD_64)/device/devfs.o
-
-KN_OBJS+=$(KN_OD_64)/sysfs/sysfs.o
-KN_OBJS+=$(KN_OD_64)/sysfs/ops.o
-KN_OBJS+=$(KN_OD_64)/sysfs/mount.o
 
 #KN_OBJS+=$(KN_OD_64)/interrupt/init.o
 #KN_OBJS+=$(KN_OD_64)/interrupt/idt.o
