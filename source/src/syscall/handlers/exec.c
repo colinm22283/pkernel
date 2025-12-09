@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#include <syscall/syscall_debug.h>
+
 #include <syscall/handlers/exec.h>
 
 #include <filesystem/file.h>
@@ -21,15 +23,34 @@
 #include <sys/tsr/tsr_load_pc.h>
 #include <sys/tsr/tsr_set_stack.h>
 
-error_number_t syscall_exec(const char * path, const char ** _argv, uint64_t argc) {
+error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
+    const char * path = process_user_to_kernel(
+        scheduler_current_process(),
+        _path
+    );
+
+    syscall_debug_print("SYSCALL exec(");
+    syscall_debug_print(path);
+    syscall_debug_print(", ");
+    syscall_debug_print_hex((uint64_t) _argv);
+    syscall_debug_print(" [ ");
+    if (argc != 0) {
+        const char ** argv = process_user_to_kernel(scheduler_current_process(), _argv);
+
+        for (uint64_t i = 0; i < argc; i++) {
+            if (i != 0) syscall_debug_print(", ");
+            syscall_debug_print_hex((uint64_t) argv[i]);
+        }
+    }
+    syscall_debug_print(" ], ");
+    syscall_debug_print_hex(argc);
+    syscall_debug_print(")\n");
+
     process_t * current_process = scheduler_current_process();
 
     fs_directory_entry_t * test_file_dirent = process_open_path(
         scheduler_current_process(),
-        process_user_to_kernel(
-            scheduler_current_process(),
-            path
-        )
+        path
     );
 
     if (test_file_dirent == NULL) {

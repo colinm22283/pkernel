@@ -3,6 +3,9 @@
 #include <timer/timer.h>
 
 #include <syscall/syscall_handler.h>
+#include <syscall/syscall_names.h>
+#include <syscall/syscall_debug.h>
+
 #include <syscall/handlers/open.h>
 #include <syscall/handlers/close.h>
 #include <syscall/handlers/write.h>
@@ -28,6 +31,8 @@
 
 #include <debug/vga_print.h>
 
+#include <sys/debug/print.h>
+
 uint64_t syscall_handler(
     uint64_t syscall_number,
     uint64_t arg0,
@@ -37,6 +42,26 @@ uint64_t syscall_handler(
     uint64_t arg4,
     task_state_record_t * tsr
 ) {
+    syscall_debug_print_hex(scheduler_current_process()->id);
+    syscall_debug_print(" -> ");
+    if (syscall_number < _SYSCALL_COUNT) syscall_debug_print(syscall_names[syscall_number]);
+    else syscall_debug_print("SYSCALL_UNKNOWN");
+    syscall_debug_print(": ");
+    syscall_debug_print_hex(arg0);
+    syscall_debug_print(" ");
+    syscall_debug_print_hex(arg1);
+    syscall_debug_print(" ");
+    syscall_debug_print_hex(arg2);
+    syscall_debug_print(" ");
+    syscall_debug_print_hex(arg3);
+    syscall_debug_print(" ");
+    syscall_debug_print_hex(arg4);
+    syscall_debug_print(" -> ");
+
+    syscall_debug_print_hex(get_root_mapping(scheduler_current_thread()->stack_mapping)->alloc.palloc.paddrs[0]);
+    syscall_debug_print("\n");
+
+
     switch (syscall_number) {
         case SYSCALL_OPEN: return syscall_open((const char *) arg0, arg1);
 

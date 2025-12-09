@@ -106,7 +106,7 @@ __NORETURN void kernel_main(void) {
     heap_init_sysfs();
 
     fs_mount("devfs", dev_dirent, NULL);
-    fs_mount("devfs", sys_dirent, NULL);
+    fs_mount("sysfs", sys_dirent, NULL);
 
     fs_directory_entry_release(dev_dirent);
     fs_directory_entry_release(sys_dirent);
@@ -124,8 +124,6 @@ __NORETURN void kernel_main(void) {
     fs_directory_entry_release(dev_dirent);
 
     fs_unmount(&fs_root);
-
-    debug_print("gurp\n");
 
     fs_mount_root("pkfs", disc_dev);
 

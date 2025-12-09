@@ -1,0 +1,28 @@
+#include <syscall/syscall_names.h>
+
+const char * syscall_names[_SYSCALL_COUNT] = {
+    "SYSCALL_OPEN",
+    "SYSCALL_CLOSE",
+    "SYSCALL_WRITE",
+    "SYSCALL_READ",
+    "SYSCALL_SEEK",
+    "SYSCALL_EXIT",
+    "SYSCALL_READDIR",
+    "SYSCALL_CHDIR",
+    "SYSCALL_FORK",
+    "SYSCALL_EXEC",
+    "SYSCALL_MAP",
+    "SYSCALL_WAIT",
+    "SYSCALL_PIPE",
+    "SYSCALL_DUP",
+    "SYSCALL_MOUNT",
+    "SYSCALL_UNMOUNT",
+    "SYSCALL_MKDIR",
+    "SYSCALL_REMOVE",
+    "SYSCALL_OPENAT",
+    "SYSCALL_SOCKET",
+    "SYSCALL_CONNECT",
+    "SYSCALL_BIND",
+    "SYSCALL_LISTEN",
+    "SYSCALL_ACCEPT",
+};

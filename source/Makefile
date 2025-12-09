@@ -40,6 +40,8 @@ KN_OBJS+=$(KN_OD_64)/task/enter_user_mode.o
 KN_OBJS+=$(KN_OD_64)/socket/unix.o
 
 KN_OBJS+=$(KN_OD_64)/syscall/syscall_handler.o
+KN_OBJS+=$(KN_OD_64)/syscall/syscall_names.o
+
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/open.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/close.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/write.o

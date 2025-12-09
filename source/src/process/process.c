@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <process/process.h>
 
 #include <util/heap/heap.h>
@@ -52,13 +53,29 @@ process_t * process_create_fork(process_t * parent) {
 
     process->parent_id = parent->id;
 
-    for (pman_mapping_t * mapping = parent->paging_context->head.next; mapping != &parent->paging_context->tail; mapping = mapping->next) {
+    pman_mapping_t * mapping = parent->paging_context->head.next;
+    pman_mapping_t * tail = parent->paging_context->tail.prev;
+    while (true) {
+        pman_mapping_t * next = mapping->next;
+
         if (mapping->protection & PMAN_PROT_SHARED) {
             vga_print("oh dear\n");
         }
         else {
             pman_context_add_borrowed(process->paging_context, mapping->protection, get_root_mapping(mapping), mapping->vaddr);
+
+            void * vaddr = mapping->vaddr;
+            pman_protection_flags_t prot = mapping->protection;
+            pman_mapping_t * root_mapping = get_root_mapping(mapping);
+
+            pman_context_unmap(mapping);
+
+            pman_context_add_borrowed(parent->paging_context, prot, root_mapping, vaddr);
         }
+
+        if (mapping == tail) break;
+
+        mapping = next;
     }
 
     thread_t * new_thread = thread_create_fork(process->paging_context, process, parent->threads[0]);
