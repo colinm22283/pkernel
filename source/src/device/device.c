@@ -28,10 +28,10 @@ bool device_init(void) {
 }
 
 device_t * device_create_char(const char * name, void * private, device_char_operations_t * operations, device_char_data_t * data) {
-    device_node_t * new_node = heap_alloc(sizeof(device_node_t));
+    device_node_t * new_node = heap_alloc_debug(sizeof(device_node_t), "device char node");
 
     new_node->device.type = DT_CHARACTER;
-    new_node->device.name = heap_alloc(strlen(name) + 1);
+    new_node->device.name = heap_alloc_debug(strlen(name) + 1, "device char node name");
     strcpy(new_node->device.name, name);
     new_node->device.private = private;
 
@@ -49,10 +49,10 @@ device_t * device_create_char(const char * name, void * private, device_char_ope
 }
 
 device_t * device_create_block(const char * name, void * private, device_block_operations_t * operations, device_block_data_t * data) {
-    device_node_t * new_node = heap_alloc(sizeof(device_node_t));
+    device_node_t * new_node = heap_alloc_debug(sizeof(device_node_t), "device block node");
 
     new_node->device.type = DT_BLOCK;
-    new_node->device.name = heap_alloc(strlen(name) + 1);
+    new_node->device.name = heap_alloc_debug(strlen(name) + 1, "device block node name");
     strcpy(new_node->device.name, name);
     new_node->device.private = private;
 

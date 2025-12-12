@@ -44,7 +44,7 @@ error_number_t sysfs_write(fs_directory_entry_t * dirent, const char * data, fs_
 }
 
 fs_node_t * sysfs_alloc_node(fs_superblock_t * superblock) {
-    sysfs_fs_node_t * new_node = heap_alloc(sizeof(sysfs_fs_node_t));
+    sysfs_fs_node_t * new_node = heap_alloc_debug(sizeof(sysfs_fs_node_t), "sysfs fsnode");
 
     fs_node_init(&new_node->base);
 

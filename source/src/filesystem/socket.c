@@ -7,7 +7,7 @@
 #include <util/heap/heap.h>
 
 socket_t * socket_init(socket_domain_t domain, socket_type_t type, uint64_t protocol) {
-    socket_t * socket = heap_alloc(sizeof(socket_t));
+    socket_t * socket = heap_alloc_debug(sizeof(socket_t), "socket init");
 
     socket->domain = domain;
     socket->type = type;
@@ -106,7 +106,7 @@ error_number_t socket_accept(socket_t * socket, socket_t ** _new_socket) {
             error_number_t result = unix_socket_accept(socket->unix.socket, &unix_socket);
             if (result != ERROR_OK) return result;
 
-            socket_t * new_socket = heap_alloc(sizeof(socket_t));
+            socket_t * new_socket = heap_alloc_debug(sizeof(socket_t), "socket accept");
 
             new_socket->domain = socket->domain;
             new_socket->type = socket->type;

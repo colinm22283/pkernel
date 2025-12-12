@@ -17,7 +17,7 @@
 #include <sys/halt.h>
 
 fs_directory_entry_t * fs_directory_entry_create(fs_file_type_t type, fs_directory_entry_t * parent, fs_directory_entry_node_t * parent_node) {
-    fs_directory_entry_t * directory_entry = heap_alloc(sizeof(fs_directory_entry_t));
+    fs_directory_entry_t * directory_entry = heap_alloc_debug(sizeof(fs_directory_entry_t), "dirent");
 
     directory_entry->head.next = &directory_entry->tail;
     directory_entry->head.prev = NULL;
@@ -50,9 +50,9 @@ fs_directory_entry_node_t * fs_directory_entry_add_entry(fs_directory_entry_t * 
         if (strcmp(node->name, name) == 0) return NULL;
     }
 
-    fs_directory_entry_node_t * new_node = heap_alloc(sizeof(fs_directory_entry_node_t));
+    fs_directory_entry_node_t * new_node = heap_alloc_debug(sizeof(fs_directory_entry_node_t), "dirent node");
 
-    new_node->name = heap_alloc(strlen(name) + 1);
+    new_node->name = heap_alloc_debug(strlen(name) + 1, "dirent node name");
     strcpy(new_node->name, name);
     new_node->dirent = NULL;
 

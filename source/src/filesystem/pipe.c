@@ -28,7 +28,7 @@ static inline bool pipe_pop(pipe_t * pipe, char * c) {
 }
 
 pipe_t * pipe_init(void) {
-    pipe_t * pipe = heap_alloc(sizeof(pipe_t));
+    pipe_t * pipe = heap_alloc_debug(sizeof(pipe_t), "pipe");
 
     pipe->buffer_alloc = pman_context_add_alloc(
         pman_kernel_context(),

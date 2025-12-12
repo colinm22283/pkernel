@@ -22,7 +22,7 @@ typedef struct {
 fs_node_t * ramfs_alloc_node(fs_superblock_t * superblock) {
     // vga_print("RAMFS CREATE NODE\n");
 
-    ramfs_fs_node_t * new_node = heap_alloc(sizeof(ramfs_fs_node_t));
+    ramfs_fs_node_t * new_node = heap_alloc_debug(sizeof(ramfs_fs_node_t), "ramfs fsnode");
 
     fs_node_init(&new_node->base);
     new_node->size = 0;
@@ -51,7 +51,7 @@ fs_directory_entry_node_t * ramfs_create(struct fs_directory_entry_s * parent, s
     switch (type) {
         case FS_REGULAR: {
             node->size = 0;
-            node->data = heap_alloc(1);
+            node->data = heap_alloc_debug(1, "ramfs data");
         } break;
 
         case FS_DIRECTORY: case FS_PIPE: case FS_SOCKET: break;

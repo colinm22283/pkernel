@@ -17,7 +17,7 @@
 #include "debug/vga_print.h"
 
 thread_t * thread_create_user(pman_context_t * user_context, process_t * parent) {
-    thread_t * thread = heap_alloc(sizeof(thread_t));
+    thread_t * thread = heap_alloc_debug(sizeof(thread_t), "thread user");
 
     thread->process = parent;
 
@@ -29,6 +29,7 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
     thread->twin_thread->twin_thread = thread;
     thread->twin_thread->process = parent;
 
+    heap_alloc_debug(1, "STACK ALLOCATED !!!!!!!!!");
     pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, DEFAULT_THREAD_STACK_SIZE);
     thread->stack_mapping = pman_context_add_shared(user_context, PMAN_PROT_WRITE, kernel_mapping, NULL);
     pman_context_unmap(kernel_mapping);
@@ -44,7 +45,7 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
 }
 
 thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent, thread_t * target) {
-    thread_t * thread = heap_alloc(sizeof(thread_t));
+    thread_t * thread = heap_alloc_debug(sizeof(thread_t), "thread fork");
 
     thread->process = parent;
 
@@ -67,7 +68,7 @@ thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent,
 }
 
 thread_t * thread_create_kernel(void) {
-    thread_t * thread = heap_alloc(sizeof(thread_t));
+    thread_t * thread = heap_alloc_debug(sizeof(thread_t), "thread kernel");
 
     thread->process = NULL;
 
@@ -94,6 +95,10 @@ void thread_free(thread_t * thread) {
         thread->twin_thread->twin_thread = NULL;
 
         thread_free(thread->twin_thread);
+    }
+
+    if (thread->level == TL_KERNEL) {
+        pman_context_unmap(thread->stack_mapping);
     }
 
     heap_free(thread);

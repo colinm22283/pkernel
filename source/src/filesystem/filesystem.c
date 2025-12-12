@@ -50,9 +50,9 @@ error_number_t fs_register(const char * name, const fs_superblock_ops_t * superb
         }
     }
 
-    fs_filesystem_node_t * new_node = heap_alloc(sizeof(fs_filesystem_node_t));
+    fs_filesystem_node_t * new_node = heap_alloc_debug(sizeof(fs_filesystem_node_t), "fs node");
 
-    new_node->name = heap_alloc(strlen(name) + 1);
+    new_node->name = heap_alloc_debug(strlen(name) + 1, "fs node name");
     strcpy(new_node->name, name);
     new_node->mount_count = 0;
     new_node->superblock_ops = superblock_ops;

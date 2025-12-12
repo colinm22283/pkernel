@@ -44,7 +44,7 @@ fd_t file_table_add(file_table_t * file_table, fs_file_t * file) {
 
 void file_table_init(file_table_t * file_table) {
     file_table->file_capacity = 1;
-    file_table->files = heap_alloc(file_table->file_capacity * sizeof(fs_file_t *));
+    file_table->files = heap_alloc_debug(file_table->file_capacity * sizeof(fs_file_t *), "file files");
 
     for (size_t i = 0; i < file_table->file_capacity; i++) file_table->files[i] = NULL;
 }
@@ -66,7 +66,7 @@ void file_table_clone(file_table_t * dst, file_table_t * src) {
 
     for (size_t i = 0; i < src->file_capacity; i++) {
         if (src->files[i] != NULL) {
-            dst->files[i] = heap_alloc(sizeof(fs_file_t));
+            dst->files[i] = heap_alloc_debug(sizeof(fs_file_t), "file clone");
 
             file_clone(dst->files[i], src->files[i]);
         }
@@ -77,7 +77,7 @@ void file_table_clone(file_table_t * dst, file_table_t * src) {
 error_number_t file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
     if (src >= file_table->file_capacity || file_table->files[src] == NULL) return ERROR_BAD_FD;
 
-    fs_file_t * file = heap_alloc(sizeof(fs_file_t));
+    fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file dup");
 
     fs_directory_entry_add_reference(file_table->files[src]->dirent);
     file_init(file, file_table->files[src]->dirent, file_table->files[src]->options);
@@ -88,7 +88,7 @@ error_number_t file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
 }
 
 fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, open_options_t options) {
-    fs_file_t * file = heap_alloc(sizeof(fs_file_t));
+    fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file open");
 
     error_number_t init_result = file_init(file, node, options);
     if (init_result != ERROR_OK) return init_result;
@@ -97,7 +97,7 @@ fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, ope
 }
 
 fd_t file_table_openat(file_table_t * file_table, fd_t fd, fs_directory_entry_t * node, open_options_t options) {
-    fs_file_t * file = heap_alloc(sizeof(fs_file_t));
+    fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file openat");
 
     error_number_t init_result = file_init(file, node, options);
     if (init_result != ERROR_OK) return init_result;

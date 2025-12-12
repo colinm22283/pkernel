@@ -1,4 +1,5 @@
 #include <util/heap/internal.h>
+#include <util/heap/heap.h>
 
 #include <debug/vga_print.h>
 #include <sys/debug/print.h>
@@ -45,6 +46,12 @@ void heap_overview(void) {
 
         cur_tag = next_tag;
     }
+
+    debug_print("\n\n----------\n\n");
+
+    debug_print("USED: 0x");
+    debug_print_hex(heap_usage());
+    debug_print("\n");
 
     debug_print("\n\n----------\n\n");
 #endif

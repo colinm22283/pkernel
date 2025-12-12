@@ -21,7 +21,7 @@ void processes_init(void) {
 }
 
 process_t * process_create(void) {
-    process_t * process = heap_alloc(sizeof(process_t));
+    process_t * process = heap_alloc_debug(sizeof(process_t), "process");
 
     process->paging_context = pman_new_context();
 
@@ -30,7 +30,7 @@ process_t * process_create(void) {
 
     process->thread_count = 0;
     process->thread_capacity = 1;
-    process->threads = heap_alloc(process->thread_capacity * sizeof(thread_t *));
+    process->threads = heap_alloc_debug(process->thread_capacity * sizeof(thread_t *), "process threads");
 
     file_table_init(&process->file_table);
 
@@ -100,6 +100,10 @@ void process_free(process_t * process) {
         event_invoke(parent->child_finished);
     }
 
+    for (size_t i = 0; i < process->thread_count; i++) {
+        process->threads[i]->state = TS_DEAD;
+    }
+
     event_free(process->child_finished);
 
     file_table_free(&process->file_table);
@@ -111,8 +115,6 @@ void process_free(process_t * process) {
     heap_free(process->threads);
 
     heap_free(process);
-
-    heap_overview();
 }
 
 process_t * process_lookup(pid_t pid) {
@@ -177,7 +179,7 @@ void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
     }
     else {
         process->argc = argc;
-        process->argv = heap_alloc(argc * sizeof(const char *));
+        process->argv = heap_alloc_debug(argc * sizeof(const char *), "process argv");
 
         uint64_t required_size = 0;
         for (uint64_t i = 0; i < argc; i++) {

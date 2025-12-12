@@ -16,7 +16,7 @@ uint64_t devfs_mount_count;
 fs_directory_entry_t ** devfs_mounts;
 
 __MOD_EXPORT fs_node_t * devfs_alloc(fs_superblock_t * superblock) {
-    return heap_alloc(sizeof(fs_node_t));
+    return heap_alloc_debug(sizeof(fs_node_t), "devfs alloc fsnode");
 }
 
 __MOD_EXPORT error_number_t devfs_free(fs_superblock_t * superblock, fs_node_t * node) {
@@ -31,7 +31,7 @@ __MOD_EXPORT error_number_t devfs_list(fs_directory_entry_t * dirent) {
         entry != &devfs_tail;
         entry = entry->next
     ) {
-        fs_node_t * new_node = heap_alloc(sizeof(fs_node_t));
+        fs_node_t * new_node = heap_alloc_debug(sizeof(fs_node_t), "devfs list fsnode");
         fs_node_init(new_node);
 
         fs_directory_entry_node_t * dirent_node = fs_directory_entry_add_entry(dirent, entry->name);
@@ -96,9 +96,9 @@ __MOD_EXPORT error_number_t devfs_unmount(fs_superblock_t * superblock) {
 }
 
 __MOD_EXPORT devfs_entry_t * devfs_register(device_t * device) {
-    devfs_entry_t * new_entry = heap_alloc(sizeof(devfs_entry_t));
+    devfs_entry_t * new_entry = heap_alloc_debug(sizeof(devfs_entry_t), "devfs entry");
 
-    new_entry->name = heap_alloc(strlen(device->name) + 1);
+    new_entry->name = heap_alloc_debug(strlen(device->name) + 1, "devfs entry name");
     strcpy(new_entry->name, device->name);
 
     new_entry->device = device;
@@ -108,7 +108,7 @@ __MOD_EXPORT devfs_entry_t * devfs_register(device_t * device) {
     devfs_head.next->prev = new_entry;
     devfs_head.next = new_entry;
 
-    fs_node_t * new_node = heap_alloc(sizeof(fs_node_t));
+    fs_node_t * new_node = heap_alloc_debug(sizeof(fs_node_t), "devfs register fsnode");
     fs_node_init(new_node);
 
     for (uint64_t i = 0; i < devfs_mount_count; i++) {
@@ -145,7 +145,7 @@ bool init(void) {
     fs_register("devfs", &devfs_superblock_ops, devfs_mount, devfs_unmount);
 
     devfs_mount_count = 0;
-    devfs_mounts = heap_alloc(sizeof(fs_directory_entry_t *));
+    devfs_mounts = heap_alloc_debug(sizeof(fs_directory_entry_t *), "devfs mounts");
 
     return true;
 }

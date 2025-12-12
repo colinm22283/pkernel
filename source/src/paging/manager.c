@@ -353,6 +353,7 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
 
         case PMAN_MAPPING_MAP: {
             mapping->map.references--;
+
             if (mapping->map.references == 0) {
                 valloc_release(&mapping->context->valloc, mapping->vaddr);
 

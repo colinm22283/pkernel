@@ -16,7 +16,7 @@ timer_t timers_head;
 timer_t timers_tail;
 
 timer_t * timer_init(timer_handler_t handler, void * cookie, uint64_t start_ticks, uint64_t interval_ticks) {
-    timer_t * timer = heap_alloc(sizeof(timer_t));
+    timer_t * timer = heap_alloc_debug(sizeof(timer_t), "timer");
 
     timer->state = WAITING;
 

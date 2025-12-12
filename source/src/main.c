@@ -217,6 +217,8 @@ __NORETURN void kernel_main(void) {
 
     thread_run(init_process->threads[0]);
 
+    heap_overview();
+
     vga_print("Starting Init Process\n");
     scheduler_yield();
 }
