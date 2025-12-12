@@ -136,7 +136,7 @@ __NORETURN void kernel_main(void) {
     vga_print("DevFS Mounted\n");
 
     dev_dirent = fs_open_path(&fs_root, "sys");
-    fs_mount("devfs", dev_dirent, NULL);
+    fs_mount("sysfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
     vga_print("SysFS Mounted\n");
