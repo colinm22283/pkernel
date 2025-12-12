@@ -1,7 +1,6 @@
 #include <stddef.h>
 
 #include <interrupt/interrupt_registry.h>
-#include <interface/interface_map.h>
 
 #include <io/arbitrator.h>
 

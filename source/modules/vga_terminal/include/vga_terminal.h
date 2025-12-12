@@ -12,9 +12,8 @@
 
 typedef char console_buffer_t[WINDOW_WIDTH][BUFFER_HEIGHT];
 
-extern bool (* draw_bitmap)(uint8_t * bitmap, uint64_t x, uint64_t y, uint64_t w, uint64_t h);
-extern bool (* draw_bitmap_transparent)(uint8_t * bitmap, uint64_t x, uint64_t y, uint64_t w, uint64_t h);
-extern bool (* clear_rect)(uint64_t x, uint64_t y, uint64_t w, uint64_t h);
+extern uint8_t * frame_buffer;
+
 extern console_buffer_t * console_buffer;
 
 extern volatile bool bound;

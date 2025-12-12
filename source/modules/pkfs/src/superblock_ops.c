@@ -9,7 +9,7 @@
 #include <debug/vga_print.h>
 
 fs_node_t * alloc_node(fs_superblock_t * superblock) {
-    pkfs_fs_node_t * new_node = heap_alloc(sizeof(pkfs_fs_node_t));
+    pkfs_fs_node_t * new_node = heap_alloc_debug(sizeof(pkfs_fs_node_t), "pkfs fsnode");
 
     fs_node_init(&new_node->base);
 

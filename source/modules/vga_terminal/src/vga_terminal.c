@@ -1,8 +1,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include <interface/interface_map.h>
-
 #include <paging/manager.h>
 
 #include <timer/timer.h>
@@ -21,14 +19,12 @@
 
 __MOD_EXPORT device_t * vga_term_device; // TODO: delete this
 
+uint8_t * frame_buffer;
+
 device_t * device;
 devfs_entry_t * devfs_entry;
 
 timer_t * blink_timer;
-
-bool (* draw_bitmap)(uint8_t * bitmap, uint64_t x, uint64_t y, uint64_t w, uint64_t h);
-bool (* draw_bitmap_transparent)(uint8_t * bitmap, uint64_t x, uint64_t y, uint64_t w, uint64_t h);
-bool (* clear_rect)(uint64_t x, uint64_t y, uint64_t w, uint64_t h);
 
 volatile bool bound = true;
 volatile bool cursor_on;
@@ -135,36 +131,13 @@ bool init(void) {
     view_y = cur_y;
     buffer_start = 1;
 
+    frame_buffer = pman_context_add_map(pman_kernel_context(), PMAN_PROT_WRITE, NULL, 0xA0000, WINDOW_WIDTH * 8 * WINDOW_HEIGHT * 8)->vaddr;
+
     pman_mapping_t * buffer_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, sizeof(console_buffer_t));
 
     console_buffer = buffer_mapping->vaddr;
 
-    interface_t * vga_interface = interface_map_lookup("vga");
-    if (vga_interface == NULL) return false;
-
-    draw_bitmap = interface_lookup_method(vga_interface, "draw_bitmap");
-    if (draw_bitmap == NULL) return false;
-    bool (* vga_set_primary)(const uint8_t * color) = interface_lookup_method(vga_interface, "set_primary");
-    bool (* vga_set_secondary)(const uint8_t * color) = interface_lookup_method(vga_interface, "set_secondary");
-    bool (* vga_clear)(void) = interface_lookup_method(vga_interface, "clear");
-
-    draw_bitmap_transparent = interface_lookup_method(vga_interface, "draw_bitmap_transparent");
-    if (draw_bitmap_transparent == NULL) return false;
-
-    clear_rect = interface_lookup_method(vga_interface, "clear_rect");
-    if (clear_rect == NULL) return false;
-
     // blink_timer = timer_init(timer_handler, NULL, 0, TIMER_MS_TO_TICKS(500));
-
-    {
-        uint8_t color = 15;
-        vga_set_primary(&color);
-    }
-    {
-        uint8_t color = 0;
-        vga_set_secondary(&color);
-    }
-    vga_clear();
 
     device_char_operations_t operations = {
         .write = write,

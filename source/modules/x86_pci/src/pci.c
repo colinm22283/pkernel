@@ -13,7 +13,7 @@ pci_device_t ** pci_devices;
 pci_watcher_t pci_watcher_head, pci_watcher_tail;
 
 static inline void add_pci_device(pci_address_t address) {
-    pci_devices[pci_device_count] = heap_alloc(sizeof(pci_device_t));
+    pci_devices[pci_device_count] = heap_alloc_debug(sizeof(pci_device_t), "x86_pci device");
     pci_device_t * pci_device = pci_devices[pci_device_count];
 
     pci_device->binder = NULL;
@@ -48,13 +48,13 @@ static inline void pci_bind(pci_watcher_t * watcher, pci_device_t * device) {
 }
 
 __MOD_EXPORT pci_watcher_t * pci_watch(pci_probe_t * probe, void * private) {
-    pci_watcher_t * watcher = heap_alloc(sizeof(pci_watcher_t));
+    pci_watcher_t * watcher = heap_alloc_debug(sizeof(pci_watcher_t), "x86_pci pci_watcher");
 
     watcher->probe = probe;
     watcher->private = private;
 
     watcher->bound_count = 0;
-    watcher->bound_devices = heap_alloc(sizeof(pci_device_t *));
+    watcher->bound_devices = heap_alloc_debug(sizeof(pci_device_t *), "x86_pci bound_devices");
 
     watcher->next = pci_watcher_head.next;
     watcher->prev = &pci_watcher_head;
@@ -85,7 +85,7 @@ __MOD_EXPORT void pci_unwatch(pci_watcher_t * watcher) {
 
 void init(void) {
     pci_device_count = 0;
-    pci_devices = heap_alloc(sizeof(pci_device_t));
+    pci_devices = heap_alloc_debug(sizeof(pci_device_t), "x86_pci pci_devices");
 
     pci_watcher_head.next = &pci_watcher_tail;
     pci_watcher_head.prev = NULL;

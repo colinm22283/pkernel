@@ -29,7 +29,6 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
     thread->twin_thread->twin_thread = thread;
     thread->twin_thread->process = parent;
 
-    heap_alloc_debug(1, "STACK ALLOCATED !!!!!!!!!");
     pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, DEFAULT_THREAD_STACK_SIZE);
     thread->stack_mapping = pman_context_add_shared(user_context, PMAN_PROT_WRITE, kernel_mapping, NULL);
     pman_context_unmap(kernel_mapping);
@@ -117,6 +116,8 @@ void thread_load_pc(thread_t * thread, void * pc) {
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
+            debug_print("RESUME KERNEL\n");
+
             resume_tsr_kernel(&thread->tsr);
         } break;
 
@@ -126,6 +127,8 @@ __NORETURN void thread_resume(thread_t * thread) {
             // debug_print(" FOR ");
             // debug_print_hex(thread->process->id);
             // debug_print("\n");
+
+            debug_print("RESUME USER\n");
 
             resume_tsr_user(&thread->tsr, thread->process->paging_context);
         } break;

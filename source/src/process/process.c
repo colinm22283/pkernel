@@ -68,9 +68,9 @@ process_t * process_create_fork(process_t * parent) {
             pman_protection_flags_t prot = mapping->protection;
             pman_mapping_t * root_mapping = get_root_mapping(mapping);
 
-            pman_context_unmap(mapping);
+            /* pman_context_unmap(mapping); */
 
-            pman_context_add_borrowed(parent->paging_context, prot, root_mapping, vaddr);
+            /* pman_context_add_borrowed(parent->paging_context, prot, root_mapping, vaddr); */
         }
 
         if (mapping == tail) break;

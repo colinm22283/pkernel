@@ -498,6 +498,8 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 }
 
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr, void * _error_code) {
+debug_print("GURP\n");
+
     page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
 
     void * fault_vaddr = read_fault_vaddr();

@@ -8,7 +8,7 @@
 #include <util/memory/memcpy.h>
 
 unix_socket_t * unix_socket_init(void) {
-    unix_socket_t * socket = heap_alloc(sizeof(unix_socket_t));
+    unix_socket_t * socket = heap_alloc_debug(sizeof(unix_socket_t), "unix_socket");
 
     socket->listener_arrived = event_init();
     socket->listener_accepted = event_init();
@@ -61,7 +61,7 @@ error_number_t unix_socket_connect(unix_socket_t * socket, unix_socket_t * targe
     if (target->listen_queue_size == target->listen_queue_capacity) return ERROR_CON_REFUSED;
 
     vga_print("Alloc\n");
-    unix_socket_listen_req_t * req = heap_alloc(sizeof(unix_socket_listen_req_t));
+    unix_socket_listen_req_t * req = heap_alloc_debug(sizeof(unix_socket_listen_req_t), "unix_socket listener");
 
     req->requester = socket;
 
@@ -150,11 +150,11 @@ error_number_t unix_socket_write(unix_socket_t * socket, const char * data, fs_s
     }
 
     vga_print("Alloc packet\n");
-    unix_packet_t * packet = heap_alloc(sizeof(unix_packet_t));
+    unix_packet_t * packet = heap_alloc_debug(sizeof(unix_packet_t), "unix_socket packet");
 
     packet->pos = 0;
     packet->size = size;
-    packet->data = heap_alloc(size);
+    packet->data = heap_alloc_debug(size, "unix_socket packet data");
     memcpy(packet->data, data, size);
 
     packet->next = &socket->paired_socket->incoming_tail;

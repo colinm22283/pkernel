@@ -3,9 +3,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define HEAP_DEBUG
+// #define HEAP_DEBUG
 
-#define HEAP_INITIAL_SIZE (0x20000)
+#define HEAP_INITIAL_SIZE (0x10000)
 
 typedef struct {
     bool next_reserved;

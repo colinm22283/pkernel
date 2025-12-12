@@ -10,8 +10,6 @@
 
 #include <util/heap/heap.h>
 
-#include <interface/interface_map.h>
-
 #include <interrupt/init.h>
 #include <interrupt/interrupt_registry.h>
 
@@ -59,7 +57,9 @@
 
 #define VIDEO_MEMORY ((uint8_t *) 0xA0000)
 
-void test() {
+void gpf() {
+    panic0("GPF ENCOUNTERED");
+
     halt();
 }
 
@@ -72,15 +72,13 @@ __NORETURN void kernel_main(void) {
 
     interrupt_registry_init();
 
-    interrupt_registry_register(IC_GENERAL_PROTECTION_FAULT, test);
+    interrupt_registry_register(IC_GENERAL_PROTECTION_FAULT, gpf);
 
     pman_init();
 
     if (!paging_init_stage2()) kernel_entry_error(KERNEL_ENTRY_ERROR_PAGING_PHASE_2_ERROR);
 
     sys_setup_phase2();
-
-    interface_map_init();
 
     timers_init();
 

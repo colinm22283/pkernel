@@ -12,7 +12,7 @@ error_number_t mount(fs_superblock_t * superblock) {
 
     fs_directory_entry_t * mount_point = superblock->mount_point;
 
-    fs_node_t * _root_node = heap_alloc(sizeof(pkfs_fs_node_t));
+    fs_node_t * _root_node = heap_alloc_debug(sizeof(pkfs_fs_node_t), "pkfs root node");
     pkfs_fs_node_t * root_node = (pkfs_fs_node_t *) _root_node;
 
     fs_node_init(&root_node->base);

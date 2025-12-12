@@ -43,7 +43,7 @@ bool io_arbitrator_test_reserved(port_t port) {
 bool io_arbitrator_reserve(port_t port) {
     if (io_arbitrator_test_reserved(port)) return false;
 
-    io_arbitrator_node_t * new_node = heap_alloc(sizeof(io_arbitrator_node_t));
+    io_arbitrator_node_t * new_node = heap_alloc_debug(sizeof(io_arbitrator_node_t), "io_arbitrator node");
     new_node->port = port;
 
     uint64_t hash = IO_ARBITRATOR_HASH(port);

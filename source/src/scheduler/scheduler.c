@@ -90,7 +90,7 @@ void scheduler_await(event_t * event) {
 
         current_core->current_thread->state = TS_WAITING;
 
-        waiter_t * waiter = heap_alloc(sizeof(waiter_t));
+        waiter_t * waiter = heap_alloc_debug(sizeof(waiter_t), "waiter");
 
         waiter->thread = current_core->current_thread;
 

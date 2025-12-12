@@ -77,7 +77,7 @@ pci_probe_result_t pci_probe(pci_device_t * device, void * private) {
 void add_ide_device(port_t io_port, port_t control_port, bool is_master) {
     if (disc_present(io_port, control_port, is_master ? DEVICE_DRIVE_MASTER : DEVICE_DRIVE_SLAVE)) {
         ide_devices = heap_realloc(ide_devices, (ide_device_count + 1) * sizeof(ide_device_t *));
-        ide_devices[ide_device_count] = heap_alloc(sizeof(ide_device_t));
+        ide_devices[ide_device_count] = heap_alloc_debug(sizeof(ide_device_t), "disc_pio ide_device");
         ide_device_t * ide_device = ide_devices[ide_device_count];
         ide_device_count++;
 
@@ -95,7 +95,7 @@ void add_ide_device(port_t io_port, port_t control_port, bool is_master) {
 
 bool init(void) {
     ide_device_count = 0;
-    ide_devices = heap_alloc(1);
+    ide_devices = heap_alloc_debug(1, "disc_pio ide_devices");
 
     pci_watcher = pci_watch(pci_probe, NULL);
 

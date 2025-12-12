@@ -85,7 +85,9 @@ bool device_remove(device_t * device) {
 
 uint64_t device_read(device_t * device, char * buffer, uint64_t size, uint64_t offset) {
     switch (device->type) {
-        case DT_CHARACTER: return device->char_ops.read(device, buffer, size);
+        case DT_CHARACTER: {
+            return device->char_ops.read(device, buffer, size);
+        } break;
 
         case DT_BLOCK: {
             return device->block_ops.read(device, buffer, size / device->block_data.block_size, offset / device->block_data.block_size);

@@ -1,4 +1,5 @@
 #include <filesystem/file.h>
+#include <sys/debug/print.h>
 
 error_number_t file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_options_t options) {
     if (dirent->type == FS_DIRECTORY && (options & OPEN_WRITE)) return ERROR_IS_DIR;

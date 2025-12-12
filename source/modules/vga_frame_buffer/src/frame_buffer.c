@@ -8,8 +8,6 @@
 
 #include <devfs/devfs.h>
 
-#include <interface/interface_map.h>
-
 #include <util/heap/heap.h>
 #include <util/math/div_up.h>
 
@@ -23,8 +21,6 @@ device_t * device;
 devfs_entry_t * devfs_entry;
 
 pman_mapping_t * pman_entry;
-
-interface_map_node_t * interface_node;
 
 uint64_t required_pages;
 uint8_t * frame_buffer;
@@ -146,28 +142,12 @@ bool init(void) {
     device = device_create_char("vga", NULL, &operations, &data);
     devfs_entry = devfs_register(device);
 
-    interface_node = interface_map_add("vga");
-
-    interface_add_method(&interface_node->interface, "set_primary", vga_set_primary);
-    interface_add_method(&interface_node->interface, "set_secondary", vga_set_secondary);
-    interface_add_method(&interface_node->interface, "clear", vga_clear);
-
-    interface_add_method(&interface_node->interface, "fill_rect", vga_fill_rect);
-    interface_add_method(&interface_node->interface, "clear_rect", vga_clear_rect);
-
-    interface_add_method(&interface_node->interface, "draw_bitmap", draw_bitmap);
-    interface_add_method(&interface_node->interface, "draw_bitmap_transparent", draw_bitmap_transparent);
-
-    interface_add_method(&interface_node->interface, "get_frame_buffer", vga_get_framebuffer);
-
     return true;
 }
 
 bool free(void) {
     devfs_remove(devfs_entry);
     device_remove(device);
-
-    interface_map_remove(interface_node);
 
     paging_unmap(&paging_kernel_pml4t, &mapping);
 //    paging_valloc_free(frame_buffer, required_pages);

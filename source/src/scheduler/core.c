@@ -10,7 +10,7 @@ scheduler_core_t * cores;
 void scheduler_cores_init(void) {
     core_count = hardware_concurrency();
 
-    cores = heap_alloc(core_count * sizeof(scheduler_core_t));
+    cores = heap_alloc_debug(core_count * sizeof(scheduler_core_t), "cores");
 
     for (size_t i = 0; i < core_count; i++) {
         cores[i].current_thread = NULL;
