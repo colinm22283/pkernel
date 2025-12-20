@@ -470,36 +470,50 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 
         pman_mapping_t * root_mapping = get_root_mapping(mapping);
 
-        pman_mapping_t * kernel_alloc = pman_context_add_alloc(
-            pman_kernel_context(),
-            PMAN_PROT_WRITE,
-            NULL,
-            root_mapping->size_pages * 0x1000
-        );
+        if (root_mapping->alloc.references == 1) {
+            pman_mapping_t * user_mapping = pman_context_add_shared(
+                context,
+                mapping_protection,
+                root_mapping,
+                mapping_vaddr
+            );
 
-        memcpy(kernel_alloc->vaddr, root_mapping->vaddr, root_mapping->size_pages * 0x1000);
+            pman_context_unmap(mapping);
 
-        pman_context_unmap(mapping);
+            process_remap(process, mapping, user_mapping);
 
-        pman_mapping_t * user_mapping = pman_context_add_shared(
-            context,
-            mapping_protection,
-            kernel_alloc,
-            mapping_vaddr
-        );
+            return user_mapping; // TODO fix
+        }
+        else {
+            pman_mapping_t * kernel_alloc = pman_context_add_alloc(
+                pman_kernel_context(),
+                PMAN_PROT_WRITE,
+                NULL,
+                root_mapping->size_pages * 0x1000
+            );
 
-        pman_context_unmap(kernel_alloc);
+            memcpy(kernel_alloc->vaddr, root_mapping->vaddr, root_mapping->size_pages * 0x1000);
 
-        process_remap(process, mapping, user_mapping);
+            pman_context_unmap(mapping);
 
-        return user_mapping;
+            pman_mapping_t * user_mapping = pman_context_add_shared(
+                context,
+                mapping_protection,
+                kernel_alloc,
+                mapping_vaddr
+            );
+
+            pman_context_unmap(kernel_alloc);
+
+            process_remap(process, mapping, user_mapping);
+
+            return user_mapping;
+        }
     }
     else return mapping;
 }
 
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr, void * _error_code) {
-debug_print("GURP\n");
-
     page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
 
     void * fault_vaddr = read_fault_vaddr();
