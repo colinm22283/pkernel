@@ -71,6 +71,10 @@ pman_context_t * pman_new_context(void) {
     context->tail.next = NULL;
     context->tail.prev = &context->head;
 
+    debug_print("NEW PML4T: ");
+    debug_print_hex((intptr_t) context->top_level_table);
+    debug_print("\n");
+
     return context;
 }
 
@@ -225,6 +229,11 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
         page_data_t * current_vaddr = mapping->vaddr;
 
         for (uint64_t i = 0; i < mapping->borrowed.mapping_count; i++) {
+            if ((intptr_t) current_vaddr < 0xD0000000) {
+                debug_print("gurp\n");
+                hlt();
+            }
+
             paging_map_ex(
                 context->top_level_table,
                 &mapping->borrowed.mappings[i],
@@ -332,6 +341,13 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
 }
 
 error_number_t pman_context_unmap(pman_mapping_t * mapping) {
+    // debug_print("UNMAP PML4T VADDR: ");
+    // debug_print_hex((intptr_t) mapping->context->top_level_table);
+    // debug_print("\n");
+    // debug_print("VADDR: ");
+    // debug_print_hex((intptr_t) mapping->vaddr);
+    // debug_print("\n");
+
     mapping->next->prev = mapping->prev;
     mapping->prev->next = mapping->next;
 
@@ -471,6 +487,10 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
         pman_mapping_t * root_mapping = get_root_mapping(mapping);
 
         if (root_mapping->alloc.references == 1) {
+            pman_add_reference(root_mapping);
+
+            pman_context_unmap(mapping);
+
             pman_mapping_t * user_mapping = pman_context_add_shared(
                 context,
                 mapping_protection,
@@ -478,11 +498,11 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
                 mapping_vaddr
             );
 
-            pman_context_unmap(mapping);
+            pman_context_unmap(root_mapping);
 
             process_remap(process, mapping, user_mapping);
 
-            return user_mapping; // TODO fix
+            return user_mapping;
         }
         else {
             pman_mapping_t * kernel_alloc = pman_context_add_alloc(
@@ -514,6 +534,8 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 }
 
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr, void * _error_code) {
+    debug_print("Page fault\n");
+
     page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
 
     void * fault_vaddr = read_fault_vaddr();

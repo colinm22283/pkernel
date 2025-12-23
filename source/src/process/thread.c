@@ -116,7 +116,7 @@ void thread_load_pc(thread_t * thread, void * pc) {
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
-            debug_print("RESUME KERNEL\n");
+            // debug_print("RESUME KERNEL\n");
 
             resume_tsr_kernel(&thread->tsr);
         } break;
@@ -128,7 +128,7 @@ __NORETURN void thread_resume(thread_t * thread) {
             // debug_print_hex(thread->process->id);
             // debug_print("\n");
 
-            debug_print("RESUME USER\n");
+            // debug_print("RESUME USER\n");
 
             resume_tsr_user(&thread->tsr, thread->process->paging_context);
         } break;

@@ -8,8 +8,9 @@
 
 #include <entry_error.h>
 
-#include <debug/vga_print.h>
 #include <util/heap/internal.h>
+
+#include <sys/debug/print.h>
 
 #define MAPPER_ALLOCATION_INITIAL_SIZE (1)
 
@@ -44,7 +45,7 @@ static inline bool paging_map_single(
         uint64_t pdpt_paddr = PML4T64_GET_ADDRESS((*pml4t)[pml4t_index]);
         pdpt = paging_tmap_translate(pdpt_paddr);
         if (pdpt == NULL) {
-            vga_print("AAAA1\n");
+            debug_print("AAAA1\n");
 
             kernel_entry_error(0x601);
         }
@@ -64,7 +65,7 @@ static inline bool paging_map_single(
     else {
         uint64_t pdt_paddr = PDPT64_GET_ADDRESS((*pdpt)[pdpt_index]);
         pdt = paging_tmap_translate(pdt_paddr);
-        if (pdt == NULL) vga_print("AAAA2\n");
+        if (pdt == NULL) debug_print("AAAA2\n");
     }
 
     pt64_t * pt;
@@ -81,7 +82,7 @@ static inline bool paging_map_single(
     else {
         uint64_t pt_paddr = PDT64_GET_ADDRESS((*pdt)[pdt_index]);
         pt = paging_tmap_translate(pt_paddr);
-        if (pt == NULL) vga_print("AAAA3\n");
+        if (pt == NULL) debug_print("AAAA3\n");
     }
 
     if (!(*pt)[pt_index].present) {
@@ -96,6 +97,8 @@ static inline bool paging_map_single(
         return true;
     }
     else {
+        debug_print("ALREADY MAPPED\n");
+
         return false;
     }
 }
@@ -143,13 +146,13 @@ bool paging_map_ex(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr
             execute_disable,
             user_super
         )) {
-            vga_print("MAP ERROR\n");
-            vga_print("index: ");
-            vga_print_hex(i);
-            vga_print("\n");
-            vga_print("vaddr: ");
-            vga_print_hex((uint64_t) current_vaddr);
-            vga_print("\n");
+            debug_print("MAP ERROR\n");
+            debug_print("PML4T: ");
+            debug_print_hex((intptr_t) pml4t);
+            debug_print("\n");
+            debug_print("vaddr: ");
+            debug_print_hex((uint64_t) current_vaddr);
+            debug_print("\n");
             hlt();
 
             return false;

@@ -53,10 +53,31 @@ process_t * process_create_fork(process_t * parent) {
 
     process->parent_id = parent->id;
 
-    pman_mapping_t * mapping = parent->paging_context->head.next;
-    pman_mapping_t * tail = parent->paging_context->tail.prev;
-    while (true) {
-        pman_mapping_t * next = mapping->next;
+    debug_print("FORK ");
+    debug_print_hex(parent->id);
+    debug_print(" -> ");
+    debug_print_hex(process->id);
+    debug_print("\n");
+
+    size_t mapping_count = 0, mapping_capacity = 1;
+    pman_mapping_t ** mappings = heap_alloc(mapping_capacity * sizeof(pman_mapping_t *));
+
+    for (
+        pman_mapping_t * mapping = parent->paging_context->head.next;
+        mapping != &parent->paging_context->tail;
+        mapping = mapping->next
+    ) {
+        mappings[mapping_count++] = mapping;
+
+        if (mapping_count == mapping_capacity) {
+            mapping_capacity *= 2;
+
+            mappings = heap_realloc(mappings, mapping_capacity * sizeof(pman_mapping_t *));
+        }
+    }
+
+    for (size_t i = 0; i < mapping_count; i++) {
+        pman_mapping_t * mapping = mappings[i];
 
         if (mapping->protection & PMAN_PROT_SHARED) {
             vga_print("oh dear\n");
@@ -74,11 +95,9 @@ process_t * process_create_fork(process_t * parent) {
                 debug_print("OOHHH DEARRR\n");
             }
         }
-
-        if (mapping == tail) break;
-
-        mapping = next;
     }
+
+    heap_free(mappings);
 
     thread_t * new_thread = thread_create_fork(process->paging_context, process, parent->threads[0]);
 
