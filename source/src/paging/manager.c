@@ -210,6 +210,10 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
 
     pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "borrow mapping");
 
+    debug_print("Create borrow: 0x");
+    debug_print_hex((intptr_t) mapping);
+    debug_print("\n");
+
     mapping->context = context;
     mapping->type = PMAN_MAPPING_BORROWED;
     mapping->protection = prot;
@@ -469,6 +473,10 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
 
 pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) {
     pman_mapping_t * mapping = context->head.next;
+
+    debug_print("TEST: ");
+    debug_print_hex((intptr_t) vaddr);
+    debug_print("\n");
 
     while (mapping != &context->tail) {
         if (

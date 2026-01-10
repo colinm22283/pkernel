@@ -174,6 +174,10 @@ bool paging_map_ex(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr
         current_vaddr++;
     }
 
+    debug_print("MAP: 0x");
+    debug_print_hex((intptr_t) mapping);
+    debug_print("\n");
+
     return true;
 }
 
@@ -187,15 +191,15 @@ static inline bool paging_unmap_single(pml4t64_t * pml4t, void * vaddr) {
     pdt64_t * pdt = paging_tmap_translate(PDPT64_GET_ADDRESS((*pdpt)[pdpt_index]));
     pt64_t * pt = paging_tmap_translate(PDT64_GET_ADDRESS((*pdt)[pdt_index]));
 
-    debug_print("1: ");
-    debug_print_hex((intptr_t) pdpt);
-    debug_print("\n");
-    debug_print("2: ");
-    debug_print_hex((intptr_t) pdt);
-    debug_print("\n");
-    debug_print("3: ");
-    debug_print_hex((intptr_t) pt);
-    debug_print("\n");
+    // debug_print("1: ");
+    // debug_print_hex((intptr_t) pdpt);
+    // debug_print("\n");
+    // debug_print("2: ");
+    // debug_print_hex((intptr_t) pdt);
+    // debug_print("\n");
+    // debug_print("3: ");
+    // debug_print_hex((intptr_t) pt);
+    // debug_print("\n");
 
     if (!(*pt)[pt_index].present) return false;
 
@@ -223,6 +227,8 @@ void paging_unmap(pml4t64_t * pml4t, paging_mapping_t * mapping) {
     debug_print(", ");
     debug_print_hex(mapping->size_pages);
     debug_print("\n");
+
+    heap_check();
 
     for (uint64_t i = 0; i < mapping->size_pages; i++) {
         paging_unmap_single(pml4t, (char *) mapping->vaddr + (i * 0x1000));

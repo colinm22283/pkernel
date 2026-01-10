@@ -16,7 +16,7 @@ bool heap_check(void) {
         heap_tag_t * next_tag = (heap_tag_t *) ((intptr_t) cur_tag + cur_tag->next_size + sizeof(heap_tag_t));
 
         if (cur_tag->next_size != next_tag->prev_size) {
-            vga_print("HEAP SANITY FAILED\n");
+            debug_print("HEAP SANITY FAILED\n");
 
             asm volatile ("hlt");
         }
