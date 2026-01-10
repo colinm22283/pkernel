@@ -76,6 +76,10 @@ process_t * process_create_fork(process_t * parent) {
         }
     }
 
+    debug_print("Mapping count: ");
+    debug_print_hex(mapping_count);
+    debug_print("\n");
+
     for (size_t i = 0; i < mapping_count; i++) {
         pman_mapping_t * mapping = mappings[i];
 
@@ -83,11 +87,15 @@ process_t * process_create_fork(process_t * parent) {
             vga_print("oh dear\n");
         }
         else {
-            pman_context_add_borrowed(process->paging_context, mapping->protection, get_root_mapping(mapping), mapping->vaddr);
+            debug_print("Remapping at 0x");
+            debug_print_hex((intptr_t) mapping->vaddr);
+            debug_print("\n");
 
             void * vaddr = mapping->vaddr;
             pman_protection_flags_t prot = mapping->protection;
             pman_mapping_t * root_mapping = get_root_mapping(mapping);
+
+            pman_context_add_borrowed(process->paging_context, mapping->protection, root_mapping, mapping->vaddr);
 
             pman_context_unmap(mapping);
 
@@ -185,7 +193,11 @@ void * process_user_to_kernel(process_t * process, const void * user_vaddr) {
 
 void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping) {
     for (size_t i = 0; i < process->thread_count; i++) {
-        if (process->threads[i]->stack_mapping == old_mapping) process->threads[i]->stack_mapping = new_mapping;
+        if (process->threads[i]->stack_mapping == old_mapping) {
+            debug_print("Remap hit\n");
+
+            process->threads[i]->stack_mapping = new_mapping;
+        }
     }
 }
 

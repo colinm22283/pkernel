@@ -7,6 +7,7 @@
 #include <util/heap/heap.h>
 
 #include <entry_error.h>
+#include <debug/vga_print.h>
 
 #include <util/heap/internal.h>
 
@@ -118,6 +119,13 @@ static inline void add_allocation(
 }
 
 bool paging_map_ex(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr, void * vaddr, uint64_t size_pages, bool read_write, bool execute_disable, bool user_super) {
+    if (size_pages > 70) {
+        debug_print("what the sigma? 0x");
+        debug_print_hex(size_pages);
+        debug_print("\n");
+        asm volatile ("hlt");
+    }
+
     uint64_t capacity = 1;
     mapping->allocation_count = 0;
     mapping->allocations = heap_alloc_debug(capacity * sizeof(paging_table_allocation_t), "paging_mapping_t::allocations");
@@ -179,6 +187,16 @@ static inline bool paging_unmap_single(pml4t64_t * pml4t, void * vaddr) {
     pdt64_t * pdt = paging_tmap_translate(PDPT64_GET_ADDRESS((*pdpt)[pdpt_index]));
     pt64_t * pt = paging_tmap_translate(PDT64_GET_ADDRESS((*pdt)[pdt_index]));
 
+    debug_print("1: ");
+    debug_print_hex((intptr_t) pdpt);
+    debug_print("\n");
+    debug_print("2: ");
+    debug_print_hex((intptr_t) pdt);
+    debug_print("\n");
+    debug_print("3: ");
+    debug_print_hex((intptr_t) pt);
+    debug_print("\n");
+
     if (!(*pt)[pt_index].present) return false;
 
     (*pt)[pt_index].present = false;
@@ -200,6 +218,12 @@ static inline bool paging_unmap_single(pml4t64_t * pml4t, void * vaddr) {
 }
 
 void paging_unmap(pml4t64_t * pml4t, paging_mapping_t * mapping) {
+    debug_print("MAPPING: ");
+    debug_print_hex((intptr_t) mapping);
+    debug_print(", ");
+    debug_print_hex(mapping->size_pages);
+    debug_print("\n");
+
     for (uint64_t i = 0; i < mapping->size_pages; i++) {
         paging_unmap_single(pml4t, (char *) mapping->vaddr + (i * 0x1000));
     }

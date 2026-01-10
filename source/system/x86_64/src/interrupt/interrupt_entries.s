@@ -32,7 +32,7 @@
 .global \name
 \name:
     pushf
-    push 8(%rsp)
+    push 16(%rsp)
     push %r15
     push %r14
     push %r13
@@ -41,7 +41,7 @@
     push %r10
     push %r9
     push %r8
-    push 104(%rsp)
+    push 112(%rsp)
     push %rbp
     push %rdi
     push %rsi

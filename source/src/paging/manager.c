@@ -382,6 +382,10 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
         } break;
 
         case PMAN_MAPPING_BORROWED: {
+            debug_print("yer 0x");
+            debug_print_hex((intptr_t) mapping->context->top_level_table);
+            debug_print("\n");
+
             pman_context_unmap(mapping->borrowed.lender);
 
             valloc_release(&mapping->context->valloc, mapping->vaddr);
@@ -480,6 +484,10 @@ pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) 
 
 pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t * mapping) {
     if (mapping->type == PMAN_MAPPING_BORROWED) {
+        debug_print("Prepare borrow 0x");
+        debug_print_hex((intptr_t) mapping);
+        debug_print("\n");
+
         pman_protection_flags_t mapping_protection = mapping->protection;
         void * mapping_vaddr = mapping->vaddr;
         pman_context_t * context = mapping->context;
@@ -487,9 +495,13 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
         pman_mapping_t * root_mapping = get_root_mapping(mapping);
 
         if (root_mapping->alloc.references == 1) {
+            debug_print("a\n");
+
             pman_add_reference(root_mapping);
 
+            debug_print("1\n");
             pman_context_unmap(mapping);
+            debug_print("2\n");
 
             pman_mapping_t * user_mapping = pman_context_add_shared(
                 context,
@@ -498,13 +510,17 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
                 mapping_vaddr
             );
 
+            debug_print("3\n");
             pman_context_unmap(root_mapping);
+            debug_print("4\n");
 
             process_remap(process, mapping, user_mapping);
 
             return user_mapping;
         }
         else {
+            debug_print("b\n");
+
             pman_mapping_t * kernel_alloc = pman_context_add_alloc(
                 pman_kernel_context(),
                 PMAN_PROT_WRITE,
@@ -534,8 +550,6 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 }
 
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr, void * _error_code) {
-    debug_print("Page fault\n");
-
     page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
 
     void * fault_vaddr = read_fault_vaddr();
@@ -546,8 +560,21 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
 
     pman_context_t * current_context;
 
+    debug_print("Page fault from 0x");
+    debug_print_hex((intptr_t) tsr->rip);
+    debug_print(" with process ");
+    debug_print_hex(current_process->id);
+    debug_print("\n");
+
     if (error_code->user) current_context = current_process->paging_context;
-    else current_context = pman_kernel_context();
+    else {
+        debug_print("PAGE FAULT OCCURRED IN KERNEL\n");
+        debug_print("vaddr: ");
+        debug_print_hex((uint64_t) fault_vaddr);
+        debug_print("\n");
+
+        halt();
+    }
 
     pman_mapping_t * mapping = pman_context_get_vaddr(current_context, fault_vaddr);
 
@@ -574,7 +601,7 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         return;
     }
 
-    if (pman_context_prepare_write(scheduler_current_process(), mapping) == NULL) {
+    if (pman_context_prepare_write(current_process, mapping) == NULL) {
         fs_file_t * out_file = file_table_get(&current_process->file_table, stdout);
 
         if (out_file != NULL) file_write(out_file, "PAGE FAULT: Unwritable\n", 23);
@@ -592,6 +619,4 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         process_kill(current_process);
         return;
     }
-
-    if (!error_code->user) halt();
 }
