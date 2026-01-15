@@ -3,9 +3,13 @@
 
 #include <entry_error.h>
 
-#include <sys/debug/print.h>
+#include <sys/panic.h>
 
 void heap_free(void * alloc) {
+#ifdef HEAP_DEBUG
+    heap_check();
+#endif
+
     heap_tag_t * tag = ((heap_tag_t *) alloc) - 1;
 
 #ifdef HEAP_DEBUG
@@ -14,7 +18,7 @@ void heap_free(void * alloc) {
 
     alloc_size -= tag->next_size;
 
-    if (!tag->next_reserved) kernel_entry_error(KERNEL_ENTRY_ERROR_HEAP_FREE_FAILURE);
+    if (!tag->next_reserved) panic1("Unable to verify reserve in heap_free()", "alloc", (intptr_t) alloc);
 
     heap_tag_t * next_tag = (heap_tag_t *) ((intptr_t) tag + tag->next_size + sizeof(heap_tag_t));
 
@@ -51,6 +55,10 @@ void heap_free(void * alloc) {
 #ifdef HEAP_DEBUG
     debug_print("FREE: ");
     debug_print(name);
+    debug_print(", 0x");
+    debug_print_hex((intptr_t) alloc);
     debug_print("\n");
+
+    heap_check();
 #endif
 }

@@ -14,11 +14,21 @@ void heap_free(void * alloc);
 void * heap_realloc(void * alloc, uint64_t size_bytes);
 
 static inline void * heap_alloc_debug(uint64_t size_bytes, const char * name) {
+#ifdef HEAP_DEBUG
+    debug_print("BEGIN ALLOC: ");
+    debug_print(name);
+    debug_print(", 0x");
+    debug_print_hex(size_bytes);
+    debug_print("\n");
+#endif
+
     void * ret = heap_alloc(size_bytes);
 
 #ifdef HEAP_DEBUG
     debug_print("ALLOC: ");
     debug_print(name);
+    debug_print(", 0x");
+    debug_print_hex((intptr_t) ret);
     debug_print("\n");
 
     ((heap_tag_t *) ret - 1)->name = name;

@@ -21,6 +21,7 @@
 #include <sys/paging/load_page_table.h>
 #include <sys/paging/read_fault_vaddr.h>
 #include <sys/halt.h>
+#include <sys/panic.h>
 
 #include <debug/vga_print.h>
 #include <util/heap/internal.h>
@@ -105,8 +106,12 @@ pman_context_t * pman_new_kernel_context(void) {
 }
 
 error_number_t pman_free_context(pman_context_t * context) { // TODO
+    FANCY_HEAP_CHECK();
+
     while (context->head.next != &context->tail) {
         pman_context_unmap(context->head.next);
+
+        FANCY_HEAP_CHECK();
     }
 
     valloc_free(&context->valloc);
@@ -210,10 +215,6 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
 
     pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "borrow mapping");
 
-    debug_print("Create borrow: 0x");
-    debug_print_hex((intptr_t) mapping);
-    debug_print("\n");
-
     mapping->context = context;
     mapping->type = PMAN_MAPPING_BORROWED;
     mapping->protection = prot;
@@ -232,10 +233,14 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
 
         page_data_t * current_vaddr = mapping->vaddr;
 
+        if (mapping->borrowed.mapping_count == 0) {
+            panic0("yep");
+        }
+
         for (uint64_t i = 0; i < mapping->borrowed.mapping_count; i++) {
             if ((intptr_t) current_vaddr < 0xD0000000) {
                 debug_print("gurp\n");
-                hlt();
+                halt();
             }
 
             paging_map_ex(
@@ -275,6 +280,10 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
 
     context->head.next->prev = mapping;
     context->head.next = mapping;
+
+    debug_print("PMAN MAP: 0x");
+    debug_print_hex((intptr_t) mapping);
+    debug_print("\n");
 
     return mapping;
 }
@@ -341,38 +350,69 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
     context->head.next->prev = mapping;
     context->head.next = mapping;
 
+    debug_print("PMAN MAP: 0x");
+    debug_print_hex((intptr_t) mapping);
+    debug_print("\n");
+
     return mapping;
 }
 
 error_number_t pman_context_unmap(pman_mapping_t * mapping) {
-    // debug_print("UNMAP PML4T VADDR: ");
-    // debug_print_hex((intptr_t) mapping->context->top_level_table);
-    // debug_print("\n");
-    // debug_print("VADDR: ");
-    // debug_print_hex((intptr_t) mapping->vaddr);
-    // debug_print("\n");
+    FANCY_HEAP_CHECK();
 
     mapping->next->prev = mapping->prev;
+
+    FANCY_HEAP_CHECK();
+
     mapping->prev->next = mapping->next;
+
+    FANCY_HEAP_CHECK();
+
+    debug_print("PMAN UNMAP: 0x");
+    debug_print_hex((intptr_t) mapping);
+    debug_print(", 0x");
+    debug_print_hex(mapping->type);
 
     switch (mapping->type) {
         case PMAN_MAPPING_ALLOC: {
             mapping->alloc.references--;
 
+            debug_print(", ");
+            debug_print_hex(mapping->alloc.references);
+            debug_print("\n");
+
+            FANCY_HEAP_CHECK();
+
             if (mapping->alloc.references == 0) {
+                FANCY_HEAP_CHECK();
+
                 valloc_release(&mapping->context->valloc, mapping->vaddr);
 
+                FANCY_HEAP_CHECK();
                 for (uint64_t i = 0; i < mapping->alloc.mapping_count; i++) paging_unmap(mapping->context->top_level_table, &mapping->alloc.mappings[i]);
+
+                FANCY_HEAP_CHECK();
+
                 heap_free(mapping->alloc.mappings);
+
+                FANCY_HEAP_CHECK();
 
                 palloc_free(&mapping->alloc.palloc);
 
+                FANCY_HEAP_CHECK();
+
                 heap_free(mapping);
+
+                FANCY_HEAP_CHECK();
             }
         } break;
 
         case PMAN_MAPPING_MAP: {
             mapping->map.references--;
+
+            debug_print(", ");
+            debug_print_hex(mapping->map.references);
+            debug_print("\n");
 
             if (mapping->map.references == 0) {
                 valloc_release(&mapping->context->valloc, mapping->vaddr);
@@ -386,21 +426,36 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
         } break;
 
         case PMAN_MAPPING_BORROWED: {
-            debug_print("yer 0x");
-            debug_print_hex((intptr_t) mapping->context->top_level_table);
+            FANCY_HEAP_CHECK();
+
             debug_print("\n");
 
             pman_context_unmap(mapping->borrowed.lender);
 
+            debug_print("return\n");
+
+            FANCY_HEAP_CHECK();
+
             valloc_release(&mapping->context->valloc, mapping->vaddr);
 
+            FANCY_HEAP_CHECK();
+
             for (uint64_t i = 0; i < mapping->borrowed.mapping_count; i++) paging_unmap(mapping->context->top_level_table, &mapping->borrowed.mappings[i]);
+
+            FANCY_HEAP_CHECK();
+
             heap_free(mapping->borrowed.mappings);
 
+            FANCY_HEAP_CHECK();
+
             heap_free(mapping);
+
+            FANCY_HEAP_CHECK();
         } break;
 
         case PMAN_MAPPING_SHARED: {
+            debug_print("\n");
+
             pman_context_unmap(mapping->shared.lender);
 
             valloc_release(&mapping->context->valloc, mapping->vaddr);
@@ -474,7 +529,7 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
 pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) {
     pman_mapping_t * mapping = context->head.next;
 
-    debug_print("TEST: ");
+    debug_print("PMAN GET VADDR: 0x");
     debug_print_hex((intptr_t) vaddr);
     debug_print("\n");
 
@@ -538,7 +593,9 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 
             memcpy(kernel_alloc->vaddr, root_mapping->vaddr, root_mapping->size_pages * 0x1000);
 
+            debug_print("1\n");
             pman_context_unmap(mapping);
+            debug_print("2\n");
 
             pman_mapping_t * user_mapping = pman_context_add_shared(
                 context,
@@ -547,9 +604,12 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
                 mapping_vaddr
             );
 
+            debug_print("3\n");
             pman_context_unmap(kernel_alloc);
+            debug_print("4\n");
 
             process_remap(process, mapping, user_mapping);
+            debug_print("5\n");
 
             return user_mapping;
         }
@@ -557,22 +617,35 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
     else return mapping;
 }
 
+bool looping = false;
+
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr, void * _error_code) {
     page_fault_error_code_t * error_code = (page_fault_error_code_t *) _error_code;
 
-    void * fault_vaddr = read_fault_vaddr();
+    if (!error_code->user) {
+        if (looping) {
+            panic0("Stopped kernel page fault loop");
+        }
+        else {
+            looping = true;
+        }
+    }
 
-    heap_check();
+    void * fault_vaddr = read_fault_vaddr();
 
     process_t * current_process = scheduler_current_process();
 
-    pman_context_t * current_context;
-
-    debug_print("Page fault from 0x");
+    debug_print("Page fault while accessing 0x");
+    debug_print_hex((intptr_t) fault_vaddr);
+    debug_print(" at ");
     debug_print_hex((intptr_t) tsr->rip);
     debug_print(" with process ");
     debug_print_hex(current_process->id);
     debug_print("\n");
+
+    heap_check();
+
+    pman_context_t * current_context;
 
     if (error_code->user) current_context = current_process->paging_context;
     else {

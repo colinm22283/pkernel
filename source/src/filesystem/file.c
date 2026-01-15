@@ -82,6 +82,8 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
 
             error_number_t result = pipe_write(file->dirent, buffer, size, 0, &amount_written);
 
+            if (result != ERROR_OK) return result;
+
             return (int64_t) amount_written;
         } break;
 
@@ -89,6 +91,8 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
             uint64_t amount_written;
 
             error_number_t result = socket_write(file->dirent->socket, buffer, size, &amount_written);
+
+            if (result != ERROR_OK) return result;
 
             return (int64_t) amount_written;
         } break;

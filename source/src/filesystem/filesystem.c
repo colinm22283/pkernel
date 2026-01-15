@@ -16,8 +16,8 @@
 
 #include <debug/vga_print.h>
 
-#include "../../modules/pkfs/include/pkfs.h"
-#include "sys/halt.h"
+#include <sys/halt.h>
+#include <sys/panic.h>
 
 fs_directory_entry_t fs_root;
 
@@ -209,6 +209,10 @@ fs_directory_entry_t * fs_make_anon(fs_file_type_t type) {
     switch (type) {
         case FS_PIPE: {
             new_dirent->pipe = pipe_init();
+        } break;
+
+        default: {
+            panic0("Unimplemented for fs_make_anon()\n");
         } break;
     }
 

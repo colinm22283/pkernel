@@ -89,6 +89,8 @@ uint64_t syscall_handler(
             process_t * current_process = scheduler_current_process();
 
             scheduler_await(current_process->child_finished);
+
+            return ERROR_OK;
         } break;
 
         // case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (open_options_t) arg1); break;

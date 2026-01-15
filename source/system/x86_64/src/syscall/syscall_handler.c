@@ -14,7 +14,6 @@ void syscall_handler_task(task_state_record_t * tsr) {
 }
 
 __NORETURN void syscall_handler_wrapper(task_state_record_t * tsr) {
-    uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
 
     load_page_table((void *) new_pml4t_paddr);

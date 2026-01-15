@@ -43,7 +43,13 @@ void draw_string(const char * str, uint8_t row, uint8_t col) {
 
 void draw_hex(uint64_t num, uint8_t row, uint8_t col) {
     for (uint8_t i = 0; i < 16; i++) {
-        draw_char(font_lookup((char) ('0' + ((num >> (i * 4)) & 0xF))), row, col + 15 - i);
+        uint8_t dig = (num >> (i * 4)) & 0xF;
+        char c;
+
+        if (dig > 9) c = (char) ('A' + dig - 10);
+        else c = (char) ('0' + dig);
+
+        draw_char(font_lookup(c), row, col + 15 - i);
     }
 }
 

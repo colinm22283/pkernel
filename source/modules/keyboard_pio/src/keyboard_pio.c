@@ -83,13 +83,13 @@ bool init(void) {
     inb(PORT_KB_IN);
     inb(PORT_KB_IN);
 
-    if (!interrupt_registry_register(IC_KEYBOARD, keyboard_handler)) return false;
+    if (!interrupt_registry_register((interrupt_code_t) IC_KEYBOARD, keyboard_handler)) return false;
 
     return true;
 }
 
 bool free(void) {
-    if (!interrupt_registry_free(IC_KEYBOARD)) return false;
+    if (!interrupt_registry_free((interrupt_code_t) IC_KEYBOARD)) return false;
 
     if (!io_arbitrator_release(PORT_KB_IN)) return false;
 

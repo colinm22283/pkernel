@@ -195,8 +195,6 @@ __NORETURN void scheduler_yield(void) {
 
                     case TS_DEAD: {
                         thread_free(thread);
-
-                        heap_overview();
                     } break;
                 }
             }

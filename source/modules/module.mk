@@ -42,8 +42,10 @@ $(STATIC_MODULE_OUT)/modules/init.h: $(foreach module, $(STATIC_MODULES), $(STAT
 	echo "#pragma once" > $@
 	$(foreach module, $(STATIC_MODULES), echo "#include <modules/$(module).h>" >> $@;)
 
+	echo "#include <sys/debug/print.h>" >> $@
+
 	echo "static inline bool static_module_init(void) {" >> $@
-	$(foreach module, $(STATIC_MODULES), echo "if (!module_$(module)_init()) return false;" >> $@;)
+	$(foreach module, $(STATIC_MODULES), echo 'if (!module_$(module)_init()) {debug_print("Failed to load $(module)\n"); return false; }' >> $@;)
 	echo "return true;" >> $@
 	echo "}" >> $@
 

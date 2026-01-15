@@ -166,7 +166,7 @@ uint32_t disc_read28(uint32_t lba, uint8_t sector_count, uint16_t * dest) {
 }
 
 uint32_t disc_read48(uint64_t lba, uint16_t sector_count, uint16_t * dest) {
-
+    return 0;
 }
 
 uint32_t disc_write28(uint32_t lba, uint8_t sector_count, const uint16_t * src) {
@@ -211,7 +211,7 @@ uint32_t disc_write28(uint32_t lba, uint8_t sector_count, const uint16_t * src) 
 }
 
 uint32_t disc_write48(uint32_t lba, uint8_t sector_count, const uint16_t * src) {
-
+    return 0;
 }
 
 bool disc_read(uint64_t lba, uint64_t sector_count, void * dst) {

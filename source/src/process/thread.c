@@ -10,11 +10,13 @@
 #include <util/memory/memset.h>
 #include <util/memory/memcpy.h>
 
+#include <debug/vga_print.h>
+
 #include <sys/tsr/resume_tsr.h>
 #include <sys/tsr/tsr_set_stack.h>
 #include <sys/tsr/tsr_load_pc.h>
 
-#include "debug/vga_print.h"
+#include <sys/panic.h>
 
 thread_t * thread_create_user(pman_context_t * user_context, process_t * parent) {
     thread_t * thread = heap_alloc_debug(sizeof(thread_t), "thread user");
@@ -131,6 +133,10 @@ __NORETURN void thread_resume(thread_t * thread) {
             // debug_print("RESUME USER\n");
 
             resume_tsr_user(&thread->tsr, thread->process->paging_context);
+        } break;
+
+        default: {
+            panic0("Invalid thread level received in thread_resume()\n");
         } break;
     }
 }

@@ -72,7 +72,7 @@ __NORETURN void kernel_main(void) {
 
     interrupt_registry_init();
 
-    interrupt_registry_register(IC_GENERAL_PROTECTION_FAULT, gpf);
+    interrupt_registry_register((interrupt_code_t) IC_GENERAL_PROTECTION_FAULT, gpf);
 
     pman_init();
 
@@ -214,8 +214,6 @@ __NORETURN void kernel_main(void) {
     thread_load_pc(init_process->threads[0], PROCESS_TEXT_USER_VADDR);
 
     thread_run(init_process->threads[0]);
-
-    heap_overview();
 
     vga_print("Starting Init Process\n");
     scheduler_yield();

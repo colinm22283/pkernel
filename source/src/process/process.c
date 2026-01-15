@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <process/process.h>
 
 #include <util/heap/heap.h>
@@ -21,6 +20,9 @@ void processes_init(void) {
 }
 
 process_t * process_create(void) {
+    heap_check();
+    // heap_overview();
+
     process_t * process = heap_alloc_debug(sizeof(process_t), "process");
 
     process->paging_context = pman_new_context();
@@ -166,7 +168,7 @@ void process_add_thread(process_t * process, thread_t * thread) {
 
 void * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot) {
     pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, size);
-    pman_mapping_t * user_mapping = pman_context_add_shared(process->paging_context, prot, kernel_mapping, vaddr);
+    __MAYBE_UNUSED pman_mapping_t * user_mapping = pman_context_add_shared(process->paging_context, prot, kernel_mapping, vaddr);
     pman_context_unmap(kernel_mapping);
 
     return kernel_mapping->vaddr;

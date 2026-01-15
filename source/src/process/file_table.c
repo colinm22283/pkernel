@@ -3,7 +3,7 @@
 #include <util/heap/heap.h>
 
 void file_table_set(file_table_t * file_table, fd_t fd, fs_file_t * file) {
-    if (fd >= file_table->file_capacity) {
+    if ((size_t) fd >= file_table->file_capacity) {
         size_t prev_cap = file_table->file_capacity;
         file_table->file_capacity = fd + 1;
 
@@ -22,13 +22,13 @@ void file_table_set(file_table_t * file_table, fd_t fd, fs_file_t * file) {
 
 fd_t file_table_add(file_table_t * file_table, fs_file_t * file) {
     fd_t fd = 0;
-    while (fd < file_table->file_capacity) {
+    while ((size_t) fd < file_table->file_capacity) {
         if (file_table->files[fd] == NULL) break;
 
         fd++;
     }
 
-    if (fd >= file_table->file_capacity) {
+    if ((size_t) fd >= file_table->file_capacity) {
         size_t prev_cap = file_table->file_capacity;
         file_table->file_capacity = fd + 1;
 
@@ -75,7 +75,7 @@ void file_table_clone(file_table_t * dst, file_table_t * src) {
 }
 
 error_number_t file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
-    if (src >= file_table->file_capacity || file_table->files[src] == NULL) return ERROR_BAD_FD;
+    if ((size_t) src >= file_table->file_capacity || file_table->files[src] == NULL) return ERROR_BAD_FD;
 
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file dup");
 
@@ -108,13 +108,13 @@ fd_t file_table_openat(file_table_t * file_table, fd_t fd, fs_directory_entry_t 
 }
 
 fs_file_t * file_table_get(file_table_t * file_table, fd_t fd) {
-    if (fd >= file_table->file_capacity || file_table->files[fd] == NULL) return NULL;
+    if ((size_t) fd >= file_table->file_capacity || file_table->files[fd] == NULL) return NULL;
 
     return file_table->files[fd];
 }
 
 error_number_t file_table_close(file_table_t * file_table, fd_t fd) {
-    if (fd >= file_table->file_capacity || file_table->files[fd] == NULL) return ERROR_BAD_FD;
+    if ((size_t) fd >= file_table->file_capacity || file_table->files[fd] == NULL) return ERROR_BAD_FD;
 
     file_close(file_table->files[fd]);
     heap_free(file_table->files[fd]);

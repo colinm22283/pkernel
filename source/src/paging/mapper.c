@@ -214,7 +214,7 @@ static inline bool paging_unmap_single(pml4t64_t * pml4t, void * vaddr) {
             }
         }
         if (empty) {
-            // TODO
+            // TODO: delete the pt
         }
     }
 
@@ -222,13 +222,11 @@ static inline bool paging_unmap_single(pml4t64_t * pml4t, void * vaddr) {
 }
 
 void paging_unmap(pml4t64_t * pml4t, paging_mapping_t * mapping) {
-    debug_print("MAPPING: ");
+    debug_print("UNMAP: 0x");
     debug_print_hex((intptr_t) mapping);
-    debug_print(", ");
-    debug_print_hex(mapping->size_pages);
     debug_print("\n");
 
-    heap_check();
+    FANCY_HEAP_CHECK();
 
     for (uint64_t i = 0; i < mapping->size_pages; i++) {
         paging_unmap_single(pml4t, (char *) mapping->vaddr + (i * 0x1000));

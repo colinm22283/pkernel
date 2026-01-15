@@ -21,7 +21,7 @@ __NORETURN void pic1_keyboard_handler(task_state_record_t * tsr) {
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
-    interrupt_registry_invoke(IC_KEYBOARD, tsr, NULL);
+    interrupt_registry_invoke((interrupt_code_t) IC_KEYBOARD, tsr, NULL);
 
     scheduler_yield();
 }
@@ -34,7 +34,7 @@ __NORETURN void pic1_timer_handler(task_state_record_t * tsr) {
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
-    interrupt_registry_invoke(IC_TIMER, tsr, NULL);
+    interrupt_registry_invoke((interrupt_code_t) IC_TIMER, tsr, NULL);
 
     scheduler_yield();
 }

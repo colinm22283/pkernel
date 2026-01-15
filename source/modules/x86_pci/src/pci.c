@@ -83,7 +83,7 @@ __MOD_EXPORT void pci_unwatch(pci_watcher_t * watcher) {
     watcher->next->prev = watcher->prev;
 }
 
-void init(void) {
+bool init(void) {
     pci_device_count = 0;
     pci_devices = heap_alloc_debug(sizeof(pci_device_t), "x86_pci pci_devices");
 
@@ -112,6 +112,8 @@ void init(void) {
             }
         }
     }
+
+    return true;
 }
 
-void free(void) { }
+bool free(void) { return true; }

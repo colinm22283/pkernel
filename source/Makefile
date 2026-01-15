@@ -135,7 +135,7 @@ KN_OBJS+=$(KN_OD_64)/interrupt/interrupt_registry.o
 KN_OBJS+=$(KN_OD_64)/main.o
 KN_OBJS+=$(KN_OD_64)/entry_error.o
 
-OPTIMIZATION=3
+OPTIMIZATION=0
 
 .DEFAULT: all
 .PHONY: all
