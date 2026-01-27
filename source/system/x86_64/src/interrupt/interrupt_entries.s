@@ -3,7 +3,7 @@
 .macro EXCEPTION_INTERRUPT name, handler
 .global \name
 \name:
-    pushf
+    push 16(%rsp)
     push 8(%rsp)
     push %r15
     push %r14
@@ -31,7 +31,7 @@
 .macro EXCEPTION_WITH_CODE_INTERRUPT name, handler
 .global \name
 \name:
-    pushf
+    push 24(%rsp)
     push 16(%rsp)
     push %r15
     push %r14
@@ -61,7 +61,7 @@
 .macro PIC1_INTERRUPT name, handler
 .global \name
 \name:
-    pushf
+    push 16(%rsp)
     push 8(%rsp)
     push %r15
     push %r14
@@ -92,7 +92,7 @@
 .macro PIC2_INTERRUPT name, handler
 .global \name
 \name:
-    pushf
+    push 16(%rsp)
     push 8(%rsp)
     push %r15
     push %r14

@@ -14,6 +14,7 @@ _resume_tsr_user: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx: t
 
     mov  56(%rcx),  %r8
     mov  128(%rcx), %r9
+    mov  136(%rcx), %r10 # flags
 
     mov  %r8,  %rsp
 
@@ -23,7 +24,7 @@ _resume_tsr_user: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx: t
     push  %r8  # stack pointer
 
     # flags
-    pushf
+    push  %r10
     mov   $0b1000000000, %rax
     or    %rax, (%rsp)
 
