@@ -106,12 +106,8 @@ pman_context_t * pman_new_kernel_context(void) {
 }
 
 error_number_t pman_free_context(pman_context_t * context) { // TODO
-    FANCY_HEAP_CHECK();
-
     while (context->head.next != &context->tail) {
         pman_context_unmap(context->head.next);
-
-        FANCY_HEAP_CHECK();
     }
 
     valloc_free(&context->valloc);
@@ -354,20 +350,18 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
     debug_print_hex((intptr_t) mapping);
     debug_print("\n");
 
+    debug_print("  next: 0x");
+    debug_print_hex((intptr_t) mapping->next);
+    debug_print("\n");
+
+    debug_print("  prev: 0x");
+    debug_print_hex((intptr_t) mapping->prev);
+    debug_print("\n");
+
     return mapping;
 }
 
 error_number_t pman_context_unmap(pman_mapping_t * mapping) {
-    FANCY_HEAP_CHECK();
-
-    mapping->next->prev = mapping->prev;
-
-    FANCY_HEAP_CHECK();
-
-    mapping->prev->next = mapping->next;
-
-    FANCY_HEAP_CHECK();
-
     debug_print("PMAN UNMAP: 0x");
     debug_print_hex((intptr_t) mapping);
     debug_print(", 0x");
@@ -381,29 +375,19 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
             debug_print_hex(mapping->alloc.references);
             debug_print("\n");
 
-            FANCY_HEAP_CHECK();
-
             if (mapping->alloc.references == 0) {
-                FANCY_HEAP_CHECK();
+                mapping->next->prev = mapping->prev;
+                mapping->prev->next = mapping->next;
 
                 valloc_release(&mapping->context->valloc, mapping->vaddr);
 
-                FANCY_HEAP_CHECK();
                 for (uint64_t i = 0; i < mapping->alloc.mapping_count; i++) paging_unmap(mapping->context->top_level_table, &mapping->alloc.mappings[i]);
-
-                FANCY_HEAP_CHECK();
 
                 heap_free(mapping->alloc.mappings);
 
-                FANCY_HEAP_CHECK();
-
                 palloc_free(&mapping->alloc.palloc);
 
-                FANCY_HEAP_CHECK();
-
                 heap_free(mapping);
-
-                FANCY_HEAP_CHECK();
             }
         } break;
 
@@ -415,6 +399,9 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
             debug_print("\n");
 
             if (mapping->map.references == 0) {
+                mapping->next->prev = mapping->prev;
+                mapping->prev->next = mapping->next;
+
                 valloc_release(&mapping->context->valloc, mapping->vaddr);
 
                 paging_unmap(mapping->context->top_level_table, &mapping->map.mapping);
@@ -426,7 +413,8 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
         } break;
 
         case PMAN_MAPPING_BORROWED: {
-            FANCY_HEAP_CHECK();
+            mapping->next->prev = mapping->prev;
+            mapping->prev->next = mapping->next;
 
             debug_print("\n");
 
@@ -434,26 +422,23 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
 
             debug_print("return\n");
 
-            FANCY_HEAP_CHECK();
-
             valloc_release(&mapping->context->valloc, mapping->vaddr);
-
-            FANCY_HEAP_CHECK();
 
             for (uint64_t i = 0; i < mapping->borrowed.mapping_count; i++) paging_unmap(mapping->context->top_level_table, &mapping->borrowed.mappings[i]);
 
-            FANCY_HEAP_CHECK();
-
             heap_free(mapping->borrowed.mappings);
 
-            FANCY_HEAP_CHECK();
-
             heap_free(mapping);
-
-            FANCY_HEAP_CHECK();
         } break;
 
         case PMAN_MAPPING_SHARED: {
+            mapping->next->prev = mapping->prev;
+            mapping->prev->next = mapping->next;
+
+            debug_print("\n");
+
+            debug_print("TEST: 0x");
+            debug_print_hex((intptr_t) mapping->shared.lender);
             debug_print("\n");
 
             pman_context_unmap(mapping->shared.lender);

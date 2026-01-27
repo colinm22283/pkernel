@@ -35,6 +35,7 @@ export CFLAGS= \
 	-Wextra \
 	-Wno-packed-bitfield-compat \
 	-Wno-unused-parameter \
+	-Werror \
 	-D__ARCH=x86_64
 
 export CFLAGS16=-m16 $(CFLAGS)
