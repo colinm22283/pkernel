@@ -37,6 +37,8 @@ static inline uint8_t read_status_long(port_t io_port) {
 }
 
 static inline status_pack_t wait_ready(void) {
+    for (size_t i = 0; i < 10000; i++) asm volatile ("nop");
+
     volatile status_pack_t status = { .num = pio_read8(current_control_port, ATA_PIO_CONTROL_STATUS_OFFSET) };
 
     while (

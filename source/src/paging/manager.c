@@ -454,6 +454,8 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
         default: break;
     }
 
+    debug_print("Unmap return\n");
+
     return ERROR_OK;
 }
 
@@ -543,13 +545,9 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
         pman_mapping_t * root_mapping = get_root_mapping(mapping);
 
         if (root_mapping->alloc.references == 1) {
-            debug_print("a\n");
-
             pman_add_reference(root_mapping);
 
-            debug_print("1\n");
             pman_context_unmap(mapping);
-            debug_print("2\n");
 
             pman_mapping_t * user_mapping = pman_context_add_shared(
                 context,
@@ -558,17 +556,13 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
                 mapping_vaddr
             );
 
-            debug_print("3\n");
             pman_context_unmap(root_mapping);
-            debug_print("4\n");
 
             process_remap(process, mapping, user_mapping);
 
             return user_mapping;
         }
         else {
-            debug_print("b\n");
-
             pman_mapping_t * kernel_alloc = pman_context_add_alloc(
                 pman_kernel_context(),
                 PMAN_PROT_WRITE,
@@ -578,9 +572,7 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
 
             memcpy(kernel_alloc->vaddr, root_mapping->vaddr, root_mapping->size_pages * 0x1000);
 
-            debug_print("1\n");
             pman_context_unmap(mapping);
-            debug_print("2\n");
 
             pman_mapping_t * user_mapping = pman_context_add_shared(
                 context,
@@ -589,12 +581,9 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
                 mapping_vaddr
             );
 
-            debug_print("3\n");
             pman_context_unmap(kernel_alloc);
-            debug_print("4\n");
 
             process_remap(process, mapping, user_mapping);
-            debug_print("5\n");
 
             return user_mapping;
         }

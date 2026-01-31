@@ -18,7 +18,7 @@ void * heap_alloc(uint64_t size_bytes) {
     if (size_bytes == 0) panic0("Zero byte allocation");
 
     heap_tag_t * current_tag = head_tag;
-    heap_tag_t * prev_tag = head_tag;
+    // heap_tag_t * prev_tag = head_tag;
 
     alloc_size += size_bytes;
 
@@ -29,7 +29,7 @@ void * heap_alloc(uint64_t size_bytes) {
             current_tag->next_size != size_bytes
         )
     ) {
-        prev_tag = current_tag;
+        // prev_tag = current_tag;
         current_tag = (heap_tag_t *) ((intptr_t) current_tag + current_tag->next_size + sizeof(heap_tag_t));
 
         if (current_tag->next_size == 0) {
@@ -43,9 +43,9 @@ void * heap_alloc(uint64_t size_bytes) {
         }
     }
 
-    debug_print("Prev addr: ");
-    debug_print_hex((intptr_t) (prev_tag + 1));
-    debug_print("\n");
+    // debug_print("Prev addr: ");
+    // debug_print_hex((intptr_t) (prev_tag + 1));
+    // debug_print("\n");
 
     if (current_tag->next_size == size_bytes) {
         current_tag->next_reserved = true;
@@ -54,11 +54,11 @@ void * heap_alloc(uint64_t size_bytes) {
         heap_tag_t * next_tag = (heap_tag_t *) ((intptr_t) current_tag + current_tag->next_size + sizeof(heap_tag_t));
         heap_tag_t * mid_tag = (heap_tag_t *) ((intptr_t) current_tag + size_bytes + sizeof(heap_tag_t));
 
-        debug_print("TAGS: 0x");
-        debug_print_hex((intptr_t) next_tag);
-        debug_print(", 0x");
-        debug_print_hex((intptr_t) mid_tag);
-        debug_print("\n");
+        // debug_print("TAGS: 0x");
+        // debug_print_hex((intptr_t) next_tag);
+        // debug_print(", 0x");
+        // debug_print_hex((intptr_t) mid_tag);
+        // debug_print("\n");
 
         if (current_tag->next_reserved) kernel_entry_error((uint64_t) current_tag);
 
@@ -78,9 +78,9 @@ void * heap_alloc(uint64_t size_bytes) {
 
         next_tag->prev_size = remaining_bytes;
 
-        debug_print("Remaining: ");
-        debug_print_hex(remaining_bytes);
-        debug_print("\n");
+        // debug_print("Remaining: ");
+        // debug_print_hex(remaining_bytes);
+        // debug_print("\n");
     }
 
     memset(current_tag + 1, 0, size_bytes);

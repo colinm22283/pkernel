@@ -119,13 +119,6 @@ static inline void add_allocation(
 }
 
 bool paging_map_ex(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr, void * vaddr, uint64_t size_pages, bool read_write, bool execute_disable, bool user_super) {
-    if (size_pages > 70) {
-        debug_print("what the sigma? 0x");
-        debug_print_hex(size_pages);
-        debug_print("\n");
-        asm volatile ("hlt");
-    }
-
     uint64_t capacity = 1;
     mapping->allocation_count = 0;
     mapping->allocations = heap_alloc_debug(capacity * sizeof(paging_table_allocation_t), "paging_mapping_t::allocations");
@@ -222,11 +215,9 @@ static inline bool paging_unmap_single(pml4t64_t * pml4t, void * vaddr) {
 }
 
 void paging_unmap(pml4t64_t * pml4t, paging_mapping_t * mapping) {
-    debug_print("UNMAP: 0x");
-    debug_print_hex((intptr_t) mapping);
-    debug_print("\n");
-
-    FANCY_HEAP_CHECK();
+    // debug_print("UNMAP: 0x");
+    // debug_print_hex((intptr_t) mapping);
+    // debug_print("\n");
 
     for (uint64_t i = 0; i < mapping->size_pages; i++) {
         paging_unmap_single(pml4t, (char *) mapping->vaddr + (i * 0x1000));

@@ -22,8 +22,8 @@
 uint64_t block_write(struct device_s * device, const char * buffer, uint64_t block_size, uint64_t block_offset);
 uint64_t block_read(struct device_s * device, char * buffer, uint64_t block_size, uint64_t block_offset);
 
-uint64_t ide_device_count;
-ide_device_t ** ide_devices;
+uint64_t ide_device_count = 0;
+ide_device_t ** ide_devices = NULL;
 
 device_block_operations_t block_ops = {
     .write = block_write,
@@ -109,11 +109,19 @@ bool free(void) {
 }
 
 uint64_t block_write(device_t * device, const char * buffer, uint64_t block_size, uint64_t block_offset) {
+    // vga_print("Write\n");
+
     ide_device_t * ide_device = device->private;
+
+    // vga_print("Select device\n");
 
     disc_select(ide_device->io_port, ide_device->control_port, ide_device->is_master ? DEVICE_DRIVE_MASTER : DEVICE_DRIVE_SLAVE);
 
+    // vga_print("Begin Write\n");
+
     if (!disc_write(block_offset, block_size, buffer)) return 0;
+
+    // vga_print("Done\n");
 
     return block_size;
 }
