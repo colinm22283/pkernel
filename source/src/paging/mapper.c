@@ -167,10 +167,6 @@ bool paging_map_ex(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr
         current_vaddr++;
     }
 
-    debug_print("MAP: 0x");
-    debug_print_hex((intptr_t) mapping);
-    debug_print("\n");
-
     return true;
 }
 

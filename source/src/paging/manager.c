@@ -72,10 +72,6 @@ pman_context_t * pman_new_context(void) {
     context->tail.next = NULL;
     context->tail.prev = &context->head;
 
-    debug_print("NEW PML4T: ");
-    debug_print_hex((intptr_t) context->top_level_table);
-    debug_print("\n");
-
     return context;
 }
 
@@ -277,10 +273,6 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
     context->head.next->prev = mapping;
     context->head.next = mapping;
 
-    debug_print("PMAN MAP: 0x");
-    debug_print_hex((intptr_t) mapping);
-    debug_print("\n");
-
     return mapping;
 }
 
@@ -346,34 +338,13 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
     context->head.next->prev = mapping;
     context->head.next = mapping;
 
-    debug_print("PMAN MAP: 0x");
-    debug_print_hex((intptr_t) mapping);
-    debug_print("\n");
-
-    debug_print("  next: 0x");
-    debug_print_hex((intptr_t) mapping->next);
-    debug_print("\n");
-
-    debug_print("  prev: 0x");
-    debug_print_hex((intptr_t) mapping->prev);
-    debug_print("\n");
-
     return mapping;
 }
 
 error_number_t pman_context_unmap(pman_mapping_t * mapping) {
-    debug_print("PMAN UNMAP: 0x");
-    debug_print_hex((intptr_t) mapping);
-    debug_print(", 0x");
-    debug_print_hex(mapping->type);
-
     switch (mapping->type) {
         case PMAN_MAPPING_ALLOC: {
             mapping->alloc.references--;
-
-            debug_print(", ");
-            debug_print_hex(mapping->alloc.references);
-            debug_print("\n");
 
             if (mapping->alloc.references == 0) {
                 mapping->next->prev = mapping->prev;
@@ -394,10 +365,6 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
         case PMAN_MAPPING_MAP: {
             mapping->map.references--;
 
-            debug_print(", ");
-            debug_print_hex(mapping->map.references);
-            debug_print("\n");
-
             if (mapping->map.references == 0) {
                 mapping->next->prev = mapping->prev;
                 mapping->prev->next = mapping->next;
@@ -416,11 +383,7 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
             mapping->next->prev = mapping->prev;
             mapping->prev->next = mapping->next;
 
-            debug_print("\n");
-
             pman_context_unmap(mapping->borrowed.lender);
-
-            debug_print("return\n");
 
             valloc_release(&mapping->context->valloc, mapping->vaddr);
 
@@ -435,12 +398,6 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
             mapping->next->prev = mapping->prev;
             mapping->prev->next = mapping->next;
 
-            debug_print("\n");
-
-            debug_print("TEST: 0x");
-            debug_print_hex((intptr_t) mapping->shared.lender);
-            debug_print("\n");
-
             pman_context_unmap(mapping->shared.lender);
 
             valloc_release(&mapping->context->valloc, mapping->vaddr);
@@ -453,8 +410,6 @@ error_number_t pman_context_unmap(pman_mapping_t * mapping) {
 
         default: break;
     }
-
-    debug_print("Unmap return\n");
 
     return ERROR_OK;
 }
@@ -516,10 +471,6 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
 pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) {
     pman_mapping_t * mapping = context->head.next;
 
-    debug_print("PMAN GET VADDR: 0x");
-    debug_print_hex((intptr_t) vaddr);
-    debug_print("\n");
-
     while (mapping != &context->tail) {
         if (
             vaddr >= mapping->vaddr &&
@@ -534,10 +485,6 @@ pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) 
 
 pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t * mapping) {
     if (mapping->type == PMAN_MAPPING_BORROWED) {
-        debug_print("Prepare borrow 0x");
-        debug_print_hex((intptr_t) mapping);
-        debug_print("\n");
-
         pman_protection_flags_t mapping_protection = mapping->protection;
         void * mapping_vaddr = mapping->vaddr;
         pman_context_t * context = mapping->context;
