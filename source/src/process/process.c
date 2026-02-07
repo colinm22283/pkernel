@@ -101,9 +101,12 @@ process_t * process_create_fork(process_t * parent) {
 
             pman_context_unmap(mapping);
 
-            if (pman_context_add_borrowed(parent->paging_context, prot, root_mapping, vaddr) == NULL) {
+            pman_mapping_t * new_mapping = pman_context_add_borrowed(parent->paging_context, prot, root_mapping, vaddr);
+            if (new_mapping == NULL) {
                 debug_print("OOHHH DEARRR\n");
             }
+
+            process_remap(parent, mapping, new_mapping);
         }
     }
 
