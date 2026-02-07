@@ -79,7 +79,7 @@ uint64_t syscall_handler(
 
         case SYSCALL_CHDIR: return syscall_chdir((const char *) arg0);
 
-        case SYSCALL_FORK: return syscall_fork(); break;
+        case SYSCALL_FORK: return syscall_fork();
 
         case SYSCALL_EXEC: return syscall_exec((const char *) arg0, (const char **) arg1, (uint64_t) arg2);
 
@@ -91,9 +91,9 @@ uint64_t syscall_handler(
             scheduler_await(current_process->child_finished);
 
             return ERROR_OK;
-        } break;
+        }
 
-        // case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (open_options_t) arg1); break;
+        // case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (open_options_t) arg1);
 
         case SYSCALL_DUP: return syscall_dup((fd_t) arg0, (fd_t) arg1);
 
@@ -103,13 +103,13 @@ uint64_t syscall_handler(
             (const char *) arg2,
             (mount_options_t) arg3,
             (const char *) arg4
-        ); break;
+        );
 
-        case SYSCALL_UNMOUNT: return syscall_unmount((const char *) arg0); break;
+        case SYSCALL_UNMOUNT: return syscall_unmount((const char *) arg0);
 
-        case SYSCALL_MKDIR: return syscall_mkdir((const char *) arg0); break;
+        case SYSCALL_MKDIR: return syscall_mkdir((const char *) arg0);
 
-        case SYSCALL_REMOVE: return syscall_remove((const char *) arg0); break;
+        case SYSCALL_REMOVE: return syscall_remove((const char *) arg0);
 
         case SYSCALL_OPENAT: return syscall_openat((fd_t) arg0, (const char *) arg1, (open_options_t) arg2);
 
@@ -123,7 +123,7 @@ uint64_t syscall_handler(
 
         case SYSCALL_ACCEPT: return syscall_accept((fd_t) arg0);
 
-        default: return ERROR_BAD_SYSCALL; break;
+        default: return ERROR_BAD_SYSCALL;
     }
 }
 

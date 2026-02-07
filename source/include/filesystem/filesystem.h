@@ -38,6 +38,8 @@ error_number_t fs_unmount(fs_directory_entry_t * mount_point);
 
 fs_directory_entry_t * fs_make(fs_directory_entry_t * parent, const char * name, fs_file_type_t type);
 fs_directory_entry_t * fs_make_anon(fs_file_type_t type);
+fs_directory_entry_t * fs_make_anon_pipe(void);
+fs_directory_entry_t * fs_make_anon_socket(socket_domain_t domain, socket_type_t type, uint64_t protocol);
 
 fs_directory_entry_t * fs_open_path(fs_directory_entry_t * root, const char * path);
 fs_directory_entry_t * fs_make_path(fs_directory_entry_t * root, const char * path, fs_file_type_t type);

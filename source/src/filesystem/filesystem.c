@@ -206,15 +206,25 @@ fs_directory_entry_t * fs_make_anon(fs_file_type_t type) {
 
     new_dirent->node = NULL;
 
-    switch (type) {
-        case FS_PIPE: {
-            new_dirent->pipe = pipe_init();
-        } break;
+    return new_dirent;
+}
 
-        default: {
-            panic0("Unimplemented for fs_make_anon()\n");
-        } break;
-    }
+fs_directory_entry_t * fs_make_anon_pipe(void) {
+    fs_directory_entry_t * new_dirent = fs_directory_entry_create(FS_PIPE, NULL, NULL);
+
+    new_dirent->node = NULL;
+
+    new_dirent->pipe = pipe_init();
+
+    return new_dirent;
+}
+
+fs_directory_entry_t * fs_make_anon_socket(socket_domain_t domain, socket_type_t type, uint64_t protocol) {
+    fs_directory_entry_t * new_dirent = fs_directory_entry_create(FS_SOCKET, NULL, NULL);
+
+    new_dirent->node = NULL;
+
+    new_dirent->socket = socket_init(domain, type, protocol);
 
     return new_dirent;
 }
