@@ -3,9 +3,10 @@
 
 #include <util/heap/heap.h>
 #include <util/math/div_up.h>
+#include <sys/paging/page_size.h>
 
 error_number_t palloc_alloc(palloc_t * palloc, uint64_t size) {
-    uint64_t size_pages = DIV_UP(size, 0x1000);
+    uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
     palloc->type = PALLOC_ALLOC;
     palloc->size_pages = size_pages;
@@ -21,7 +22,7 @@ error_number_t palloc_alloc(palloc_t * palloc, uint64_t size) {
 
 error_number_t palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_t paddr) {
     if (paddr == 0) {
-        uint64_t size_pages = DIV_UP(size, 0x1000);
+        uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
         palloc->type = PALLOC_CONTIGUOUS_ALLOC;
         palloc->size_pages = size_pages;
@@ -31,7 +32,7 @@ error_number_t palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_
         palloc->paddrs[0] = bitmap_reserve_contiguous(size_pages);
     }
     else {
-        uint64_t size_pages = DIV_UP(size, 0x1000);
+        uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
         palloc->type = PALLOC_CONTIGUOUS_MAP;
         palloc->size_pages = size_pages;

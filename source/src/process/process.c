@@ -7,6 +7,7 @@
 #include <sys/push_args.h>
 
 #include <scheduler/scheduler.h>
+#include <sys/paging/page_size.h>
 
 pid_t current_pid = 0;
 
@@ -169,7 +170,7 @@ void * process_user_to_kernel(process_t * process, const void * user_vaddr) {
     while (mapping != &process->paging_context->tail) {
         if (
             user_vaddr >= mapping->vaddr &&
-            user_vaddr < (void *) ((char *) mapping->vaddr + mapping->size_pages * 0x1000)
+            user_vaddr < (void *) ((char *) mapping->vaddr + mapping->size_pages * PAGE_SIZE)
         ) {
             pman_mapping_t * root_mapping = get_root_mapping(mapping);
 

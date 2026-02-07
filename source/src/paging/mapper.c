@@ -5,6 +5,7 @@
 #include <paging/temp_page.h>
 
 #include <util/heap/heap.h>
+#include <sys/paging/page_size.h>
 
 #include <entry_error.h>
 #include <debug/vga_print.h>
@@ -163,7 +164,7 @@ bool paging_map_ex(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr
         if (pdt_alloc.pt != NULL) add_allocation(&pdt_alloc, mapping, &capacity);
         if (pdpt_alloc.pt != NULL) add_allocation(&pdpt_alloc, mapping, &capacity);
 
-        current_paddr += 0x1000;
+        current_paddr += PAGE_SIZE;
         current_vaddr++;
     }
 
@@ -216,7 +217,7 @@ void paging_unmap(pml4t64_t * pml4t, paging_mapping_t * mapping) {
     // debug_print("\n");
 
     for (uint64_t i = 0; i < mapping->size_pages; i++) {
-        paging_unmap_single(pml4t, (char *) mapping->vaddr + (i * 0x1000));
+        paging_unmap_single(pml4t, (char *) mapping->vaddr + (i * PAGE_SIZE));
     }
     heap_free(mapping->allocations);
 }

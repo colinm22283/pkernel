@@ -1,5 +1,6 @@
 #pragma once
 
 #include <stdint.h>
+#include <sys/paging/page_size.h>
 
-typedef int8_t page_data_t[0x1000];
+typedef int8_t page_data_t[PAGE_SIZE];

@@ -21,6 +21,7 @@
 #include <sys/msr/set_msr.h>
 #include <sys/paging/load_page_table.h>
 #include <sys/paging/page_type.h>
+#include <sys/paging/page_size.h>
 
 #include "entry_error.h"
 
@@ -30,8 +31,8 @@ void paging_init() {
     paging_region_start = primary_region_start + KERNEL_SIZE;
     paging_region_end = primary_region_end;
 
-    paging_region_start = DIV_UP(paging_region_start, 0x1000) * 0x1000;
-    paging_region_end = (paging_region_end / 0x1000) * 0x1000;
+    paging_region_start = DIV_UP(paging_region_start, PAGE_SIZE) * PAGE_SIZE;
+    paging_region_end = (paging_region_end / PAGE_SIZE) * PAGE_SIZE;
 
     // set the NXE flag
     set_msr(MSR_IA32_EFER, 1 << 11);
@@ -78,8 +79,8 @@ void paging_init() {
     {
         uint64_t address = primary_region_start;
 
-        uint64_t data_page_index = DIV_UP(TEXT_SIZE, 0x1000);
-        uint64_t end_page_index = DIV_UP(TEXT_SIZE, 0x1000) + DIV_UP(DATA_SIZE, 0x1000);
+        uint64_t data_page_index = DIV_UP(TEXT_SIZE, PAGE_SIZE);
+        uint64_t end_page_index = DIV_UP(TEXT_SIZE, PAGE_SIZE) + DIV_UP(DATA_SIZE, PAGE_SIZE);
 
         for (uint64_t i = 0; i < data_page_index; i++) {
             PT64_SET_ADDRESS(paging_kernel_pt[i], address);
@@ -87,7 +88,7 @@ void paging_init() {
             paging_kernel_pt[i].read_write = false;
             paging_kernel_pt[i].user_super = true;
 
-            address += 0x1000;
+            address += PAGE_SIZE;
         }
 
         for (uint64_t i = data_page_index; i < end_page_index; i++) {
@@ -95,7 +96,7 @@ void paging_init() {
             paging_kernel_pt[i].present = true;
             paging_kernel_pt[i].read_write = false;
 
-            address += 0x1000;
+            address += PAGE_SIZE;
         }
     }
 
@@ -160,7 +161,7 @@ bool paging_init_stage2(void) {
         &mapping,
         primary_region_start + ((uint64_t) MODULES_TEXT - (uint64_t) KERNEL_START),
         MODULES_TEXT,
-        DIV_UP(MODULES_TEXT_SIZE, 0x1000),
+        DIV_UP(MODULES_TEXT_SIZE, PAGE_SIZE),
         false,
         false,
         true
@@ -171,7 +172,7 @@ bool paging_init_stage2(void) {
         &mapping,
         primary_region_start + ((uint64_t) MODULES_DATA - (uint64_t) KERNEL_START),
         MODULES_DATA,
-        DIV_UP(MODULES_DATA_SIZE, 0x1000),
+        DIV_UP(MODULES_DATA_SIZE, PAGE_SIZE),
         false,
         false,
         true

@@ -4,6 +4,7 @@
 #include <paging/_virtual_allocator.h>
 
 #include <util/math/div_up.h>
+#include <sys/paging/page_size.h>
 
 typedef struct {
     void * vaddr;
@@ -19,7 +20,7 @@ typedef struct {
 
 bool paging_alloc_pages(paging_allocation_t * allocation, uint64_t size_pages);
 static inline bool paging_alloc(paging_allocation_t * allocation, uint64_t size_bytes) {
-    return paging_alloc_pages(allocation, DIV_UP(size_bytes, 0x1000));
+    return paging_alloc_pages(allocation, DIV_UP(size_bytes, PAGE_SIZE));
 }
 
 bool paging_free(paging_allocation_t * allocation);

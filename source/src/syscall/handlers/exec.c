@@ -22,6 +22,7 @@
 
 #include <sys/tsr/tsr_load_pc.h>
 #include <sys/tsr/tsr_set_stack.h>
+#include <sys/paging/page_size.h>
 
 error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
     const char * path = process_user_to_kernel(
@@ -145,7 +146,7 @@ error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t ar
     tsr_set_stack(
         &current_process->threads[0]->tsr,
         current_process->threads[0]->stack_mapping->vaddr,
-        current_process->threads[0]->stack_mapping->size_pages * 0x1000
+        current_process->threads[0]->stack_mapping->size_pages * PAGE_SIZE
     );
 
     if (argc != 0) {

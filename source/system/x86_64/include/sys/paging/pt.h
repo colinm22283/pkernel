@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include <defs.h>
+#include <sys/paging/page_size.h>
 
 typedef struct {
     uint8_t  present         :  1;
@@ -38,7 +39,7 @@ static inline void pt64_map_2mb(pt64_t * pt64, uint64_t address) {
         (*pt64)[i].present = true;
         (*pt64)[i].read_write = true;
 
-        address += 0x1000;
+        address += PAGE_SIZE;
     }
 }
 
@@ -49,6 +50,6 @@ static inline void pt64_map_2mb_ex(pt64_t * pt64, uint64_t address, bool present
         (*pt64)[i].read_write = read_write;
         (*pt64)[i].user_super = user_super;
 
-        address += 0x1000;
+        address += PAGE_SIZE;
     }
 }

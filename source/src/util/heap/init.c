@@ -14,6 +14,7 @@
 #include <util/string/writestr.h>
 
 #include <sys/paging/page_type.h>
+#include <sys/paging/page_size.h>
 
 enum {
     SYSFS_CAPACITY = 0,
@@ -47,7 +48,7 @@ int64_t heap_sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t
 
 void heap_init(void) {
     {
-        uint64_t mappings_remaining = DIV_UP(HEAP_INITIAL_SIZE, 0x1000);
+        uint64_t mappings_remaining = DIV_UP(HEAP_INITIAL_SIZE, PAGE_SIZE);
 
         page_data_t * vaddr = PAGING_HEAP_VADDR;
 

@@ -12,6 +12,7 @@
 #include <util/memory/memset.h>
 #include <util/math/div_up.h>
 #include <util/math/min.h>
+#include <sys/paging/page_size.h>
 
 #include <entry_error.h>
 
@@ -32,22 +33,22 @@ void paging_bitmap_init(void) {
 
     uint64_t paging_region_size = paging_region_end - paging_region_start;
 
-    uint64_t bitmap_overestimate = DIV_UP(paging_region_size / (0x1000 * 8), 8) * 8;
+    uint64_t bitmap_overestimate = DIV_UP(paging_region_size / (PAGE_SIZE * 8), 8) * 8;
 
-    uint64_t pt_region_overestimate = DIV_UP(bitmap_overestimate, 0x1000 * 512) * 0x1000;
-    uint64_t pdt_region_overestimate = DIV_UP(bitmap_overestimate, 0x1000 * 512 * 512) * 0x1000;
+    uint64_t pt_region_overestimate = DIV_UP(bitmap_overestimate, PAGE_SIZE * 512) * PAGE_SIZE;
+    uint64_t pdt_region_overestimate = DIV_UP(bitmap_overestimate, PAGE_SIZE * 512 * 512) * PAGE_SIZE;
 
     uint64_t remaining_space = paging_region_size - pt_region_overestimate - pdt_region_overestimate;
 
     bitmap_size = bitmap_overestimate;
-    bitmap_available_pages = remaining_space / 0x1000;
+    bitmap_available_pages = remaining_space / PAGE_SIZE;
 
-    const uint64_t pt_count = DIV_UP(bitmap_size, 0x1000 * 512);
-    const uint64_t pdt_count = DIV_UP(bitmap_size, 0x1000 * 512 * 512);
+    const uint64_t pt_count = DIV_UP(bitmap_size, PAGE_SIZE * 512);
+    const uint64_t pdt_count = DIV_UP(bitmap_size, PAGE_SIZE * 512 * 512);
 
-    bitmap_paddr = paging_region_start + 0x1000 * (pt_count + pdt_count);
+    bitmap_paddr = paging_region_start + PAGE_SIZE * (pt_count + pdt_count);
 
-    allocation_region_start = DIV_UP(bitmap_paddr + bitmap_size, 0x1000) * 0x1000;
+    allocation_region_start = DIV_UP(bitmap_paddr + bitmap_size, PAGE_SIZE) * PAGE_SIZE;
     allocation_region_end = paging_region_end;
 
     {
@@ -61,7 +62,7 @@ void paging_bitmap_init(void) {
 
             pt64_map_2mb(pt, bitmap_paddr);
 
-            bitmap_paddr += 0x1000 * 512;
+            bitmap_paddr += PAGE_SIZE * 512;
 
             pt_paddr += sizeof(pt64_t);
         }
@@ -69,7 +70,7 @@ void paging_bitmap_init(void) {
 
     {
         uint64_t pt_paddr = paging_region_start;
-        uint64_t pdt_paddr = paging_region_start + 0x1000 * pt_count;
+        uint64_t pdt_paddr = paging_region_start + PAGE_SIZE * pt_count;
 
         char * vaddr = (char *) PAGING_BITMAP_VADDR;
 
@@ -85,7 +86,7 @@ void paging_bitmap_init(void) {
                 pdt_entry->present = true;
                 pdt_entry->read_write = true;
 
-                vaddr += 0x1000 * 512;
+                vaddr += PAGE_SIZE * 512;
                 pt_paddr += sizeof(pt64_t);
                 pt_remaining--;
             }
@@ -95,7 +96,7 @@ void paging_bitmap_init(void) {
     }
 
     {
-        uint64_t pdt_paddr = paging_region_start + 0x1000 * pt_count;
+        uint64_t pdt_paddr = paging_region_start + PAGE_SIZE * pt_count;
 
         char * vaddr = (char *) PAGING_BITMAP_VADDR;
 
@@ -104,7 +105,7 @@ void paging_bitmap_init(void) {
             pdpt_entry->present = true;
             pdpt_entry->read_write = true;
 
-            vaddr += 0x1000 * 512 * 512;
+            vaddr += PAGE_SIZE * 512 * 512;
             pdt_paddr += sizeof(pdt64_t);
         }
     }
@@ -117,7 +118,7 @@ uint64_t bitmap_reserve(void) {
         if (!paging_bitmap_get_index(i)) {
             paging_bitmap_set_index(i);
 
-            return allocation_region_start + i * 0x1000;
+            return allocation_region_start + i * PAGE_SIZE;
         }
     }
 
@@ -141,7 +142,7 @@ uint64_t bitmap_reserve_contiguous(uint64_t size_pages) {
         if (valid) {
             for (uint64_t j = 0; j < size_pages; j++) paging_bitmap_set_index(i + j);
 
-            return allocation_region_start + i * 0x1000;
+            return allocation_region_start + i * PAGE_SIZE;
         }
     }
 
@@ -152,9 +153,9 @@ error_number_t bitmap_free(uint64_t address, uint64_t size_pages) {
     error_number_t result = ERROR_OK;
 
     for (uint64_t i = 0; i < size_pages; i++) {
-        if (!paging_bitmap_get_index(address / 0x1000 + i)) result = ERROR_BITMAP_NOT_ALLOCATED;
+        if (!paging_bitmap_get_index(address / PAGE_SIZE + i)) result = ERROR_BITMAP_NOT_ALLOCATED;
 
-        paging_bitmap_clear_index(address / 0x1000 + i);
+        paging_bitmap_clear_index(address / PAGE_SIZE + i);
     }
 
     return result;

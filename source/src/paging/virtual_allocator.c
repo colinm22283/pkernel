@@ -4,6 +4,7 @@
 
 #include <util/heap/heap.h>
 #include <util/math/div_up.h>
+#include <sys/paging/page_size.h>
 
 #include <entry_error.h>
 

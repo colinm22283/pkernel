@@ -15,6 +15,7 @@
 #include <sys/tsr/tsr_set_stack.h>
 #include <sys/tsr/tsr_load_task.h>
 #include <sys/tsr/tsr_load_return.h>
+#include <sys/paging/page_size.h>
 
 #include <sys/halt.h>
 
@@ -126,7 +127,7 @@ void scheduler_start_twin(void (*task_handler)(task_state_record_t * tsr)) {
     tsr_set_stack(
         &twin->tsr,
         twin->stack_mapping->vaddr,
-        twin->stack_mapping->size_pages * 0x1000
+        twin->stack_mapping->size_pages * PAGE_SIZE
     );
 
     thread_run(twin);

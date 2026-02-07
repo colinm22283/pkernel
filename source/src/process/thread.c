@@ -15,6 +15,7 @@
 #include <sys/tsr/resume_tsr.h>
 #include <sys/tsr/tsr_set_stack.h>
 #include <sys/tsr/tsr_load_pc.h>
+#include <sys/paging/page_size.h>
 
 #include <sys/panic.h>
 
@@ -37,7 +38,7 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
 
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
 
-    tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * 0x1000);
+    tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * PAGE_SIZE);
 
     thread->next = NULL;
     thread->prev = NULL;
@@ -81,7 +82,7 @@ thread_t * thread_create_kernel(void) {
 
     thread->stack_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, DEFAULT_THREAD_STACK_SIZE);
 
-    tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * 0x1000);
+    tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * PAGE_SIZE);
 
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
 

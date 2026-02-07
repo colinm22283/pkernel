@@ -18,6 +18,7 @@
 #include <pkos/defs.h>
 
 #include <sys/paging/page_type.h>
+#include <sys/paging/page_size.h>
 #include <sys/paging/load_page_table.h>
 #include <sys/paging/read_fault_vaddr.h>
 #include <sys/halt.h>
@@ -120,7 +121,7 @@ void pman_context_load_table(pman_context_t * context) {
 }
 
 pman_mapping_t * pman_context_add_alloc(pman_context_t * context, pman_protection_flags_t prot, void * vaddr, uint64_t size) {
-    uint64_t size_pages = DIV_UP(size, 0x1000);
+    uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
     pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "alloc mapping");
 
@@ -134,7 +135,7 @@ pman_mapping_t * pman_context_add_alloc(pman_context_t * context, pman_protectio
 
     mapping->alloc.references = 1;
 
-    palloc_alloc(&mapping->alloc.palloc, size_pages * 0x1000);
+    palloc_alloc(&mapping->alloc.palloc, size_pages * PAGE_SIZE);
 
     mapping->alloc.mapping_count = mapping->alloc.palloc.paddr_count;
     mapping->alloc.mappings = heap_alloc_debug(mapping->alloc.palloc.paddr_count * sizeof(paging_mapping_t), "alloc mapping mappings");
@@ -166,7 +167,7 @@ pman_mapping_t * pman_context_add_alloc(pman_context_t * context, pman_protectio
 }
 
 pman_mapping_t * pman_context_add_map(pman_context_t * context, pman_protection_flags_t prot, void * vaddr, uint64_t paddr, uint64_t size) {
-    uint64_t size_pages = DIV_UP(size, 0x1000);
+    uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
     pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "map mapping");
 
@@ -180,7 +181,7 @@ pman_mapping_t * pman_context_add_map(pman_context_t * context, pman_protection_
 
     mapping->map.references = 1;
 
-    palloc_alloc_contiguous(&mapping->map.palloc, size_pages * 0x1000, paddr);
+    palloc_alloc_contiguous(&mapping->map.palloc, size_pages * PAGE_SIZE, paddr);
 
     paging_map_ex(
         context->top_level_table,
@@ -212,8 +213,8 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
     mapping->protection = prot;
     mapping->size_pages = lender->size_pages;
 
-    if (vaddr == NULL) mapping->vaddr = valloc_alloc(&context->valloc, lender->size_pages * 0x1000);
-    else mapping->vaddr = valloc_reserve(&context->valloc, vaddr, lender->size_pages * 0x1000);
+    if (vaddr == NULL) mapping->vaddr = valloc_alloc(&context->valloc, lender->size_pages * PAGE_SIZE);
+    else mapping->vaddr = valloc_reserve(&context->valloc, vaddr, lender->size_pages * PAGE_SIZE);
 
     mapping->borrowed.lender = root_lender;
 
@@ -286,8 +287,8 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
     mapping->protection = prot;
     mapping->size_pages = lender->size_pages;
 
-    if (vaddr == NULL) mapping->vaddr = valloc_alloc(&context->valloc, lender->size_pages * 0x1000);
-    else mapping->vaddr = valloc_reserve(&context->valloc, vaddr, lender->size_pages * 0x1000);
+    if (vaddr == NULL) mapping->vaddr = valloc_alloc(&context->valloc, lender->size_pages * PAGE_SIZE);
+    else mapping->vaddr = valloc_reserve(&context->valloc, vaddr, lender->size_pages * PAGE_SIZE);
 
     mapping->shared.lender = root_lender;
 
@@ -424,7 +425,7 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
                 size
             );
 
-            memcpy(new_alloc->vaddr, mapping->vaddr, mapping->size_pages * 0x1000);
+            memcpy(new_alloc->vaddr, mapping->vaddr, mapping->size_pages * PAGE_SIZE);
 
             pman_context_unmap(mapping);
 

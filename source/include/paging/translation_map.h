@@ -4,9 +4,10 @@
 #include <stdint.h>
 
 #include <sys/paging/pml4t.h>
+#include <sys/paging/page_size.h>
 
 #define PAGING_TMAP_BUCKETS (256)
-#define PAGING_TMAP_PAGE_ENTRIES ((0x1000 - sizeof(uint64_t) - sizeof(union paging_tmap_page_s *) - sizeof(uint32_t)) / sizeof(paging_tmap_entry_t))
+#define PAGING_TMAP_PAGE_ENTRIES ((PAGE_SIZE - sizeof(uint64_t) - sizeof(union paging_tmap_page_s *) - sizeof(uint32_t)) / sizeof(paging_tmap_entry_t))
 
 typedef struct {
     uint64_t paddr;
@@ -22,7 +23,7 @@ typedef union paging_tmap_page_s {
         uint32_t entry_count;
         paging_tmap_entry_t entries[PAGING_TMAP_PAGE_ENTRIES];
     };
-    char _page_padding[0x1000];
+    char _page_padding[PAGE_SIZE];
 } paging_tmap_page_t;
 
 typedef struct {

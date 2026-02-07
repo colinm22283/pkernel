@@ -10,12 +10,13 @@
 
 #include <util/heap/heap.h>
 #include <util/math/div_up.h>
+#include <sys/paging/page_size.h>
 
 #include <entry_error.h>
 
 #define FRAME_BUFFER_PADDR (0xA0000)
 #define FRAME_BUFFER_SIZE_BYTES (320 * 200)
-#define FRAME_BUFFER_SIZE_PAGES (DIV_UP(FRAME_BUFFER_SIZE_BYTES, 0x1000))
+#define FRAME_BUFFER_SIZE_PAGES (DIV_UP(FRAME_BUFFER_SIZE_BYTES, PAGE_SIZE))
 
 device_t * device;
 devfs_entry_t * devfs_entry;
@@ -124,7 +125,7 @@ error_number_t unmap(device_t * dev, pman_context_t * context, void * map_addr) 
 }
 
 bool init(void) {
-    required_pages = DIV_UP(320 * 200, 0x1000);
+    required_pages = FRAME_BUFFER_SIZE_PAGES;
 
     pman_entry = pman_context_add_map(pman_kernel_context(), PMAN_PROT_WRITE, NULL, FRAME_BUFFER_PADDR, 320 * 200);
 
