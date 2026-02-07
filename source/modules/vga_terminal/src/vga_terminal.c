@@ -11,6 +11,8 @@
 
 #include <sysfs/sysfs.h>
 
+#include <util/memory/memset.h>
+
 #include <vga_terminal.h>
 #include <font.h>
 #include <update.h>
@@ -30,6 +32,7 @@ volatile bool bound = true;
 volatile bool cursor_on;
 uint8_t cur_x, cur_y, view_y, buffer_start;
 
+pman_mapping_t * buffer_mapping;
 console_buffer_t * console_buffer;
 
 void timer_handler(timer_t * timer) {
@@ -133,11 +136,12 @@ bool init(void) {
 
     frame_buffer = pman_context_add_map(pman_kernel_context(), PMAN_PROT_WRITE, NULL, 0xA0000, WINDOW_WIDTH * 8 * WINDOW_HEIGHT * 8)->vaddr;
 
-    pman_mapping_t * buffer_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, sizeof(console_buffer_t));
+    buffer_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, sizeof(console_buffer_t));
+    memset(buffer_mapping->vaddr, 0, sizeof(console_buffer_t));
 
     console_buffer = buffer_mapping->vaddr;
 
-    // blink_timer = timer_init(timer_handler, NULL, 0, TIMER_MS_TO_TICKS(500));
+    blink_timer = timer_init(timer_handler, NULL, 0, TIMER_MS_TO_TICKS(500));
 
     device_char_operations_t operations = {
         .write = write,
@@ -162,7 +166,7 @@ bool free(void) {
 
     timer_free(blink_timer);
 
-//    paging_free(&buffer_allocation);
+    pman_context_unmap(buffer_mapping);
 
     return true;
 }
