@@ -146,6 +146,8 @@ EXCEPTION_INTERRUPT syscall_handler_entry, syscall_handler_wrapper
 
 PIC1_INTERRUPT null_pic1_handler_entry, null_handler
 PIC1_INTERRUPT pic1_keyboard_handler_entry, pic1_keyboard_handler
+PIC1_INTERRUPT pic1_com2_handler_entry, pic1_com2_handler
+PIC1_INTERRUPT pic1_com1_handler_entry, pic1_com1_handler
 PIC1_INTERRUPT pic1_timer_handler_entry, pic1_timer_handler
 
 PIC2_INTERRUPT null_pic2_handler_entry, null_handler

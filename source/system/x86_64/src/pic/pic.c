@@ -28,9 +28,13 @@ void interrupt_pic_init(void) {
 
     idt.mapped_irqs[MAPPED_IRQ_TIMER] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, pic1_timer_handler_entry);
     idt.mapped_irqs[MAPPED_IRQ_KEYBOARD] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, pic1_keyboard_handler_entry);
+    idt.mapped_irqs[MAPPED_IRQ_COM2] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, pic1_com2_handler_entry);
+    idt.mapped_irqs[MAPPED_IRQ_COM1] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, pic1_com1_handler_entry);
 
     interrupt_pic_clear_mask(MAPPED_IRQ_TIMER);
     interrupt_pic_clear_mask(MAPPED_IRQ_KEYBOARD);
+    interrupt_pic_clear_mask(MAPPED_IRQ_COM2);
+    interrupt_pic_clear_mask(MAPPED_IRQ_COM1);
 
     inb(0x60); // clear out the keyboard buffer
 

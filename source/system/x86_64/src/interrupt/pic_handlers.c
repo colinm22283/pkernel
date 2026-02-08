@@ -26,6 +26,32 @@ __NORETURN void pic1_keyboard_handler(task_state_record_t * tsr) {
     scheduler_yield();
 }
 
+__NORETURN void pic1_com2_handler(task_state_record_t * tsr) {
+    uint64_t old_pml4t_paddr = read_page_table();
+    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+
+    load_page_table((void *) new_pml4t_paddr);
+
+    if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
+
+    interrupt_registry_invoke((interrupt_code_t) IC_COM2, tsr, NULL);
+
+    scheduler_yield();
+}
+
+__NORETURN void pic1_com1_handler(task_state_record_t * tsr) {
+    uint64_t old_pml4t_paddr = read_page_table();
+    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+
+    load_page_table((void *) new_pml4t_paddr);
+
+    if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
+
+    interrupt_registry_invoke((interrupt_code_t) IC_COM1, tsr, NULL);
+
+    scheduler_yield();
+}
+
 __NORETURN void pic1_timer_handler(task_state_record_t * tsr) {
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
