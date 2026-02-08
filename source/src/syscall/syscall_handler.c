@@ -93,7 +93,7 @@ uint64_t syscall_handler(
             return ERROR_OK;
         }
 
-        // case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (open_options_t) arg1);
+        case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (open_options_t) arg1);
 
         case SYSCALL_DUP: return syscall_dup((fd_t) arg0, (fd_t) arg1);
 
