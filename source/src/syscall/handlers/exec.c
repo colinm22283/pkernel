@@ -15,6 +15,7 @@
 
 #include <util/heap/heap.h>
 #include <util/math/max.h>
+#include <util/memory/memset.h>
 
 #include <debug/vga_print.h>
 
@@ -77,6 +78,7 @@ error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t ar
     pman_mapping_t * text;
     pman_mapping_t * data;
     pman_mapping_t * rodata;
+    pman_mapping_t * bss;
 
     if (old_text != NULL) text = pman_context_resize(old_text, MAX(100, start_table.text_size));
     else {
@@ -99,10 +101,10 @@ error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t ar
         pman_context_unmap(kernel_mapping);
     }
 
-    if (old_bss != NULL) pman_context_resize(old_bss, MAX(100, start_table.bss_size));
+    if (old_bss != NULL) bss = pman_context_resize(old_bss, MAX(100, start_table.bss_size));
     else {
         pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, MAX(100, start_table.bss_size));
-        pman_context_add_shared(current_process->paging_context, PMAN_PROT_WRITE, kernel_mapping, PROCESS_BSS_USER_VADDR);
+        bss = pman_context_add_shared(current_process->paging_context, PMAN_PROT_WRITE, kernel_mapping, PROCESS_BSS_USER_VADDR);
         pman_context_unmap(kernel_mapping);
     }
 
@@ -137,6 +139,12 @@ error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t ar
             sizeof(application_start_table_t) + start_table.text_size + start_table.data_size,
             &read_bytes
         );
+    }
+
+    if (start_table.bss_size != 0) {
+        pman_context_prepare_write(current_process, bss);
+
+        memset(get_root_mapping(bss)->vaddr, 0, start_table.bss_size);
     }
 
     fs_directory_entry_release(test_file_dirent);

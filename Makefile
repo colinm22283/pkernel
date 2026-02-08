@@ -4,6 +4,7 @@ export MODULE_DIR?=$(BIN_DIR)/module
 export OBJ_DIR?=$(BUILD_DIR)/obj
 export SOURCE_DIR?=$(CURDIR)/source
 export MOD_SOURCE_DIR?=$(SOURCE_DIR)/modules
+export CONFIG_DIR?=$(BUILD_DIR)/config
 
 export MAKE_DIR=$(CURDIR)/make
 export MAKE_SCRIPTS=$(MAKE_DIR)/targets16.mk $(MAKE_DIR)/targets32.mk $(MAKE_DIR)/targets64.mk
@@ -27,6 +28,10 @@ kernel:
 .PHONY: modules
 modules:
 	cd source && $(MAKE) modules
+
+.PHONY: config
+config:
+	cd source && $(MAKE) config
 
 .PHONY: application
 application: $(OBJ_DIR)/application_start_table.o

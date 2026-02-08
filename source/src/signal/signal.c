@@ -22,6 +22,9 @@ void signal_table_free(signal_table_t * st) {
 error_number_t signal_table_invoke(process_t * process, signal_number_t sig, thread_t * handling_thread) {
     if (sig >= _SIG_COUNT) return ERROR_NO_SIG;
 
+    debug_print("SIG\n");
+    asm volatile ("hlt");
+
     signal_table_t * st = &process->signal_table;
 
     signal_t * signal = &st->handlers[sig];

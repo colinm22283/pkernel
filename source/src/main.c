@@ -180,7 +180,7 @@ __NORETURN void kernel_main(void) {
     }
 
     if (start_table.data_size > 0) {
-        void * process_data = process_create_segment(init_process, PROCESS_DATA_USER_VADDR, start_table.data_size, PMAN_PROT_EXECUTE);
+        void * process_data = process_create_segment(init_process, PROCESS_DATA_USER_VADDR, start_table.data_size, PMAN_PROT_WRITE);
 
         test_file_dirent->superblock->superblock_ops->read(
             test_file_dirent,
@@ -192,7 +192,7 @@ __NORETURN void kernel_main(void) {
     }
 
     if (start_table.rodata_size > 0) {
-        void * process_rodata = process_create_segment(init_process, PROCESS_RODATA_USER_VADDR, start_table.rodata_size, PMAN_PROT_EXECUTE);
+        void * process_rodata = process_create_segment(init_process, PROCESS_RODATA_USER_VADDR, start_table.rodata_size, 0);
 
         test_file_dirent->superblock->superblock_ops->read(
             test_file_dirent,
@@ -204,7 +204,7 @@ __NORETURN void kernel_main(void) {
     }
 
     if (start_table.bss_size > 0) {
-        void * process_bss = process_create_segment(init_process, PROCESS_BSS_USER_VADDR, start_table.bss_size, PMAN_PROT_EXECUTE);
+        void * process_bss = process_create_segment(init_process, PROCESS_BSS_USER_VADDR, start_table.bss_size, PMAN_PROT_WRITE);
 
         memset(process_bss, 0, start_table.bss_size);
     }
