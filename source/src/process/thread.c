@@ -136,7 +136,7 @@ __NORETURN void thread_resume(thread_t * thread) {
             // debug_print(" FOR ");
             // debug_print_hex(thread->process->id);
             // debug_print("\n");
-
+            //
             // debug_print("RESUME USER\n");
 
             resume_tsr_user(&thread->tsr, thread->process->paging_context);

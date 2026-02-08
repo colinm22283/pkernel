@@ -557,13 +557,13 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
 
     process_t * current_process = scheduler_current_process();
 
-    debug_print("Page fault while accessing 0x");
-    debug_print_hex((intptr_t) fault_vaddr);
-    debug_print(" at ");
-    debug_print_hex((intptr_t) tsr->rip);
-    debug_print(" with process ");
-    debug_print_hex(current_process->id);
-    debug_print("\n");
+    // debug_print("Page fault while accessing 0x");
+    // debug_print_hex((intptr_t) fault_vaddr);
+    // debug_print(" at ");
+    // debug_print_hex((intptr_t) tsr->rip);
+    // debug_print(" with process ");
+    // debug_print_hex(current_process->id);
+    // debug_print("\n");
 
     // heap_check();
 
@@ -582,25 +582,29 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
     pman_mapping_t * mapping = pman_context_get_vaddr(current_context, fault_vaddr);
 
     if (mapping == NULL) {
-        fs_file_t * out_file = file_table_get(&current_process->file_table, stdout);
+        // fs_file_t * out_file = file_table_get(&current_process->file_table, stdout);
 
-        if (out_file != NULL) file_write(out_file, "PAGE FAULT: Bad address\n", 24);
+        // if (out_file != NULL) file_write(out_file, "PAGE FAULT: Bad address\n", 24);
 
-        if (error_code->present) vga_print("Reason: PROTECTION VIOLATION\n");
-        else vga_print("Reason: NOT PRESENT\n");
-        if (error_code->write) vga_print("WRITE\n");
-        if (error_code->instruction_fetch) vga_print("INSTRUCTION FETCH\n");
-        if (error_code->user) vga_print("USER\n");
+        if (error_code->present) debug_print("Reason: PROTECTION VIOLATION\n");
+        else debug_print("Reason: NOT PRESENT\n");
+        if (error_code->write) debug_print("WRITE\n");
+        if (error_code->instruction_fetch) debug_print("INSTRUCTION FETCH\n");
+        if (error_code->user) debug_print("USER\n");
 
-        vga_print("Fault VAddr: ");
-        vga_print_hex((uint64_t) fault_vaddr);
-        vga_print("\n");
+        debug_print("Fault VAddr: ");
+        debug_print_hex((uint64_t) fault_vaddr);
+        debug_print("\n");
 
-        vga_print("Fault IP: ");
-        vga_print_hex(tsr->rip);
-        vga_print("\n");
+        debug_print("Fault IP: ");
+        debug_print_hex(tsr->rip);
+        debug_print("\n");
 
-        signal_table_invoke(&current_process->signal_table, SIG_PAGE, scheduler_current_thread());
+        thread_t * current_thread = scheduler_current_thread();
+
+        signal_table_invoke(current_process, SIG_PAGE, current_thread);
+
+        thread_resume(current_thread);
 
         // process_kill(current_process);
         return;

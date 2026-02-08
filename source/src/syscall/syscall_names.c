@@ -25,4 +25,5 @@ const char * syscall_names[_SYSCALL_COUNT] = {
     "SYSCALL_BIND",
     "SYSCALL_LISTEN",
     "SYSCALL_ACCEPT",
+    "SYSCALL_SIGNAL",
 };

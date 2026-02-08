@@ -109,6 +109,7 @@ KN_OBJS+=$(KN_OD_64)/scheduler/event.o
 KN_OBJS+=$(KN_OD_64)/device/device.o
 
 KN_OBJS+=$(KN_OD_64)/signal/signal.o
+KN_OBJS+=$(KN_OD_64)/signal/signal_defaults.o
 
 #KN_OBJS+=$(KN_OD_64)/interrupt/init.o
 #KN_OBJS+=$(KN_OD_64)/interrupt/idt.o

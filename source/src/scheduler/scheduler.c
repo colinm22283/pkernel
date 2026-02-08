@@ -133,7 +133,26 @@ void scheduler_start_twin(void (*task_handler)(task_state_record_t * tsr)) {
     thread_run(twin);
 }
 
-__NORETURN void scheduler_return_twin(uint64_t ret_val) {
+__NORETURN void scheduler_return_twin0(void) {
+    scheduler_core_t * current_core = scheduler_current_core();
+
+    current_core->current_thread->state = TS_STOPPED;
+
+    thread_t * twin = current_core->current_thread->twin_thread;
+
+    current_core->current_thread = NULL;
+
+    if (twin->state == TS_DEAD) {
+        scheduler_queue(twin);
+        scheduler_yield();
+    }
+    else {
+        thread_run(twin);
+        scheduler_yield();
+    }
+}
+
+__NORETURN void scheduler_return_twin1(uint64_t ret_val) {
     scheduler_core_t * current_core = scheduler_current_core();
 
     current_core->current_thread->state = TS_STOPPED;

@@ -13,8 +13,6 @@ static inline void push_function(process_t * process, task_state_record_t * tsr,
     kern_rsp[0] = tsr->rip;
     tsr->rsp -= sizeof(uint64_t);
 
-    tsr->rsp = (intptr_t) addr;
-
     push_args(process, tsr, argv, argc);
 
     tsr->rip = (uint64_t) addr;
