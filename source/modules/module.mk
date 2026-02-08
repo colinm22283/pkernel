@@ -5,6 +5,7 @@ STATIC_MODULES+=x86_pci
 STATIC_MODULES+=vga_frame_buffer
 STATIC_MODULES+=keyboard_pio
 STATIC_MODULES+=vga_terminal
+STATIC_MODULES+=x86_serial_tty
 STATIC_MODULES+=disc_pio
 STATIC_MODULES+=pkfs
 

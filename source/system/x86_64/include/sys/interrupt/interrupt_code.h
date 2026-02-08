@@ -20,6 +20,8 @@ enum {
     IC_SIMD_FPU_ERROR,
 
     IC_KEYBOARD,
+    IC_COM2,
+    IC_COM1,
 
     IC_MAX,
 };

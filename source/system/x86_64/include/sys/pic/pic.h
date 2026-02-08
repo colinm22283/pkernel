@@ -5,6 +5,8 @@
 enum {
     MAPPED_IRQ_TIMER = 0,
     MAPPED_IRQ_KEYBOARD = 1,
+    MAPPED_IRQ_COM2 = 3,
+    MAPPED_IRQ_COM1 = 4,
 };
 
 void interrupt_pic_init(void);
