@@ -70,7 +70,12 @@ uint64_t read(device_t * dev, char * buffer, uint64_t size) {
         scheduler_await(private->event);
     }
 
-    buffer[0] = (char) *private->data;
+    if (*private->data == '\r') {
+        buffer[0] = '\n';
+    }
+    else {
+        buffer[0] = (char) *private->data;
+    }
 
     *private->waiting = false;
 
@@ -105,9 +110,6 @@ bool init(void) {
         read_com2();
     }
 
-    outb(private[0].port + 1, 1);
-    outb(private[1].port + 1, 1);
-
     devices[0] = device_create_char("tty0", &private[0], &operations, &data);
     devfs_entries[0] = devfs_register(devices[0]);
 
@@ -116,6 +118,9 @@ bool init(void) {
 
     interrupt_registry_register((interrupt_code_t) IC_COM1, com1_int_handler);
     interrupt_registry_register((interrupt_code_t) IC_COM2, com2_int_handler);
+
+    outb(private[0].port + 1, 1);
+    outb(private[1].port + 1, 1);
 
     return true;
 }
