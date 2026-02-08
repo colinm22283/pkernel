@@ -4,7 +4,13 @@
 
 typedef uint32_t signal_number_t;
 
+typedef void signal_handler_t(signal_number_t);
+
 enum {
-    SIGNAL_KILL,
-    SIGNAL_CHILD
+    SIG_ABORT,
+    SIG_ALARM,
+
+    SIG_PAGE,
+
+    _SIG_COUNT,
 };

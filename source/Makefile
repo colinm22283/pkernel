@@ -64,6 +64,7 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/connect.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/bind.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/accept.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/listen.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/signal.o
 
 #KN_OBJS+=$(KN_OD_64)/filesystem/filesystem.o
 #KN_OBJS+=$(KN_OD_64)/filesystem/filesystem_table.o
@@ -106,6 +107,8 @@ KN_OBJS+=$(KN_OD_64)/scheduler/core.o
 KN_OBJS+=$(KN_OD_64)/scheduler/event.o
 
 KN_OBJS+=$(KN_OD_64)/device/device.o
+
+KN_OBJS+=$(KN_OD_64)/signal/signal.o
 
 #KN_OBJS+=$(KN_OD_64)/interrupt/init.o
 #KN_OBJS+=$(KN_OD_64)/interrupt/idt.o

@@ -25,7 +25,7 @@ typedef enum {
     SYSCALL_BIND    = 21,
     SYSCALL_LISTEN  = 22,
     SYSCALL_ACCEPT  = 23,
-    SYSCALL_CLONE   = 24,
+    SYSCALL_SIGNAL  = 24,
 
     _SYSCALL_COUNT,
 } syscall_number_t;

@@ -559,11 +559,16 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
 
     debug_print("Page fault while accessing 0x");
     debug_print_hex((intptr_t) fault_vaddr);
-    debug_print(" at ");
+    debug_print(" at 0x");
     debug_print_hex((intptr_t) tsr->rip);
-    debug_print(" with process ");
+    debug_print(" with process 0x");
     debug_print_hex(current_process->id);
     debug_print("\n");
+    if (error_code->present) debug_print("Reason: PROTECTION VIOLATION\n");
+    else debug_print("Reason: NOT PRESENT\n");
+    if (error_code->write) debug_print("WRITE\n");
+    if (error_code->instruction_fetch) debug_print("INSTRUCTION FETCH\n");
+    if (error_code->user) debug_print("USER\n");
 
     heap_check();
 
@@ -600,7 +605,9 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         vga_print_hex(tsr->rip);
         vga_print("\n");
 
-        process_kill(current_process);
+        signal_table_invoke(&current_process->signal_table, SIG_PAGE, scheduler_current_thread());
+
+        // process_kill(current_process);
         return;
     }
 

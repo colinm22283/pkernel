@@ -17,6 +17,8 @@
 #include <sys/tsr/tsr_load_pc.h>
 #include <sys/paging/page_size.h>
 
+#include <sys/function/push_function.h>
+
 #include <sys/panic.h>
 
 thread_t * thread_create_user(pman_context_t * user_context, process_t * parent) {
@@ -114,6 +116,10 @@ void thread_run(thread_t * thread) {
 
 void thread_load_pc(thread_t * thread, void * pc) {
     tsr_load_pc(&thread->tsr, pc);
+}
+
+void thread_push_function(thread_t * thread, void * addr, arg_t * argv, size_t argc) {
+    push_function(thread->process, &thread->tsr, addr, argv, argc);
 }
 
 __NORETURN void thread_resume(thread_t * thread) {

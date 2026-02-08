@@ -7,6 +7,8 @@
 
 #include <paging/manager.h>
 
+#include <signal/signal.h>
+
 typedef struct process_s {
     pman_context_t * paging_context;
 
@@ -25,6 +27,8 @@ typedef struct process_s {
     char ** argv;
 
     event_t * child_finished;
+
+    signal_table_t signal_table;
 
     struct process_s * next;
     struct process_s * prev;

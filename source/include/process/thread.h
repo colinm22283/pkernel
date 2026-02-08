@@ -1,8 +1,11 @@
 #pragma once
 
+#include <stddef.h>
+
 #include <paging/manager.h>
 
 #include <sys/tsr/tsr.h>
+#include <sys/function/arg.h>
 
 #define DEFAULT_THREAD_STACK_SIZE (0x2000)
 
@@ -51,6 +54,8 @@ thread_t * thread_create_fork(pman_context_t * user_context, struct process_s * 
 thread_t * thread_create_kernel(void);
 
 void thread_free(thread_t * thread);
+
+void thread_push_function(thread_t * thread, void * addr, arg_t * argv, size_t argc);
 
 void thread_run(thread_t * thread);
 void thread_load_pc(thread_t * thread, void * pc);

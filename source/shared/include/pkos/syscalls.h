@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include <pkos/types.h>
+#include <pkos/signal.h>
 
 #include <syscall_number.h>
 #include <error_number.h>
@@ -204,6 +205,14 @@ static inline fd_t accept(fd_t sock_fd) {
     fd_t ret;
 
     asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_ACCEPT), "S" ((uint64_t) sock_fd) : "memory", "cc");
+
+    return ret;
+}
+
+static inline fd_t signal(signal_number_t sig, void (* handler)(signal_number_t sig)) {
+    fd_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_SIGNAL), "S" ((uint64_t) sig), "d" ((uint64_t) handler) : "memory", "cc");
 
     return ret;
 }

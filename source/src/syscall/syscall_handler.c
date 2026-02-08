@@ -28,6 +28,7 @@
 #include <syscall/handlers/bind.h>
 #include <syscall/handlers/listen.h>
 #include <syscall/handlers/accept.h>
+#include <syscall/handlers/signal.h>
 
 #include <debug/vga_print.h>
 
@@ -122,6 +123,8 @@ uint64_t syscall_handler(
         case SYSCALL_LISTEN: return syscall_listen((fd_t) arg0, (size_t) arg1);
 
         case SYSCALL_ACCEPT: return syscall_accept((fd_t) arg0);
+
+        case SYSCALL_SIGNAL: return syscall_signal((signal_number_t) arg0, (signal_handler_t *) arg1);
 
         default: return ERROR_BAD_SYSCALL;
     }

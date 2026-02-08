@@ -4,7 +4,7 @@
 
 #include <util/memory/memcpy.h>
 
-#include <sys/push_args.h>
+#include <../../system/x86_64/include/sys/function/push_args.h>
 
 #include <scheduler/scheduler.h>
 #include <sys/paging/page_size.h>
@@ -40,6 +40,8 @@ process_t * process_create(void) {
     process->working_dir = &fs_root;
 
     process->child_finished = event_init();
+
+    signal_table_init(&process->signal_table);
 
     process->argc = 0;
 
@@ -124,6 +126,8 @@ void process_free(process_t * process) {
     for (size_t i = 0; i < process->thread_count; i++) {
         process->threads[i]->state = TS_DEAD;
     }
+
+    signal_table_free(&process->signal_table);
 
     event_free(process->child_finished);
 
@@ -239,7 +243,7 @@ void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
         pman_context_unmap(kern_mapping);
     }
 
-    push_args(process, &process->threads[0]->tsr, process->threads[0]->stack_mapping, process->argc, process->argv);
+    push_main_args(process, &process->threads[0]->tsr, process->threads[0]->stack_mapping, process->argc, process->argv);
 }
 
 void process_set_working_dir(process_t * process, fs_directory_entry_t * dirent) {

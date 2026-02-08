@@ -45,4 +45,6 @@ typedef enum {
     ERROR_MUST_BLOCK,
 
     ERROR_EXISTS,
+
+    ERROR_NO_SIG,
 } error_number_t;
