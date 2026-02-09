@@ -36,3 +36,8 @@ $(MODULE_DIR)/$(MODULE_NAME).mod: $(MODULE_OD_OUT)/$(MODULE_NAME).o
 	$(MKMOD_BIN) $(MODULE_OD_OUT)/$(MODULE_NAME).o $@
 	mkdir -p $(MODULE_DIR)
 	echo test > $(MODULE_DIR)/$(MODULE_NAME).mod
+
+$(CONFIG_DIR)/modules/$(MODULE_NAME)/config.h: config.h
+	mkdir -p $(@D)
+
+	cp $< $@

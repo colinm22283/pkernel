@@ -117,3 +117,6 @@ $(BIN_DIR)/kernel.bin: $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(
 .PHONY: modules
 modules: $(MODULE_TARGETS)
 
+.PHONY: config
+config: $(CONFIG_TARGETS)
+

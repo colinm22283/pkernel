@@ -22,6 +22,8 @@ DYNAMIC_MODULE_MODS=$(foreach module, $(DYNAMIC_MODULES), $(MODULE_DIR)/$(module
 
 MODULE_TARGETS=$(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(DYNAMIC_MODULE_MODS)
 
+CONFIG_TARGETS=$(foreachh )
+
 export INCLUDE_DIRS+=$(wildcard $(foreach module, $(STATIC_MODULES), $(MOD_SOURCE_DIR)/$(module)/export))
 
 export STATIC_MODULE_INCLUDE_DIRS=$(STATIC_MODULE_OUT)
@@ -49,6 +51,9 @@ $(STATIC_MODULE_OUT)/modules/init.h: $(foreach module, $(STATIC_MODULES), $(STAT
 	$(foreach module, $(STATIC_MODULES), echo 'if (!module_$(module)_init()) {debug_print("Failed to load $(module)\n"); return false; }' >> $@;)
 	echo "return true;" >> $@
 	echo "}" >> $@
+
+$(CONFIG_DIR)/modules/%/config.h:
+	cd modules/$* && MODULE_NAME=$* $(MAKE) $(CONFIG_DIR)/modules/%/config.h
 
 .PHONY: $(MODULE_DIR)/%.mod
 $(MODULE_DIR)/%.mod:
