@@ -7,8 +7,6 @@
 
 #include <util/heap/heap.h>
 
-#include "debug/vga_print.h"
-
 error_number_t sysfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
     sysfs_fs_node_t * node = (sysfs_fs_node_t *) dirent->node;
 

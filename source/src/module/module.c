@@ -45,13 +45,15 @@ error_number_t module_register_static(const char * module_name, const char ** de
     else {
         module->deps = heap_alloc(module->dep_count * sizeof(char *));
         for (size_t i = 0; i < module->dep_count; i++) {
-            module->deps[i] = heap_alloc(strlen(deps[i]));
+            module->deps[i] = heap_alloc(strlen(deps[i]) + 1);
             strcpy(module->deps[i], deps[i]);
         }
     }
 
     module->init = init;
     module->free = free;
+
+    module->loaded = false;
 
     module->next = modules_head.next;
     module->prev = &modules_head;
@@ -63,13 +65,7 @@ error_number_t module_register_static(const char * module_name, const char ** de
 
 error_number_t module_load(const char * name) {
     for (module_t * module = loaded_head.next; module != &loaded_tail; module = module->next) {
-        debug_print("\"");
-        debug_print(module->name);
-        debug_print("\" == \"");
-        debug_print(name);
-        debug_print("\"\n");
         if (strcmp(module->name, name) == 0) {
-            debug_print("aaa\n");
             return ERROR_MOD_LOADED;
         }
     }
@@ -85,8 +81,6 @@ error_number_t module_load(const char * name) {
                     debug_print("Failed to load module dependency \"");
                     debug_print(module->deps[i]);
                     debug_print("\"\n");
-
-                    if (result == ERROR_MOD_NONE) debug_print("gurp\n");
 
                     return result;
                 }
@@ -111,6 +105,8 @@ error_number_t module_load(const char * name) {
                 return result;
             }
 
+            module->loaded = true;
+
             module->next->prev = module->prev;
             module->prev->next = module->next;
 
@@ -126,10 +122,6 @@ error_number_t module_load(const char * name) {
     return ERROR_MOD_NONE;
 }
 
-error_number_t module_unload(module_t * module) {
-    heap_free(module->name);
-
-    // TODO: handle dynamic
-
-    return module->free();
+error_number_t module_unload(const char * name) {
+    return ERROR_UNIMPLEMENTED;
 }

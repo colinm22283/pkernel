@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #include <paging/manager.h>
 
@@ -28,6 +29,8 @@ typedef struct module_s {
     size_t mapping_count;
     pman_mapping_t ** mappings;
 
+    bool loaded;
+
     struct module_s * next;
     struct module_s * prev;
 } module_t;
@@ -38,4 +41,4 @@ error_number_t module_register_static(const char * module_name, const char ** de
 
 error_number_t module_load(const char * name);
 
-error_number_t module_unload(module_t * module);
+error_number_t module_unload(const char * name);

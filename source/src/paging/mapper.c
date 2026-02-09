@@ -8,7 +8,6 @@
 #include <sys/paging/page_size.h>
 
 #include <entry_error.h>
-#include <debug/vga_print.h>
 
 #include <util/heap/internal.h>
 

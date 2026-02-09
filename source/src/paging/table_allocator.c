@@ -11,10 +11,6 @@
 
 #include <sys/paging/page_type.h>
 
-#include <debug/flash.h>
-
-#include "debug/vga_print.h"
-
 page_data_t * current_vaddr = PAGING_TALLOC_VADDR;
 
 uint64_t talloc_pdt_paddr, talloc_pt_paddr;

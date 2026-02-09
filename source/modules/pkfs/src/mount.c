@@ -5,8 +5,6 @@
 #include <pkfs.h>
 #include <disc_operations.h>
 
-#include "debug/vga_print.h"
-
 error_number_t mount(fs_superblock_t * superblock) {
     superblock->superblock_ops = &superblock_ops;
 

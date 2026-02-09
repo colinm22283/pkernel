@@ -18,8 +18,6 @@
 #include <sys/asm/out.h>
 #include <sys/asm/in.h>
 
-#include <debug/vga_print.h>
-
 typedef struct {
     port_t port;
     event_t * event;

@@ -158,4 +158,4 @@ error_number_t free(void) {
 }
 
 MODULE_NAME("vga_fb");
-MODULE_DEPS_NONE();
+MODULE_DEPS("devfs");

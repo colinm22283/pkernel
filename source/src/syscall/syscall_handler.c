@@ -30,8 +30,6 @@
 #include <syscall/handlers/accept.h>
 #include <syscall/handlers/signal.h>
 
-#include <debug/vga_print.h>
-
 #include <sys/debug/print.h>
 
 uint64_t syscall_handler(

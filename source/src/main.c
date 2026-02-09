@@ -55,8 +55,6 @@
 
 #include <sys/panic.h>
 
-#include <debug/vga_print.h>
-
 #define VIDEO_MEMORY ((uint8_t *) 0xA0000)
 
 void gpf() {
@@ -129,46 +127,30 @@ __NORETURN void kernel_main(void) {
 
     fs_mount_root("pkfs", disc_dev);
 
-    vga_print("PKFS Mounted\n");
+    debug_print("PKFS Mounted\n");
 
     dev_dirent = fs_open_path(&fs_root, "dev");
     fs_mount("devfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
-    vga_print("DevFS Mounted\n");
+    debug_print("DevFS Mounted\n");
 
     dev_dirent = fs_open_path(&fs_root, "sys");
     fs_mount("sysfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
-    vga_print("SysFS Mounted\n");
+    debug_print("SysFS Mounted\n");
 
     fs_directory_entry_t * test_file_dirent = fs_open_path(&fs_root, "bin/init");
 
     uint64_t read_bytes;
 
-    vga_print("Load start table\n");
+    debug_print("Load start table\n");
 
     application_start_table_t start_table;
     test_file_dirent->superblock->superblock_ops->read(test_file_dirent, (char *) &start_table, sizeof(application_start_table_t), 0, &read_bytes);
 
-    vga_print("Load init process\n");
-
-    vga_print("text size:   0x");
-    vga_print_hex(start_table.text_size);
-    vga_print("\n");
-
-    vga_print("data size:   0x");
-    vga_print_hex(start_table.data_size);
-    vga_print("\n");
-
-    vga_print("rodata size: 0x");
-    vga_print_hex(start_table.rodata_size);
-    vga_print("\n");
-
-    vga_print("bss size:    0x");
-    vga_print_hex(start_table.bss_size);
-    vga_print("\n");
+    debug_print("Load init process\n");
 
     process_t * init_process = process_create();
 
@@ -219,6 +201,6 @@ __NORETURN void kernel_main(void) {
 
     thread_run(init_process->threads[0]);
 
-    vga_print("Starting Init Process\n");
+    debug_print("Starting Init Process\n");
     scheduler_yield();
 }

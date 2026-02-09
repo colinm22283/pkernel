@@ -6,8 +6,6 @@
 
 #include <syscall/handlers/socket.h>
 
-#include <debug/vga_print.h>
-
 fd_t syscall_socket(socket_domain_t domain, socket_type_t type, uint64_t protocol) {
     process_t * current_process = scheduler_current_process();
 

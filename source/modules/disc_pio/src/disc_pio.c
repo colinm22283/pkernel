@@ -17,8 +17,6 @@
 #include <sys/ports.h>
 #include <sys/halt.h>
 
-#include <debug/vga_print.h>
-
 uint64_t block_write(struct device_s * device, const char * buffer, uint64_t block_size, uint64_t block_offset);
 uint64_t block_read(struct device_s * device, char * buffer, uint64_t block_size, uint64_t block_offset);
 

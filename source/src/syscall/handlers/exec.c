@@ -17,8 +17,6 @@
 #include <util/math/max.h>
 #include <util/memory/memset.h>
 
-#include <debug/vga_print.h>
-
 #include <sys/halt.h>
 
 #include <sys/tsr/tsr_load_pc.h>

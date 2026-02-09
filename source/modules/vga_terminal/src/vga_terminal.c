@@ -172,4 +172,4 @@ error_number_t free(void) {
 }
 
 MODULE_NAME("vga_tty");
-MODULE_DEPS_NONE();
+MODULE_DEPS("vga_fb", "sysfs", "devfs");

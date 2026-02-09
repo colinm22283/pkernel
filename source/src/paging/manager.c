@@ -24,7 +24,6 @@
 #include <sys/halt.h>
 #include <sys/panic.h>
 
-#include <debug/vga_print.h>
 #include <util/heap/internal.h>
 
 #include <pkos/syscalls.h>
@@ -462,7 +461,7 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
 
         // TODO: add cases
         default: {
-            vga_print("bad\n");
+            debug_print("bad\n");
         } break;
     }
 
@@ -615,15 +614,15 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
 
         if (out_file != NULL) file_write(out_file, "PAGE FAULT: Unwritable\n", 23);
 
-        if (error_code->present) vga_print("Reason: PROTECTION VIOLATION\n");
-        else vga_print("Reason: NOT PRESENT\n");
-        if (error_code->write) vga_print("WRITE\n");
-        if (error_code->instruction_fetch) vga_print("INSTRUCTION FETCH\n");
-        if (error_code->user) vga_print("USER\n");
+        if (error_code->present) debug_print("Reason: PROTECTION VIOLATION\n");
+        else debug_print("Reason: NOT PRESENT\n");
+        if (error_code->write) debug_print("WRITE\n");
+        if (error_code->instruction_fetch) debug_print("INSTRUCTION FETCH\n");
+        if (error_code->user) debug_print("USER\n");
 
-        vga_print("Fault VAddr: ");
-        vga_print_hex((uint64_t) fault_vaddr);
-        vga_print("\n");
+        debug_print("Fault VAddr: ");
+        debug_print_hex((uint64_t) fault_vaddr);
+        debug_print("\n");
 
         process_kill(current_process);
         return;

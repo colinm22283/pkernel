@@ -6,8 +6,6 @@
 
 #include <syscall/handlers/chdir.h>
 
-#include <debug/vga_print.h>
-
 int64_t syscall_chdir(const char * _path) {
     process_t * current_process = scheduler_current_process();
 

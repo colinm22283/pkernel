@@ -16,8 +16,6 @@
 
 #include <key_lut.h>
 
-#include <debug/vga_print.h>
-
 #include <mod_defs.h>
 #include <error_number.h>
 

@@ -23,10 +23,6 @@
 #include <sys/paging/page_type.h>
 #include <sys/paging/page_size.h>
 
-#include "entry_error.h"
-
-#include <debug/flash.h>
-
 void paging_init() {
     paging_region_start = primary_region_start + KERNEL_SIZE;
     paging_region_end = primary_region_end;

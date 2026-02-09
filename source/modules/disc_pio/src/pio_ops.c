@@ -7,8 +7,6 @@
 #include <sys/ata/pio.h>
 #include <sys/ports.h>
 
-#include "debug/vga_print.h"
-
 typedef union {
     uint8_t num;
     ata_pio_status_t bits;
