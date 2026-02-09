@@ -18,7 +18,7 @@ typedef struct {
 } ramfs_fs_node_t;
 
 fs_node_t * ramfs_alloc_node(fs_superblock_t * superblock) {
-    // vga_print("RAMFS CREATE NODE\n");
+    // debug_print("RAMFS CREATE NODE\n");
 
     ramfs_fs_node_t * new_node = heap_alloc_debug(sizeof(ramfs_fs_node_t), "ramfs fsnode");
 
@@ -30,7 +30,7 @@ fs_node_t * ramfs_alloc_node(fs_superblock_t * superblock) {
 }
 
 error_number_t ramfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
-    // vga_print("RAMFS FREE NODE\n");
+    // debug_print("RAMFS FREE NODE\n");
 
     heap_free(node);
 
@@ -98,12 +98,7 @@ error_number_t ramfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t 
 }
 
 error_number_t ramfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
-    // vga_print("writing!\n");
     ramfs_fs_node_t * node = (ramfs_fs_node_t *) dirent->node;
-
-    // vga_print("buffer: ");
-    // vga_print_hex((uint64_t) node->data);
-    // vga_print("\n");
 
     if (offset + size > node->size) {
         node->size = offset + size;
@@ -112,6 +107,8 @@ error_number_t ramfs_write(fs_directory_entry_t * dirent, const char * data, fs_
     }
 
     memcpy(node->data + offset, data, size);
+
+    *wrote = size;
 
     return ERROR_OK;
 }

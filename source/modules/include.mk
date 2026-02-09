@@ -1,3 +1,6 @@
+AUTOGEN_INCLUDE_DIRS+=$(CONFIG_DIR)/modules/$(MODULE_NAME)
+AUTOGEN_HEADERS+=$(CONFIG_DIR)/modules/$(MODULE_NAME)/config.h
+
 $(MODULE_OD_OUT)/$(MODULE_NAME).o: $(MODULE_OBJS)
 	mkdir -p $(MODULE_OD_OUT)
 
@@ -33,7 +36,8 @@ $(MODULE_DIR)/$(MODULE_NAME).mod: $(MODULE_OD_OUT)/$(MODULE_NAME).o
 	mkdir -p $(MODULE_DIR)
 	echo test > $(MODULE_DIR)/$(MODULE_NAME).mod
 
-$(CONFIG_DIR)/modules/$(MODULE_NAME)/config.h: config.h
+#.PHONY: $(CONFIG_DIR)/modules/$(MODULE_NAME)/config.h
+$(CONFIG_DIR)/modules/$(MODULE_NAME)/config.h: $(wildcard config.h)
 	mkdir -p $(@D)
 
-	cp $< $@
+	if [ -f config.h ]; then cp config.h $@; fi

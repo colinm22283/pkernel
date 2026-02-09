@@ -18,41 +18,52 @@
 #include <sys/asm/out.h>
 #include <sys/asm/in.h>
 
+#include <config.h>
+
 typedef struct {
     port_t port;
-    event_t * event;
-    bool * waiting;
-    uint8_t * data;
-} tty_private_t;
+    
+    device_t * device;
+    devfs_entry_t * devfs_entry;
 
-tty_private_t private[2];
-device_t * devices[2];
-devfs_entry_t * devfs_entries[2];
+    event_t * data_ready;
 
-event_t * read_events[2];
+    bool char_waiting;
+    uint8_t port_data;
+} port_data_t;
 
-bool char_waiting[2];
-uint8_t port_data[2];
+#ifdef COM1_ENABLE
 
-static inline uint8_t read_com1(void) { return inb(private[0].port); }
-static inline uint8_t read_com2(void) { return inb(private[1].port); }
+port_data_t com1_data;
+
+static inline uint8_t read_com1(void) { return inb(com1_data.port); }
 
 void com1_int_handler(interrupt_code_t channel, task_state_record_t * isr, void * interrupt_code) {
-    char_waiting[0] = true;
-    port_data[0] = read_com1();
+    com1_data.char_waiting = true;
+    com1_data.port_data = read_com1();
 
-    event_invoke(read_events[0]);
+    event_invoke(com1_data.data_ready);
 }
+
+#endif
+
+#ifdef COM2_ENABLE
+
+port_data_t com2_data;
+
+static inline uint8_t read_com2(void) { return inb(com2_data.port); }
 
 void com2_int_handler(interrupt_code_t channel, task_state_record_t * isr, void * interrupt_code) {
-    char_waiting[1] = true;
-    port_data[1] = read_com2();
+    com2_data.char_waiting = true;
+    com2_data.port_data = read_com2();
 
-    event_invoke(read_events[1]);
+    event_invoke(com2_data.data_ready);
 }
 
+#endif
+
 uint64_t write(device_t * dev, const char * buffer, uint64_t size) {
-    tty_private_t * private = dev->private;
+    port_data_t * private = dev->private;
 
     for (uint64_t i = 0; i < size; i++) {
         outb(private->port, buffer[i]);
@@ -62,20 +73,20 @@ uint64_t write(device_t * dev, const char * buffer, uint64_t size) {
 }
 
 uint64_t read(device_t * dev, char * buffer, uint64_t size) {
-    tty_private_t * private = dev->private;
+    port_data_t * private = dev->private;
 
-    if (!*private->waiting) {
-        scheduler_await(private->event);
+    if (!private->char_waiting) {
+        scheduler_await(private->data_ready);
     }
 
-    if (*private->data == '\r') {
+    if (private->port_data == '\r') {
         buffer[0] = '\n';
     }
     else {
-        buffer[0] = (char) *private->data;
+        buffer[0] = (char) private->port_data;
     }
 
-    *private->waiting = false;
+    private->char_waiting = false;
 
     return 1;
 }
@@ -87,38 +98,39 @@ error_number_t init(void) {
     };
     device_char_data_t data = { };
 
-    read_events[0] = event_init();
-    read_events[1] = event_init();
+#ifdef COM1_ENABLE
+    
+    com1_data.port = 0x3F8;
+    com1_data.data_ready = event_init();
+    com1_data.char_waiting = false;
+    com1_data.port_data = 0;
+    for (size_t i = 0; i < 10; i++) read_com1();
 
-    private[0].port = 0x3F8;
-    private[0].event = read_events[0];
-    private[0].waiting = &char_waiting[0];
-    private[0].data = &port_data[0];
+    com1_data.device = device_create_char("tty0", &com1_data, &operations, &data);
+    com1_data.devfs_entry = devfs_register(com1_data.device);
 
-    private[1].port = 0x2F8;
-    private[1].event = read_events[1];
-    private[1].waiting = &char_waiting[1];
-    private[1].data = &port_data[1];
+    if (!interrupt_registry_register((interrupt_code_t) IC_COM1, com1_int_handler)) return ERROR_INT_UNAVAIL;
 
-    char_waiting[0] = false;
-    char_waiting[1] = false;
+    outb(com1_data.port + 1, 1);
+    
+#endif
 
-    for (size_t i = 0; i < 10; i++) {
-        read_com1();
-        read_com2();
-    }
+#ifdef COM2_ENABLE
+    
+    com2_data.port = 0x2F8;
+    com2_data.data_ready = event_init();
+    com2_data.char_waiting = false;
+    com2_data.port_data = 0;
+    for (size_t i = 0; i < 10; i++) read_com2();
 
-    devices[0] = device_create_char("tty0", &private[0], &operations, &data);
-    devfs_entries[0] = devfs_register(devices[0]);
+    com2_data.device = device_create_char("tty1", &com2_data, &operations, &data);
+    com2_data.devfs_entry = devfs_register(com2_data.device);
 
-    devices[1] = device_create_char("tty1", &private[1], &operations, &data);
-    devfs_entries[1] = devfs_register(devices[1]);
+    if (!interrupt_registry_register((interrupt_code_t) IC_COM2, com2_int_handler)) return ERROR_INT_UNAVAIL;
 
-    interrupt_registry_register((interrupt_code_t) IC_COM1, com1_int_handler);
-    interrupt_registry_register((interrupt_code_t) IC_COM2, com2_int_handler);
-
-    outb(private[0].port + 1, 1);
-    outb(private[1].port + 1, 1);
+    outb(com2_data.port + 1, 1);
+    
+#endif
 
     return ERROR_OK;
 }
