@@ -4,8 +4,6 @@
 
 #include <syscall/handlers/open.h>
 
-#include <debug/vga_print.h>
-
 int64_t syscall_open(const char * _path, open_options_t options) {
     process_t * current_process = scheduler_current_process();
 

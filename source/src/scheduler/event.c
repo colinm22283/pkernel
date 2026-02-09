@@ -5,8 +5,6 @@
 
 #include <util/heap/heap.h>
 
-#include "debug/vga_print.h"
-
 event_t * event_init(void) {
     event_t * event = heap_alloc_debug(sizeof(event_t), "event");
 

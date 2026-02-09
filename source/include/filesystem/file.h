@@ -10,8 +10,6 @@
 
 #include <pkos/types.h>
 
-#include <debug/vga_print.h>
-
 typedef struct {
     fs_directory_entry_t * dirent;
     open_options_t options;

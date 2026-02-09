@@ -4,8 +4,6 @@
 
 #include <util/heap/heap.h>
 
-#include <debug/vga_print.h>
-
 error_number_t sysfs_mount(fs_superblock_t * superblock) {
     sysfs_mounts[sysfs_mount_count++].mount_point = superblock->mount_point;
     sysfs_mounts = heap_realloc(sysfs_mounts, (sysfs_mount_count + 1) * sizeof(sysfs_mount_t));

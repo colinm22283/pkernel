@@ -8,8 +8,6 @@
 #include <util/heap/heap.h>
 #include <util/memory/memcpy.h>
 
-#include <debug/vga_print.h>
-
 #include "sys/halt.h"
 
 typedef struct {

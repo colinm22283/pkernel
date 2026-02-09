@@ -5,8 +5,6 @@
 
 #include <util/heap/heap.h>
 
-#include <debug/vga_print.h>
-
 static inline bool pipe_push(pipe_t * pipe, char c) {
     if (pipe->size == PIPE_BUFFER_SIZE) return false;
 

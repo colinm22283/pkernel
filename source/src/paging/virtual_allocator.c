@@ -8,8 +8,6 @@
 
 #include <entry_error.h>
 
-#include "debug/vga_print.h"
-
 #define VALLOC_REGION_SIZE (0x1000000000000)
 #define VALLOC_PAGE_SIZE   (0x1000)
 

@@ -136,7 +136,7 @@ __MOD_EXPORT error_number_t devfs_remove(devfs_entry_t * entry) {
     return ERROR_OK;
 }
 
-bool init(void) {
+error_number_t init(void) {
     devfs_head.next = &devfs_tail;
     devfs_head.prev = NULL;
     devfs_tail.next = NULL;
@@ -147,7 +147,10 @@ bool init(void) {
     devfs_mount_count = 0;
     devfs_mounts = heap_alloc_debug(sizeof(fs_directory_entry_t *), "devfs mounts");
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free(void) { return true; }
+error_number_t free(void) { return ERROR_OK; }
+
+MODULE_NAME("devfs");
+MODULE_DEPS_NONE();

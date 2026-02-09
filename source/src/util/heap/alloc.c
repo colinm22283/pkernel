@@ -8,8 +8,6 @@
 
 #include <sys/panic.h>
 
-#include <debug/vga_print.h>
-
 void * heap_alloc(uint64_t size_bytes) {
 #ifdef HEAP_DEBUG
     heap_check();

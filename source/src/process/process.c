@@ -4,7 +4,7 @@
 
 #include <util/memory/memcpy.h>
 
-#include <../../system/x86_64/include/sys/function/push_args.h>
+#include <sys/function/push_args.h>
 
 #include <scheduler/scheduler.h>
 #include <sys/paging/page_size.h>
@@ -79,7 +79,7 @@ process_t * process_create_fork(process_t * parent) {
         pman_mapping_t * mapping = mappings[i];
 
         if (mapping->protection & PMAN_PROT_SHARED) {
-            vga_print("oh dear\n");
+            debug_print("oh dear\n");
         }
         else {
             void * vaddr = mapping->vaddr;

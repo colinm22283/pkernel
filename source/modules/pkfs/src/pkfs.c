@@ -2,17 +2,22 @@
 #include <stddef.h>
 
 #include <pkfs.h>
+#include <error_number.h>
+#include <mod_defs.h>
 
 #include <filesystem/filesystem.h>
 
-bool init() {
+error_number_t init() {
     fs_register("pkfs", &superblock_ops, mount, unmount);
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free() {
+error_number_t free() {
     fs_unregister("pkfs");
 
-    return true;
+    return ERROR_OK;
 }
+
+MODULE_NAME("pkfs");
+MODULE_DEPS_NONE();

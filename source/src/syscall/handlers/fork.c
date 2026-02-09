@@ -4,7 +4,6 @@
 
 #include <sys/tsr/tsr_load_return.h>
 
-#include <debug/vga_print.h>
 #include <sys/debug/print.h>
 
 uint64_t syscall_fork(void) {

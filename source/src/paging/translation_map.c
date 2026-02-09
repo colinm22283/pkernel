@@ -8,8 +8,6 @@
 
 #include <util/memory/memset.h>
 
-#include <debug/flash.h>
-
 paging_tmap_t paging_tmap;
 paging_tmap_page_t * next_page_ptr = PAGING_TMAP_VADDR;
 

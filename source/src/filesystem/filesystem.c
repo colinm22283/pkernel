@@ -14,8 +14,6 @@
 #include <error_number.h>
 #include <entry_error.h>
 
-#include <debug/vga_print.h>
-
 #include <sys/halt.h>
 #include <sys/panic.h>
 

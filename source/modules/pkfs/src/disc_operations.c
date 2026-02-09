@@ -10,8 +10,6 @@
 #include <util/memory/memcpy.h>
 #include <util/math/max.h>
 
-#include <debug/vga_print.h>
-
 #include <sys/debug/print.h>
 
 static inline bool disc_write(device_t * device, uint64_t lba, uint64_t sectors, const void * buffer) {
@@ -49,9 +47,9 @@ pkfs_directory_t open_filesystem(device_t * device, filesystem_page_address_t ro
     if (!disc_read(device, root_address, 1, &root_page)) return 0;
 
     if (strcmpn(root_page.signature, FILESYSTEM_ROOT_SIGNATURE, 4) != 0) {
-        vga_print("Oh narts... ");
-        vga_print_hex(root_page.signature[0]);
-        vga_print("\n");
+        debug_print("Oh narts... ");
+        debug_print_hex(root_page.signature[0]);
+        debug_print("\n");
 
         asm volatile ("hlt");
 

@@ -6,8 +6,6 @@
 
 #include <syscall/handlers/listen.h>
 
-#include <debug/vga_print.h>
-
 error_number_t syscall_listen(fd_t sock_fd, uint64_t size) {
     process_t * current_process = scheduler_current_process();
 

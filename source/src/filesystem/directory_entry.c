@@ -11,7 +11,6 @@
 #include <util/string/strcpy.h>
 #include <util/heap/heap.h>
 
-#include <debug/vga_print.h>
 #include <util/heap/internal.h>
 
 #include <sys/halt.h>
@@ -97,7 +96,7 @@ fs_directory_entry_t * fs_directory_node_enter(fs_directory_entry_t * dirent, fs
 
 void fs_directory_entry_release(fs_directory_entry_t * directory_entry) {
     if (directory_entry->references == 0) {
-        vga_print("AAAAAA\n");
+        debug_print("AAAAAA\n");
         asm volatile ("hlt");
     }
 

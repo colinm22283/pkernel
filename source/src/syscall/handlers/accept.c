@@ -6,8 +6,6 @@
 
 #include <syscall/handlers/accept.h>
 
-#include <debug/vga_print.h>
-
 fd_t syscall_accept(fd_t sock_fd) {
     process_t * current_process = scheduler_current_process();
 

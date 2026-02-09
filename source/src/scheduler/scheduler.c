@@ -19,8 +19,6 @@
 
 #include <sys/halt.h>
 
-#include <debug/vga_print.h>
-
 #define SCHEDULER_QUANTUM (0)
 
 enum {

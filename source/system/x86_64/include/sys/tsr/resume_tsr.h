@@ -10,8 +10,6 @@
 
 #include <defs.h>
 
-#include "debug/vga_print.h"
-
 __NORETURN void _resume_tsr_kernel(uint64_t cs_selector, uint64_t ss_selector, uint64_t pml4t_paddr, task_state_record_t * tsr);
 __NORETURN void _resume_tsr_user(uint64_t cs_selector, uint64_t ss_selector, uint64_t pml4t_paddr, task_state_record_t * tsr);
 

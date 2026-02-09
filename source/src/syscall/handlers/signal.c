@@ -6,8 +6,6 @@
 
 #include <syscall/handlers/signal.h>
 
-#include <debug/vga_print.h>
-
 error_number_t syscall_signal(signal_number_t sig, signal_handler_t * handler) {
     process_t * current_process = scheduler_current_process();
 

@@ -1,13 +1,17 @@
 STATIC_MODULES=
+STATIC_MODULES+=x86_pci
 STATIC_MODULES+=devfs
 STATIC_MODULES+=sysfs
-STATIC_MODULES+=x86_pci
+
 STATIC_MODULES+=vga_frame_buffer
-STATIC_MODULES+=keyboard_pio
-STATIC_MODULES+=vga_terminal
+
 STATIC_MODULES+=x86_serial_tty
+
 STATIC_MODULES+=disc_pio
 STATIC_MODULES+=pkfs
+
+#STATIC_MODULES+=keyboard_pio
+#STATIC_MODULES+=vga_terminal
 
 DYNAMIC_MODULES=
 
@@ -28,6 +32,8 @@ export INCLUDE_DIRS+=$(wildcard $(foreach module, $(STATIC_MODULES), $(MOD_SOURC
 
 export STATIC_MODULE_INCLUDE_DIRS=$(STATIC_MODULE_OUT)
 
+export MODULE_MAKE_SCRIPT=$(CURDIR)/modules/include.mk
+
 $(STATIC_MODULE_OUT)/modules/%/module.o: .FORCE
 	cd modules/$* && $(MAKE) MODULE_NAME=$* $@
 
@@ -36,8 +42,11 @@ $(STATIC_MODULE_OUT)/modules/%.h: modules/module.mk
 	mkdir -p $(STATIC_MODULE_OUT)/modules
 	
 	echo "#pragma once" > $@
-	echo "bool module_$*_init(void);" >> $@
-	echo "bool module_$*_free(void);" >> $@
+	echo "error_number_t module_$*_init(void);" >> $@
+	echo "error_number_t module_$*_free(void);" >> $@
+	echo "extern const char module_$*_name[];" >> $@
+	echo "extern const char * module_$*_deps[];" >> $@
+	echo "extern const size_t module_$*_dep_count;" >> $@
 
 $(STATIC_MODULE_OUT)/modules/init.h: $(foreach module, $(STATIC_MODULES), $(STATIC_MODULE_OUT)/modules/$(module).h)
 	mkdir -p $(STATIC_MODULE_OUT)/modules
@@ -45,10 +54,12 @@ $(STATIC_MODULE_OUT)/modules/init.h: $(foreach module, $(STATIC_MODULES), $(STAT
 	echo "#pragma once" > $@
 	$(foreach module, $(STATIC_MODULES), echo "#include <modules/$(module).h>" >> $@;)
 
+	echo "#include <module/module.h>" >> $@
 	echo "#include <sys/debug/print.h>" >> $@
 
 	echo "static inline bool static_module_init(void) {" >> $@
-	$(foreach module, $(STATIC_MODULES), echo 'if (!module_$(module)_init()) {debug_print("Failed to load $(module)\n"); return false; }' >> $@;)
+	$(foreach module, $(STATIC_MODULES), echo 'module_register_static(module_$(module)_name, module_$(module)_deps, module_$(module)_dep_count, module_$(module)_init, module_$(module)_free);' >> $@;)
+	$(foreach module, $(STATIC_MODULES), echo 'module_load(module_$(module)_name);' >> $@;)
 	echo "return true;" >> $@
 	echo "}" >> $@
 

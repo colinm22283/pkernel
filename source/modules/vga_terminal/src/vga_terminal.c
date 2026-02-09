@@ -127,7 +127,7 @@ int64_t sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offs
     return 0;
 }
 
-bool init(void) {
+error_number_t init(void) {
     cursor_on = true;
     cur_x = 0;
     cur_y = 0;
@@ -149,18 +149,18 @@ bool init(void) {
     };
     device_char_data_t data = { };
     device = device_create_char("tty", NULL, &operations, &data);
-    if (device == NULL) return false;
+    if (device == NULL) return ERROR_UNKNOWN;
     devfs_entry = devfs_register(device);
-    if (devfs_entry == NULL) return false;
+    if (devfs_entry == NULL) return ERROR_UNKNOWN;
 
     sysfs_add_entry("vgatty/bind", SYSFS_BIND, sysfs_read, sysfs_write);
 
     vga_term_device = device;
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free(void) {
+error_number_t free(void) {
     devfs_remove(devfs_entry);
     device_remove(device);
 
@@ -168,5 +168,8 @@ bool free(void) {
 
     pman_context_unmap(buffer_mapping);
 
-    return true;
+    return ERROR_OK;
 }
+
+MODULE_NAME("vga_tty");
+MODULE_DEPS("vga_fb", "sysfs", "devfs");

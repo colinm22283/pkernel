@@ -10,8 +10,6 @@
 #include <util/memory/memset.h>
 #include <util/memory/memcpy.h>
 
-#include <debug/vga_print.h>
-
 #include <sys/tsr/resume_tsr.h>
 #include <sys/tsr/tsr_set_stack.h>
 #include <sys/tsr/tsr_load_pc.h>

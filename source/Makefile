@@ -92,6 +92,8 @@ KN_OBJS+=$(KN_OD_64)/device/device.o
 KN_OBJS+=$(KN_OD_64)/signal/signal.o
 KN_OBJS+=$(KN_OD_64)/signal/signal_defaults.o
 
+KN_OBJS+=$(KN_OD_64)/module/module.o
+
 KN_OBJS+=$(KN_OD_64)/interrupt/interrupt_registry.o
 
 KN_OBJS+=$(KN_OD_64)/main.o

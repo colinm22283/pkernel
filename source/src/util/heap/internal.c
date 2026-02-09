@@ -1,7 +1,6 @@
 #include <util/heap/internal.h>
 #include <util/heap/heap.h>
 
-#include <debug/vga_print.h>
 #include <sys/debug/print.h>
 
 #include "sys/panic.h"

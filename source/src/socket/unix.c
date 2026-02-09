@@ -60,7 +60,6 @@ void unix_socket_listen(unix_socket_t * socket, size_t listen_queue_capacity) {
 error_number_t unix_socket_connect(unix_socket_t * socket, unix_socket_t * target) {
     if (target->listen_queue_size == target->listen_queue_capacity) return ERROR_CON_REFUSED;
 
-    vga_print("Alloc\n");
     unix_socket_listen_req_t * req = heap_alloc_debug(sizeof(unix_socket_listen_req_t), "unix_socket listener");
 
     req->requester = socket;
@@ -124,7 +123,6 @@ error_number_t unix_socket_read(unix_socket_t * socket, char * data, fs_size_t s
 
         *read = packet->size - packet->pos;
 
-        vga_print("Free packet\n");
         heap_free(packet->data);
         heap_free(packet);
     }
@@ -136,7 +134,6 @@ error_number_t unix_socket_read(unix_socket_t * socket, char * data, fs_size_t s
 
         *read = size;
 
-        vga_print("Free packet\n");
         heap_free(packet->data);
         heap_free(packet);
     }
@@ -149,7 +146,6 @@ error_number_t unix_socket_write(unix_socket_t * socket, const char * data, fs_s
         return ERROR_NO_ADDR;
     }
 
-    vga_print("Alloc packet\n");
     unix_packet_t * packet = heap_alloc_debug(sizeof(unix_packet_t), "unix_socket packet");
 
     packet->pos = 0;

@@ -8,8 +8,6 @@
 
 #include <util/string/strcmp.h>
 
-#include <debug/vga_print.h>
-
 error_number_t syscall_mount(const char * _dst, const char * _src, const char * _fs, mount_options_t options, const char * _data) {
     process_t * current_process = scheduler_current_process();
 

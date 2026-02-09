@@ -6,8 +6,6 @@
 
 #include <syscall/handlers/pipe.h>
 
-#include <debug/vga_print.h>
-
 int64_t syscall_pipe(fd_t * _fds, open_options_t options) {
     process_t * current_process = scheduler_current_process();
 

@@ -2,11 +2,9 @@
 
 #include <filesystem/node.h>
 #include <filesystem/pipe.h>
+#include <filesystem/superblock.h>
 
 #include <util/heap/heap.h>
-
-#include "debug/vga_print.h"
-#include "filesystem/superblock.h"
 
 void fs_node_init(fs_node_t * node) {
     node->delete = false;
