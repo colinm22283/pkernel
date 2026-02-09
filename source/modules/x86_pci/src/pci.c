@@ -7,6 +7,8 @@
 
 #include <util/heap/heap.h>
 
+#include <error_number.h>
+
 uint64_t pci_device_count;
 pci_device_t ** pci_devices;
 
@@ -83,7 +85,7 @@ __MOD_EXPORT void pci_unwatch(pci_watcher_t * watcher) {
     watcher->next->prev = watcher->prev;
 }
 
-bool init(void) {
+error_number_t init(void) {
     pci_device_count = 0;
     pci_devices = heap_alloc_debug(sizeof(pci_device_t), "x86_pci pci_devices");
 
@@ -113,7 +115,10 @@ bool init(void) {
         }
     }
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free(void) { return true; }
+error_number_t free(void) { return ERROR_OK; }
+
+MODULE_NAME("x86_pci");
+MODULE_DEPS_NONE();

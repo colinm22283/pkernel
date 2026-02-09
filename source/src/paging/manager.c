@@ -557,13 +557,13 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
 
     process_t * current_process = scheduler_current_process();
 
-    debug_print("Page fault while accessing 0x");
-    debug_print_hex((intptr_t) fault_vaddr);
-    debug_print(" at ");
-    debug_print_hex((intptr_t) tsr->rip);
-    debug_print(" with process ");
-    debug_print_hex(current_process->id);
-    debug_print("\n");
+    // debug_print("Page fault while accessing 0x");
+    // debug_print_hex((intptr_t) fault_vaddr);
+    // debug_print(" at ");
+    // debug_print_hex((intptr_t) tsr->rip);
+    // debug_print(" with process ");
+    // debug_print_hex(current_process->id);
+    // debug_print("\n");
 
     // heap_check();
 

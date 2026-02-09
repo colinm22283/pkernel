@@ -47,4 +47,10 @@ typedef enum {
     ERROR_EXISTS,
 
     ERROR_NO_SIG,
+
+    ERROR_PORT_UNAVAIL,
+    ERROR_INT_UNAVAIL,
+
+    ERROR_MOD_LOADED,
+    ERROR_MOD_NONE,
 } error_number_t;

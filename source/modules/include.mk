@@ -1,10 +1,3 @@
-MODULE_SOURCE_DIR=$(CURDIR)/src
-MODULE_OD_64=$(MODULE_OD_BASE)/$(MODULE_NAME)/src
-
-include sources.mk
-
-include $(MAKE_SCRIPTS)
-
 $(MODULE_OD_OUT)/$(MODULE_NAME).o: $(MODULE_OBJS)
 	mkdir -p $(MODULE_OD_OUT)
 
@@ -20,6 +13,9 @@ $(STATIC_MODULE_OUT)/modules/$(MODULE_NAME)/module.o: $(MODULE_OD_OUT)/$(MODULE_
 		--rename-section .bss=.module_bss \
 		--redefine-sym init=module_$(MODULE_NAME)_init \
 		--redefine-sym free=module_$(MODULE_NAME)_free \
+		--redefine-sym module_name=module_$(MODULE_NAME)_name \
+		--redefine-sym module_deps=module_$(MODULE_NAME)_deps \
+		--redefine-sym module_dep_count=module_$(MODULE_NAME)_dep_count \
 		$$( \
 			$(NM64) $(MODULE_OD_OUT)/$(MODULE_NAME).o --format=sysv --extern-only -U | tail -n +7 | while IFS= read -r s; do \
 				IFS="|" set -- $$s; \

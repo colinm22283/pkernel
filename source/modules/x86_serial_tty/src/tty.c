@@ -82,7 +82,7 @@ uint64_t read(device_t * dev, char * buffer, uint64_t size) {
     return 1;
 }
 
-bool init(void) {
+error_number_t init(void) {
     device_char_operations_t operations = {
         .write = write,
         .read = read,
@@ -122,10 +122,12 @@ bool init(void) {
     outb(private[0].port + 1, 1);
     outb(private[1].port + 1, 1);
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free(void) {
-    return true;
+error_number_t free(void) {
+    return ERROR_OK;
 }
 
+MODULE_NAME("x86_serial_tty");
+MODULE_DEPS("devfs", "sysfs");

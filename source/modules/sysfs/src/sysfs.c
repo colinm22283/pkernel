@@ -17,7 +17,7 @@ sysfs_entry_t sysfs_head, sysfs_tail;
 uint64_t sysfs_mount_count;
 sysfs_mount_t * sysfs_mounts;
 
-bool init(void) {
+error_number_t init(void) {
     sysfs_head.next = &sysfs_tail;
     sysfs_head.prev = NULL;
     sysfs_tail.next = NULL;
@@ -28,10 +28,10 @@ bool init(void) {
 
     fs_register("sysfs", &sysfs_superblock_ops, sysfs_mount, sysfs_unmount);
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free(void) { return true; }
+error_number_t free(void) { return ERROR_OK; }
 
 __MOD_EXPORT error_number_t sysfs_add_entry(const char * path, sysfs_id_t id, sysfs_read_op_t * read_op, sysfs_write_op_t * write_op) {
     sysfs_entry_t * entry = heap_alloc_debug(sizeof(sysfs_entry_t), "sysfs entry");
@@ -98,3 +98,6 @@ __MOD_EXPORT error_number_t sysfs_remove_entry(const char * path) {
 
     return ERROR_UNIMPLEMENTED;
 }
+
+MODULE_NAME("sysfs");
+MODULE_DEPS_NONE();

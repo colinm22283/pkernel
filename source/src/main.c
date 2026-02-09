@@ -40,6 +40,8 @@
 
 #include <scheduler/scheduler.h>
 
+#include <module/module.h>
+
 #include <application/application_start_table.h>
 
 #include <pci/pci.h>
@@ -97,6 +99,8 @@ __NORETURN void kernel_main(void) {
 
     fs_directory_entry_t * dev_dirent = fs_make(&fs_root, "dev", FS_DIRECTORY);
     fs_directory_entry_t * sys_dirent = fs_make(&fs_root, "sys", FS_DIRECTORY);
+
+    modules_init();
 
     if (!static_module_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_MODULE_INIT_ERROR);
 

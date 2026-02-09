@@ -18,6 +18,9 @@
 
 #include <debug/vga_print.h>
 
+#include <mod_defs.h>
+#include <error_number.h>
+
 device_t * device;
 
 volatile bool char_ready;
@@ -66,7 +69,7 @@ uint64_t read(device_t * dev, char * buffer, uint64_t size) {
     else return 0;
 }
 
-bool init(void) {
+error_number_t init(void) {
     char_ready = true;
     current_char = '\0';
 
@@ -78,22 +81,25 @@ bool init(void) {
     device = device_create_char("kbd", NULL, &operations, &data);
     devfs_register(device);
 
-    if (!io_arbitrator_reserve(PORT_KB_IN)) return false;
+    if (!io_arbitrator_reserve(PORT_KB_IN)) return ERROR_PORT_UNAVAIL;
     inb(PORT_KB_IN);
     inb(PORT_KB_IN);
     inb(PORT_KB_IN);
 
-    if (!interrupt_registry_register((interrupt_code_t) IC_KEYBOARD, keyboard_handler)) return false;
+    if (!interrupt_registry_register((interrupt_code_t) IC_KEYBOARD, keyboard_handler)) return ERROR_INT_UNAVAIL;
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free(void) {
-    if (!interrupt_registry_free((interrupt_code_t) IC_KEYBOARD)) return false;
+error_number_t free(void) {
+    if (!interrupt_registry_free((interrupt_code_t) IC_KEYBOARD)) return ERROR_UNKNOWN;
 
-    if (!io_arbitrator_release(PORT_KB_IN)) return false;
+    if (!io_arbitrator_release(PORT_KB_IN)) return ERROR_UNKNOWN;
 
     device_remove(device);
 
-    return true;
+    return ERROR_OK;
 }
+
+MODULE_NAME("kbd_pio");
+MODULE_DEPS_NONE();

@@ -93,19 +93,19 @@ void add_ide_device(port_t io_port, port_t control_port, bool is_master) {
     }
 }
 
-bool init(void) {
+error_number_t init(void) {
     ide_device_count = 0;
     ide_devices = heap_alloc_debug(1, "disc_pio ide_devices");
 
     pci_watcher = pci_watch(pci_probe, NULL);
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free(void) {
+error_number_t free(void) {
     pci_unwatch(pci_watcher);
 
-    return true;
+    return ERROR_OK;
 }
 
 uint64_t block_write(device_t * device, const char * buffer, uint64_t block_size, uint64_t block_offset) {
@@ -135,3 +135,6 @@ uint64_t block_read(device_t * device, char * buffer, uint64_t block_size, uint6
 
     return block_size;
 }
+
+MODULE_NAME("disc_pio");
+MODULE_DEPS_NONE();

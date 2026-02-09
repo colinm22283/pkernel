@@ -12,6 +12,7 @@
 #include <util/math/div_up.h>
 #include <sys/paging/page_size.h>
 
+#include <mod_defs.h>
 #include <entry_error.h>
 
 #define FRAME_BUFFER_PADDR (0xA0000)
@@ -124,7 +125,7 @@ error_number_t unmap(device_t * dev, pman_context_t * context, void * map_addr) 
     return ERROR_OK;
 }
 
-bool init(void) {
+error_number_t init(void) {
     required_pages = FRAME_BUFFER_SIZE_PAGES;
 
     pman_entry = pman_context_add_map(pman_kernel_context(), PMAN_PROT_WRITE, NULL, FRAME_BUFFER_PADDR, 320 * 200);
@@ -143,15 +144,18 @@ bool init(void) {
     device = device_create_char("vga", NULL, &operations, &data);
     devfs_entry = devfs_register(device);
 
-    return true;
+    return ERROR_OK;
 }
 
-bool free(void) {
+error_number_t free(void) {
     devfs_remove(devfs_entry);
     device_remove(device);
 
     paging_unmap(&paging_kernel_pml4t, &mapping);
 //    paging_valloc_free(frame_buffer, required_pages);
 
-    return true;
+    return ERROR_OK;
 }
+
+MODULE_NAME("vga_fb");
+MODULE_DEPS_NONE();
