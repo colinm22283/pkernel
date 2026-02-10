@@ -65,6 +65,7 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/bind.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/accept.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/listen.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/signal.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/signalret.o
 
 KN_OBJS+=$(KN_OD_64)/filesystem/filesystem.o
 KN_OBJS+=$(KN_OD_64)/filesystem/directory_entry.o

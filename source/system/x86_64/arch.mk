@@ -73,6 +73,8 @@ export KN_OBJS+=$(SYSTEM_OBJ_DIR)/gdt/gdt.o
 
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/idt/idt.o
 
+export KN_OBJS+=$(SYSTEM_OBJ_DIR)/process/trampoline.o
+
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/entry.o
 export KN_OBJS+=$(SYSTEM_OBJ_DIR)/setup.o
 
