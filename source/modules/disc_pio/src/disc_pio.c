@@ -15,7 +15,8 @@
 
 #include <sys/ata/pio.h>
 #include <sys/ports.h>
-#include <sys/halt.h>
+
+#include <mod_defs.h>
 
 uint64_t block_write(struct device_s * device, const char * buffer, uint64_t block_size, uint64_t block_offset);
 uint64_t block_read(struct device_s * device, char * buffer, uint64_t block_size, uint64_t block_offset);
@@ -38,7 +39,15 @@ void add_ide_device(port_t io_port, port_t control_port, bool is_master);
 
 pci_probe_result_t pci_probe(pci_device_t * device, void * private) {
     if (device->class == PCI_CLASS_MASS_STORAGE_CONTROLLER && device->subclass == PCI_SUBCLASS_IDE_CONTROLLER) {
-        debug_print("Found IDE Controller\n");
+        MODULE_DEBUG(
+            MODULE_PRINT("Found IDE Controller at ");
+            MODULE_PRINT_HEX(device->address.bus);
+            MODULE_PRINT(":");
+            MODULE_PRINT_HEX(device->address.slot);
+            MODULE_PRINT(".");
+            MODULE_PRINT_HEX(device->address.func);
+            MODULE_PRINT(", binding.\n");
+        );
 
         {
             port_t disc_io_port = pci_read_bar(device->address, 0) & ~0b11;
@@ -107,19 +116,11 @@ error_number_t free(void) {
 }
 
 uint64_t block_write(device_t * device, const char * buffer, uint64_t block_size, uint64_t block_offset) {
-    // vga_print("Write\n");
-
     ide_device_t * ide_device = device->private;
-
-    // vga_print("Select device\n");
 
     disc_select(ide_device->io_port, ide_device->control_port, ide_device->is_master ? DEVICE_DRIVE_MASTER : DEVICE_DRIVE_SLAVE);
 
-    // vga_print("Begin Write\n");
-
     if (!disc_write(block_offset, block_size, buffer)) return 0;
-
-    // vga_print("Done\n");
 
     return block_size;
 }

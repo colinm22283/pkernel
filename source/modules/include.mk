@@ -40,4 +40,5 @@ $(MODULE_DIR)/$(MODULE_NAME).mod: $(MODULE_OD_OUT)/$(MODULE_NAME).o
 $(CONFIG_DIR)/modules/$(MODULE_NAME)/config.h: $(wildcard config.h)
 	mkdir -p $(@D)
 
-	if [ -f config.h ]; then cp config.h $@; fi
+	if [ -f config.h ]; then cp config.h $@; else touch $@; fi
+

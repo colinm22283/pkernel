@@ -112,12 +112,7 @@ __NORETURN void kernel_main(void) {
     fs_directory_entry_release(sys_dirent);
 
     fs_directory_entry_t * disc_dirent = fs_open_path(&fs_root, "dev/disc0");
-    debug_print_hex((uint64_t) disc_dirent);
-    debug_print("\n");
-    if (disc_dirent->type == FS_DEVICE) debug_print("is device\n");
     device_t * disc_dev = disc_dirent->device;
-    debug_print_hex((uint64_t) disc_dev);
-    debug_print("\n");
     fs_directory_entry_release(disc_dirent);
 
     fs_unmount(dev_dirent);

@@ -9,8 +9,6 @@
 
 #include <scheduler/scheduler.h>
 
-#include <mod_defs.h>
-
 #include <sys/port.h>
 
 #include <sys/interrupt/interrupt_code.h>
@@ -18,7 +16,7 @@
 #include <sys/asm/out.h>
 #include <sys/asm/in.h>
 
-#include <config.h>
+#include <mod_defs.h>
 
 typedef struct {
     port_t port;
@@ -99,6 +97,10 @@ error_number_t init(void) {
     device_char_data_t data = { };
 
 #ifdef COM1_ENABLE
+
+    MODULE_DEBUG(
+        MODULE_PRINT("Initializing COM1\n");
+    );
     
     com1_data.port = 0x3F8;
     com1_data.data_ready = event_init();
@@ -112,10 +114,18 @@ error_number_t init(void) {
     if (!interrupt_registry_register((interrupt_code_t) IC_COM1, com1_int_handler)) return ERROR_INT_UNAVAIL;
 
     outb(com1_data.port + 1, 1);
+
+    MODULE_DEBUG(
+        MODULE_PRINT("COM1 Initialized\n");
+    );
     
 #endif
 
 #ifdef COM2_ENABLE
+
+    MODULE_DEBUG(
+        MODULE_PRINT("Initializing COM2\n");
+    );
     
     com2_data.port = 0x2F8;
     com2_data.data_ready = event_init();
@@ -129,6 +139,10 @@ error_number_t init(void) {
     if (!interrupt_registry_register((interrupt_code_t) IC_COM2, com2_int_handler)) return ERROR_INT_UNAVAIL;
 
     outb(com2_data.port + 1, 1);
+
+    MODULE_DEBUG(
+        MODULE_PRINT("COM2 Initialized\n");
+    );
     
 #endif
 

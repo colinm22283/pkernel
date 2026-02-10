@@ -119,6 +119,10 @@ $(BIN_DIR)/kernel.bin: $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(
 .PHONY: modules
 modules: $(MODULE_TARGETS)
 
+.PHONY: clean_config
+clean_config:
+	rm -rf $(CONFIG_DIR)
+
 .PHONY: config
-config: $(CONFIG_TARGETS)
+config: clean_config $(CONFIG_TARGETS)
 
