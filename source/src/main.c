@@ -68,8 +68,6 @@ DEFINE_DEBUG_LOGGER("init");
 
 void gpf() {
     panic0("GPF ENCOUNTERED");
-
-    halt();
 }
 
 __NORETURN void kernel_main(void) {

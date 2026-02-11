@@ -37,6 +37,8 @@ port_data_t com1_data;
 static inline uint8_t read_com1(void) { return inb(com1_data.port); }
 
 void com1_int_handler(interrupt_code_t channel, task_state_record_t * isr, void * interrupt_code) {
+    debug_print("COM1\n");
+
     com1_data.char_waiting = true;
     com1_data.port_data = read_com1();
 
@@ -52,6 +54,8 @@ port_data_t com2_data;
 static inline uint8_t read_com2(void) { return inb(com2_data.port); }
 
 void com2_int_handler(interrupt_code_t channel, task_state_record_t * isr, void * interrupt_code) {
+    debug_print("COM2\n");
+
     com2_data.char_waiting = true;
     com2_data.port_data = read_com2();
 
@@ -64,6 +68,8 @@ uint64_t write(device_t * dev, const char * buffer, uint64_t size) {
     port_data_t * private = dev->private;
 
     for (uint64_t i = 0; i < size; i++) {
+        while ((inb(private->port + 5) & 0x20) == 0) { }
+
         outb(private->port, buffer[i]);
     }
 
@@ -102,7 +108,12 @@ error_number_t init(void) {
         MODULE_PRINT("Initializing COM1\n");
     );
     
-    com1_data.port = 0x3F8;
+    // com1_data.port = 0x3F8;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+    com1_data.port = *(uint16_t *) 0x400;
+#pragma GCC diagnostic pop
+
     com1_data.data_ready = event_init();
     com1_data.char_waiting = false;
     com1_data.port_data = 0;
@@ -113,7 +124,16 @@ error_number_t init(void) {
 
     if (!interrupt_registry_register((interrupt_code_t) IC_COM1, com1_int_handler)) return ERROR_INT_UNAVAIL;
 
-    outb(com1_data.port + 1, 1);
+    outb(com1_data.port + 3, 0b10000000);
+
+    outb(com1_data.port + 0, 1);
+    outb(com1_data.port + 1, 0);
+
+    outb(com1_data.port + 3, 0b00000011);
+
+    outb(com1_data.port + 1, 0x01);
+
+    outb(com1_data.port + 2, 0b110);
 
     MODULE_DEBUG(
         MODULE_PRINT("COM1 Initialized\n");
@@ -127,7 +147,10 @@ error_number_t init(void) {
         MODULE_PRINT("Initializing COM2\n");
     );
     
-    com2_data.port = 0x2F8;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+    com2_data.port = *(uint16_t *) 0x402;
+#pragma GCC diagnostic pop
     com2_data.data_ready = event_init();
     com2_data.char_waiting = false;
     com2_data.port_data = 0;
@@ -138,7 +161,16 @@ error_number_t init(void) {
 
     if (!interrupt_registry_register((interrupt_code_t) IC_COM2, com2_int_handler)) return ERROR_INT_UNAVAIL;
 
-    outb(com2_data.port + 1, 1);
+    outb(com2_data.port + 3, 0b10000000);
+
+    outb(com2_data.port + 0, 1);
+    outb(com2_data.port + 1, 0);
+
+    outb(com2_data.port + 3, 0b00000011);
+
+    outb(com2_data.port + 1, 0x01);
+
+    outb(com2_data.port + 2, 0b110);
 
     MODULE_DEBUG(
         MODULE_PRINT("COM2 Initialized\n");

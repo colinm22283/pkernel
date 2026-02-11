@@ -3,9 +3,12 @@
 #include <stddef.h>
 
 #include <sys/asm/out.h>
+#include <sys/asm/in.h>
 
 static inline void debug_print(const char * msg) {
     for (size_t i = 0; msg[i] != '\0'; i++) {
+        while ((inb(0x3F8 + 5) & 0x20) == 0) { }
+
         outb(0x3F8, msg[i]);
     }
 }
