@@ -55,6 +55,15 @@
 
 #include <sys/panic.h>
 
+#include <config/init.h>
+
+#ifdef INIT_DEBUG
+    #define DEBUG_LOGGER_ENABLED
+#endif
+#include <debug/debug_logger.h>
+
+DEFINE_DEBUG_LOGGER("init");
+
 #define VIDEO_MEMORY ((uint8_t *) 0xA0000)
 
 void gpf() {
@@ -64,48 +73,70 @@ void gpf() {
 }
 
 __NORETURN void kernel_main(void) {
+    DEBUG_LOG(DEBUG_PRINT("Init primary region"));
     primary_region_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Init paging phase 1"));
     paging_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Init heap"));
     heap_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Init interrupt registry"));
     interrupt_registry_init();
 
     interrupt_registry_register((interrupt_code_t) IC_GENERAL_PROTECTION_FAULT, gpf);
 
+    DEBUG_LOG(DEBUG_PRINT("Init paging manager"));
     pman_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Init paging phase 2"));
     if (!paging_init_stage2()) kernel_entry_error(KERNEL_ENTRY_ERROR_PAGING_PHASE_2_ERROR);
 
+    DEBUG_LOG(DEBUG_PRINT("Init sys phase 2"));
     sys_setup_phase2();
 
+    DEBUG_LOG(DEBUG_PRINT("Init timers"));
     timers_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Init io arbitrator"));
     io_arbitrator_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Init processes"));
     processes_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Init scheduler"));
     scheduler_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Init devices"));
     if (!device_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_DEVICE_INIT_ERROR);
 
+    DEBUG_LOG(DEBUG_PRINT("Init fs"));
     if (!fs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_INIT_ERROR);
+
+    DEBUG_LOG(DEBUG_PRINT("Init ramfs"));
     if (!fs_ramfs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_INIT_ERROR);
 
+    DEBUG_LOG(DEBUG_PRINT("Mount ramfs"));
     if (fs_mount_root("ramfs", NULL) != ERROR_OK) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_MOUNT_ERROR);
 
     fs_directory_entry_t * dev_dirent = fs_make(&fs_root, "dev", FS_DIRECTORY);
     fs_directory_entry_t * sys_dirent = fs_make(&fs_root, "sys", FS_DIRECTORY);
 
+    DEBUG_LOG(DEBUG_PRINT("Init modules"));
     modules_init();
 
+    DEBUG_LOG(DEBUG_PRINT("Load static modules"));
     if (!static_module_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_MODULE_INIT_ERROR);
 
+    DEBUG_LOG(DEBUG_PRINT("Init sysfs"));
     scheduler_init_sysfs();
     heap_init_sysfs();
 
+    DEBUG_LOG(DEBUG_PRINT("Mount devfs"));
     fs_mount("devfs", dev_dirent, NULL);
+
+    DEBUG_LOG(DEBUG_PRINT("Mount sysfs"));
     fs_mount("sysfs", sys_dirent, NULL);
 
     fs_directory_entry_release(dev_dirent);
@@ -115,37 +146,33 @@ __NORETURN void kernel_main(void) {
     device_t * disc_dev = disc_dirent->device;
     fs_directory_entry_release(disc_dirent);
 
+    DEBUG_LOG(DEBUG_PRINT("Unmount devfs"));
     fs_unmount(dev_dirent);
     fs_directory_entry_release(dev_dirent);
 
+    DEBUG_LOG(DEBUG_PRINT("Unmount ramfs"));
     fs_unmount(&fs_root);
 
+    DEBUG_LOG(DEBUG_PRINT("Mount PKFS"));
     fs_mount_root("pkfs", disc_dev);
 
-    debug_print("PKFS Mounted\n");
-
+    DEBUG_LOG(DEBUG_PRINT("Remount devfs"));
     dev_dirent = fs_open_path(&fs_root, "dev");
     fs_mount("devfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
-    debug_print("DevFS Mounted\n");
-
+    DEBUG_LOG(DEBUG_PRINT("Remount sysfs"));
     dev_dirent = fs_open_path(&fs_root, "sys");
     fs_mount("sysfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
-    debug_print("SysFS Mounted\n");
-
+    DEBUG_LOG(DEBUG_PRINT("Load init process"));
     fs_directory_entry_t * test_file_dirent = fs_open_path(&fs_root, "bin/init");
 
     uint64_t read_bytes;
 
-    debug_print("Load start table\n");
-
     application_start_table_t start_table;
     test_file_dirent->superblock->superblock_ops->read(test_file_dirent, (char *) &start_table, sizeof(application_start_table_t), 0, &read_bytes);
-
-    debug_print("Load init process\n");
 
     process_t * init_process = process_create();
 
@@ -196,6 +223,6 @@ __NORETURN void kernel_main(void) {
 
     thread_run(init_process->threads[0]);
 
-    debug_print("Starting Init Process\n");
+    DEBUG_LOG(DEBUG_PRINT("Start init process"));
     scheduler_yield();
 }

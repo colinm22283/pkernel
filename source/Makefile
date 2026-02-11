@@ -104,6 +104,8 @@ KN_OBJS+=$(KN_OD_64)/entry_error.o
 
 CONFIG_TARGETS+=$(KN_CD)/heap.h
 CONFIG_TARGETS+=$(KN_CD)/syscall.h
+CONFIG_TARGETS+=$(KN_CD)/module.h
+CONFIG_TARGETS+=$(KN_CD)/init.h
 
 OPTIMIZATION=0
 

@@ -33,6 +33,19 @@ modules:
 config:
 	cd source && $(MAKE) config
 
+.PHONY: config-load
+config-load: config
+	mkdir -p $(CONFIG_DIR)
+
+	cp -r $(CONFIG_PATH)/* $(CONFIG_DIR)
+
+.PHONY: config-save
+config-save:
+	mkdir -p $(CONFIG_PATH)
+
+	cp -r $(CONFIG_DIR)/* $(CONFIG_PATH)
+
+
 .PHONY: application
 application: $(OBJ_DIR)/application_start_table.o
 	if [[ ! -v APPLICATION_DIR ]]; then echo "ERROR: APPLICATION_DIR varaible not set!"; false; fi
