@@ -1,7 +1,9 @@
 KN_OD_64=$(OBJ_DIR)/64/src
+KN_CD=$(CONFIG_DIR)/kernel
 
 export INCLUDE_DIRS+=$(CURDIR)/include
 export INCLUDE_DIRS+=$(SOURCE_DIR)/shared/include
+export INCLUDE_DIRS+=$(KN_CD)
 
 KN_OBJS+=$(KN_OD_64)/util/memory/memcpy.o
 KN_OBJS+=$(KN_OD_64)/util/memory/memset.o
@@ -100,6 +102,8 @@ KN_OBJS+=$(KN_OD_64)/interrupt/interrupt_registry.o
 KN_OBJS+=$(KN_OD_64)/main.o
 KN_OBJS+=$(KN_OD_64)/entry_error.o
 
+CONFIG_TARGETS+=$(KN_CD)/heap.h
+
 OPTIMIZATION=0
 
 .DEFAULT: all
@@ -126,4 +130,9 @@ clean_config:
 
 .PHONY: config
 config: clean_config $(CONFIG_TARGETS)
+
+$(CONFIG_DIR)/kernel/%.h: config/%.h
+	mkdir -p $(@D)
+	
+	cp $< $@
 

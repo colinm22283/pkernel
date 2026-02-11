@@ -26,7 +26,7 @@ DYNAMIC_MODULE_MODS=$(foreach module, $(DYNAMIC_MODULES), $(MODULE_DIR)/$(module
 
 MODULE_TARGETS=$(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(DYNAMIC_MODULE_MODS)
 
-CONFIG_TARGETS=$(foreach module, $(STATIC_MODULES), $(CONFIG_DIR)/modules/$(module)/config.h)
+CONFIG_TARGETS+=$(foreach module, $(STATIC_MODULES), $(CONFIG_DIR)/modules/$(module)/config.h)
 
 export INCLUDE_DIRS+=$(wildcard $(foreach module, $(STATIC_MODULES), $(MOD_SOURCE_DIR)/$(module)/export))
 
