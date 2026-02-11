@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <heap.h>
+#include <config/heap.h>
 
 typedef struct {
     bool next_reserved;

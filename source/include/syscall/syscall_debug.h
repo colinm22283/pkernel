@@ -2,7 +2,7 @@
 
 #include <sys/debug/print.h>
 
-// #define SYSCALL_DEBUG
+#include <config/syscall.h>
 
 static inline void syscall_debug_print(const char * str) {
 #ifdef SYSCALL_DEBUG

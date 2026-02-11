@@ -1,9 +1,9 @@
 KN_OD_64=$(OBJ_DIR)/64/src
-KN_CD=$(CONFIG_DIR)/kernel
+KN_CD=$(CONFIG_DIR)/kernel/config
 
 export INCLUDE_DIRS+=$(CURDIR)/include
 export INCLUDE_DIRS+=$(SOURCE_DIR)/shared/include
-export INCLUDE_DIRS+=$(KN_CD)
+export INCLUDE_DIRS+=$(CONFIG_DIR)/kernel
 
 KN_OBJS+=$(KN_OD_64)/util/memory/memcpy.o
 KN_OBJS+=$(KN_OD_64)/util/memory/memset.o
@@ -103,8 +103,11 @@ KN_OBJS+=$(KN_OD_64)/main.o
 KN_OBJS+=$(KN_OD_64)/entry_error.o
 
 CONFIG_TARGETS+=$(KN_CD)/heap.h
+CONFIG_TARGETS+=$(KN_CD)/syscall.h
 
 OPTIMIZATION=0
+
+export AUTOGEN_HEADERS+=$(CONFIG_TARGETS)
 
 .DEFAULT: all
 .PHONY: all
@@ -117,7 +120,7 @@ include $(MOD_SOURCE_DIR)/module.mk
 
 include $(MAKE_SCRIPTS)
 
-$(BIN_DIR)/kernel.bin: $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(SOURCE_DIR)/kernel.ld
+$(BIN_DIR)/kernel.bin: $(AUTOGEN_HEADERS) $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(SOURCE_DIR)/kernel.ld
 	mkdir -p $(@D)
 	$(LD64) $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(STATIC_MODULE_OBJS) -o $@ -Map=$@.map
 
@@ -131,7 +134,7 @@ clean_config:
 .PHONY: config
 config: clean_config $(CONFIG_TARGETS)
 
-$(CONFIG_DIR)/kernel/%.h: config/%.h
+$(KN_CD)/%.h: config/%.h
 	mkdir -p $(@D)
 	
 	cp $< $@
