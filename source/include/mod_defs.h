@@ -19,7 +19,7 @@ extern const char module_name[];
 
 #ifdef DEBUG
 
-#define MODULE_DEBUG(...) do { debug_print("[MODULE "); debug_print(module_name); debug_print("] "); __VA_ARGS__ } while (0)
+#define MODULE_DEBUG(...) do { debug_print("[MODULE "); debug_print(module_name); debug_print("] "); __VA_ARGS__; debug_print("\n"); } while (0)
 
 #define MODULE_PRINT(msg) debug_print(msg)
 #define MODULE_PRINT_HEX(num) debug_print_hex(num)

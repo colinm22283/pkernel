@@ -37,8 +37,6 @@ port_data_t com1_data;
 static inline uint8_t read_com1(void) { return inb(com1_data.port); }
 
 void com1_int_handler(interrupt_code_t channel, task_state_record_t * isr, void * interrupt_code) {
-    debug_print("COM1\n");
-
     com1_data.char_waiting = true;
     com1_data.port_data = read_com1();
 
@@ -54,8 +52,6 @@ port_data_t com2_data;
 static inline uint8_t read_com2(void) { return inb(com2_data.port); }
 
 void com2_int_handler(interrupt_code_t channel, task_state_record_t * isr, void * interrupt_code) {
-    debug_print("COM2\n");
-
     com2_data.char_waiting = true;
     com2_data.port_data = read_com2();
 
@@ -105,7 +101,7 @@ error_number_t init(void) {
 #ifdef COM1_ENABLE
 
     MODULE_DEBUG(
-        MODULE_PRINT("Initializing COM1\n");
+        MODULE_PRINT("Initializing COM1");
     );
     
     // com1_data.port = 0x3F8;
@@ -135,16 +131,14 @@ error_number_t init(void) {
 
     outb(com1_data.port + 2, 0b110);
 
-    MODULE_DEBUG(
-        MODULE_PRINT("COM1 Initialized\n");
-    );
+    outb(com1_data.port + 4, 0x0F);
     
 #endif
 
 #ifdef COM2_ENABLE
 
     MODULE_DEBUG(
-        MODULE_PRINT("Initializing COM2\n");
+        MODULE_PRINT("Initializing COM2");
     );
     
 #pragma GCC diagnostic push
@@ -172,9 +166,7 @@ error_number_t init(void) {
 
     outb(com2_data.port + 2, 0b110);
 
-    MODULE_DEBUG(
-        MODULE_PRINT("COM2 Initialized\n");
-    );
+    outb(com2_data.port + 4, 0x0F);
     
 #endif
 

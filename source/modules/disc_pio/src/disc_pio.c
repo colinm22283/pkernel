@@ -46,7 +46,7 @@ pci_probe_result_t pci_probe(pci_device_t * device, void * private) {
             MODULE_PRINT_HEX(device->address.slot);
             MODULE_PRINT(".");
             MODULE_PRINT_HEX(device->address.func);
-            MODULE_PRINT(", binding.\n");
+            MODULE_PRINT(", binding.");
         );
 
         {
