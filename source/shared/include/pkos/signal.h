@@ -12,6 +12,8 @@ enum {
 
     SIG_PAGE,
 
+    SIG_CHILD,
+
     _SIG_COUNT,
 };
 

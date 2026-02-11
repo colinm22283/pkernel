@@ -120,6 +120,8 @@ void process_free(process_t * process) {
     process_t * parent = process_lookup(process->parent_id);
 
     if (parent != NULL) {
+        signal_table_invoke(parent, SIG_CHILD, NULL);
+
         event_invoke(parent->child_finished);
     }
 
