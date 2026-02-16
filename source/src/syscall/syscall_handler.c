@@ -30,6 +30,7 @@
 #include <syscall/handlers/accept.h>
 #include <syscall/handlers/signal.h>
 #include <syscall/handlers/signalret.h>
+#include <syscall/handlers/alarm.h>
 
 #include <sys/debug/print.h>
 
@@ -126,6 +127,8 @@ uint64_t syscall_handler(
         case SYSCALL_SIGNAL: return syscall_signal((signal_number_t) arg0, (signal_handler_t *) arg1);
 
         case SYSCALL_SIGNALRET: return syscall_signalret();
+
+        case SYSCALL_ALARM: return syscall_alarm((size_t) arg0);
 
         default: return ERROR_BAD_SYSCALL;
     }

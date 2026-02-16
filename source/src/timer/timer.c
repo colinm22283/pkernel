@@ -53,7 +53,6 @@ static inline void timer_update(timer_t * timer) {
                 timer->handler(timer);
 
                 timer->current_ticks -= timer->start_ticks;
-                return;
             }
         } break;
 
@@ -62,7 +61,6 @@ static inline void timer_update(timer_t * timer) {
                 timer->handler(timer);
 
                 timer->current_ticks -= timer->interval_ticks;
-                return;
             }
         } break;
     }

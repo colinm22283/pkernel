@@ -32,7 +32,7 @@ typedef struct timer_s {
 timer_t * timer_init(timer_handler_t handler, void * cookie, uint64_t start_ticks, uint64_t interval_ticks);
 void timer_free(timer_t * timer);
 
-static inline void * timer_get_cookie(timer_t * timer) { return timer->cookie; }
+// static inline void * timer_get_cookie(timer_t * timer) { return timer->cookie; }
 
 void timers_init(void);
 void timers_update(void);

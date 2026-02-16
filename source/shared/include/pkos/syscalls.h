@@ -209,10 +209,18 @@ static inline fd_t accept(fd_t sock_fd) {
     return ret;
 }
 
-static inline fd_t signal(signal_number_t sig, void (* handler)(signal_number_t sig)) {
+static inline fd_t signal(signal_number_t sig, signal_handler_t * handler) {
     fd_t ret;
 
     asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_SIGNAL), "S" ((uint64_t) sig), "d" ((uint64_t) handler) : "memory", "cc");
+
+    return ret;
+}
+
+static inline error_number_t alarm(size_t seconds) {
+    fd_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_ALARM), "S" ((uint64_t) seconds) : "memory", "cc");
 
     return ret;
 }

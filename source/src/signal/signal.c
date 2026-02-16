@@ -49,6 +49,7 @@ error_number_t signal_table_invoke(process_t * process, signal_number_t sig, thr
         arg_t args[1] = { sig };
 
         thread_push_function(handling_thread, signal->user_handler, args, 1);
+        thread_run(handling_thread);
     }
 
     return ERROR_OK;
