@@ -87,8 +87,8 @@ uint64_t device_read(device_t * device, char * buffer, uint64_t size, uint64_t o
             return device->char_ops.read(device, buffer, size);
         } break;
 
-        case DT_BLOCK: {
-            return device->block_ops.read(device, buffer, size / device->block_data.block_size, offset / device->block_data.block_size);
+        case DT_BLOCK: { // TODO
+            return device->block_ops.read(device, buffer, size / device->block_data.block_size, offset / device->block_data.block_size) * device->block_data.block_size;
         } break;
     }
 
@@ -100,7 +100,7 @@ uint64_t device_write(device_t * device, const char * buffer, uint64_t size, uin
         case DT_CHARACTER: return device->char_ops.write(device, buffer, size);
 
         case DT_BLOCK: {
-            return device->block_ops.write(device, buffer, size / device->block_data.block_size, offset / device->block_data.block_size);
+            return device->block_ops.write(device, buffer, size / device->block_data.block_size, offset / device->block_data.block_size) * device->block_data.block_size;
         } break;
     }
 

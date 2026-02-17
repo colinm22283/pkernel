@@ -17,15 +17,6 @@ void heap_check(void) {
         heap_tag_t * prev_tag = (heap_tag_t *) ((intptr_t) cur_tag - cur_tag->prev_size - sizeof(heap_tag_t));
         heap_tag_t * next_tag = (heap_tag_t *) ((intptr_t) cur_tag + cur_tag->next_size + sizeof(heap_tag_t));
 
-        if (cur_tag->next_reserved && cur_tag->next_size > 0x200) {
-            panic3(
-                "Heap tag size very large",
-                "Prev Alloc", (intptr_t) (prev_tag + 1),
-                "Current Alloc", (intptr_t) (cur_tag + 1),
-                "Next Alloc", (intptr_t) (next_tag + 1)
-            );
-        }
-
         if (cur_tag->next_size != next_tag->prev_size) {
             panic3(
                 "Heap tag size mismatch",

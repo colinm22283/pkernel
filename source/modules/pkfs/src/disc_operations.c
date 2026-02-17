@@ -47,7 +47,7 @@ pkfs_directory_t open_filesystem(device_t * device, filesystem_page_address_t ro
     if (!disc_read(device, root_address, 1, &root_page)) return 0;
 
     if (strcmpn(root_page.signature, FILESYSTEM_ROOT_SIGNATURE, 4) != 0) {
-        debug_print("Oh narts... ");
+        debug_print("Oh dear... ");
         debug_print_hex(root_page.signature[0]);
         debug_print("\n");
 
