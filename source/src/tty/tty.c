@@ -111,7 +111,15 @@ tty_t * tty_init(tty_write_handler_t * write_handler, void * cookie) {
 }
 
 void tty_free(tty_t * tty) {
-    // TODO
+    tty->next->prev = tty->prev;
+    tty->prev->next = tty->next;
+
+    devfs_remove(tty->devfs_entry);
+    device_remove(tty->device);
+
+    event_free(tty->read_ready);
+
+    pman_context_unmap(tty->buffer_mapping);
 }
 
 size_t tty_provide_char(tty_t * tty, char buffer) {

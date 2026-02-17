@@ -145,6 +145,18 @@ error_number_t init(void) {
 }
 
 error_number_t free(void) {
+#ifdef COM1_ENABLE
+    interrupt_registry_free((interrupt_code_t) IC_COM1);
+
+    tty_free(com1_data.tty);
+#endif
+
+#ifdef COM2_ENABLE
+    interrupt_registry_free((interrupt_code_t) IC_COM2);
+
+    tty_free(com2_data.tty);
+#endif
+
     return ERROR_OK;
 }
 

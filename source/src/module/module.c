@@ -144,5 +144,25 @@ error_number_t module_load(const char * name) {
 }
 
 error_number_t module_unload(const char * name) {
+    module_t * found_module = NULL;
+
+    for (module_t * module = loaded_head.next; module != &loaded_tail; module = module->next) {
+        if (strcmp(module->name, name) == 0) {
+            found_module = module;
+
+            break;
+        }
+    }
+
+    if (found_module == NULL) {
+        return ERROR_MOD_NONE;
+    }
+
+    DEBUG_LOG(
+        DEBUG_PRINT("Unload module \'");
+        DEBUG_PRINT(found_module->name);
+        DEBUG_PRINT("\'");
+    );
+
     return ERROR_UNIMPLEMENTED;
 }
