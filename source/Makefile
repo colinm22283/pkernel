@@ -100,6 +100,8 @@ KN_OBJS+=$(KN_OD_64)/module/module.o
 
 KN_OBJS+=$(KN_OD_64)/interrupt/interrupt_registry.o
 
+KN_OBJS+=$(KN_OD_64)/tty/tty.o
+
 KN_OBJS+=$(KN_OD_64)/main.o
 KN_OBJS+=$(KN_OD_64)/entry_error.o
 
@@ -108,6 +110,7 @@ CONFIG_TARGETS+=$(KN_CD)/syscall.h
 CONFIG_TARGETS+=$(KN_CD)/module.h
 CONFIG_TARGETS+=$(KN_CD)/init.h
 CONFIG_TARGETS+=$(KN_CD)/pman.h
+CONFIG_TARGETS+=$(KN_CD)/tty.h
 
 OPTIMIZATION=0
 

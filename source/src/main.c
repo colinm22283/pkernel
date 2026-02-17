@@ -46,6 +46,8 @@
 
 #include <pci/pci.h>
 
+#include <tty/tty.h>
+
 #include <entry_error.h>
 
 #include <pkos/defs.h>
@@ -105,6 +107,9 @@ __NORETURN void kernel_main(void) {
 
     DEBUG_LOG(DEBUG_PRINT("Init scheduler"));
     scheduler_init();
+
+    DEBUG_LOG(DEBUG_PRINT("Init ttys"));
+    ttys_init();
 
     DEBUG_LOG(DEBUG_PRINT("Init devices"));
     if (!device_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_DEVICE_INIT_ERROR);

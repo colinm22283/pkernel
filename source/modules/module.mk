@@ -10,8 +10,8 @@ STATIC_MODULES+=x86_serial_tty
 STATIC_MODULES+=disc_pio
 STATIC_MODULES+=pkfs
 
-STATIC_MODULES+=keyboard_pio
-#STATIC_MODULES+=vga_terminal
+# STATIC_MODULES+=keyboard_pio
+# STATIC_MODULES+=vga_terminal
 
 DYNAMIC_MODULES=
 
