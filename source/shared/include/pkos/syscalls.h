@@ -224,3 +224,12 @@ static inline error_number_t alarm(size_t seconds) {
 
     return ret;
 }
+
+static inline error_number_t kill(pid_t pid) {
+    fd_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_KILL), "S" ((uint64_t) pid) : "memory", "cc");
+
+    return ret;
+}
+

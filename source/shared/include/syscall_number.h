@@ -27,7 +27,8 @@ typedef enum {
     SYSCALL_ACCEPT    = 23,
     SYSCALL_SIGNAL    = 24,
     SYSCALL_SIGNALRET = 25,
-    SYSCALL_ALARM = 26,
+    SYSCALL_ALARM     = 26,
+    SYSCALL_KILL     = 27,
 
     _SYSCALL_COUNT,
 } syscall_number_t;

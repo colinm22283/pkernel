@@ -53,4 +53,6 @@ typedef enum {
 
     ERROR_MOD_LOADED,
     ERROR_MOD_NONE,
+
+    ERROR_PROC_NOT_FOUND,
 } error_number_t;
