@@ -398,14 +398,6 @@ uint64_t write_file(device_t * device, pkfs_file_t file, const char * buffer, ui
     static filesystem_file_node_page_t file_node;
     if (!disc_read(device, file, 1, &file_node)) return 0;
 
-    debug_print("WRITE FILE\n");
-    debug_print(file_node.name);
-    debug_print("\n");
-    debug_print_hex(offset);
-    debug_print(", ");
-    debug_print_hex(size);
-    debug_print("\n");
-
     uint64_t pos = 0;
     uint64_t buffer_off = 0;
     filesystem_page_address_t data_addr = file_node.root_data_address;
@@ -414,8 +406,6 @@ uint64_t write_file(device_t * device, pkfs_file_t file, const char * buffer, ui
         if (!disc_read(device, data_addr, 1, &file_data)) return 0;
 
         if (offset - pos < FILESYSTEM_FILE_DATA_PAGE_SIZE) {
-            debug_print("WRITING\n");
-
             const uint64_t write_size = MIN(size, FILESYSTEM_FILE_DATA_PAGE_SIZE - file_data.size);
 
             memcpy(file_data.data + file_data.size, buffer + buffer_off, write_size);
@@ -430,8 +420,6 @@ uint64_t write_file(device_t * device, pkfs_file_t file, const char * buffer, ui
         }
 
         if (file_data.next_data_address == 0) {
-            debug_print("NEW PAGE\n");
-
             static filesystem_file_data_page_t new_page = {
                 .type = FILESYSTEM_PAGE_TYPE_FILE_DATA,
                 .tag = {
@@ -455,7 +443,6 @@ uint64_t write_file(device_t * device, pkfs_file_t file, const char * buffer, ui
 }
 
 bool delete_file(device_t * device, filesystem_page_address_t root_address, pkfs_file_t file) {
-    debug_print("REMOVE\n");
     filesystem_root_page_t root_page;
     if (!disc_read(device, root_address, 1, &root_page)) return 0;
 
