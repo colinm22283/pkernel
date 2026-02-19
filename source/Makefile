@@ -69,6 +69,7 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/listen.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/signal.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/signalret.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/alarm.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/kill.o
 
 KN_OBJS+=$(KN_OD_64)/filesystem/filesystem.o
 KN_OBJS+=$(KN_OD_64)/filesystem/directory_entry.o
@@ -112,7 +113,7 @@ CONFIG_TARGETS+=$(KN_CD)/init.h
 CONFIG_TARGETS+=$(KN_CD)/pman.h
 CONFIG_TARGETS+=$(KN_CD)/tty.h
 
-OPTIMIZATION=0
+OPTIMIZATION=3
 
 export AUTOGEN_HEADERS+=$(CONFIG_TARGETS)
 
