@@ -23,6 +23,7 @@ export OBJCOPY64=$(PREFIX64)-objcopy
 export NM64=$(PREFIX64)-nm
 
 export CFLAGS= \
+	-g \
 	-c \
 	-std=gnu99 \
 	-ffreestanding \
@@ -36,6 +37,7 @@ export CFLAGS= \
 	-Wno-packed-bitfield-compat \
 	-Wno-unused-parameter \
 	-Werror \
+	-mcmodel=large \
 	-D__ARCH=x86_64
 
 export CFLAGS16=-m16 $(CFLAGS)
@@ -44,7 +46,8 @@ export CFLAGS64=-m64 -mcmodel=large $(CFLAGS)
 export CXXFLAGS16=-fno-rtti $(CFLAGS16)
 export CXXFLAGS32=-fno-rtti $(CFLAGS32)
 export CXXFLAGS64=-fno-rtti $(CFLAGS64)
-export ASMFLAGS=
+export ASMFLAGS= \
+	-g
 
 export SYSTEM_MAKE_SCRIPT=$(SOURCE_DIR)/system/x86_64
 export SYSTEM_OBJ_DIR=$(OBJ_DIR)/64/system/x86_64/src

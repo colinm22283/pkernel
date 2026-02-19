@@ -1,4 +1,3 @@
-OUTPUT_FORMAT("binary");
 ENTRY(kernel_entry);
 SECTIONS {
     . = 0xC0000000;
@@ -12,8 +11,6 @@ SECTIONS {
 
     .text . : {
         *(.text*);
-
-        *(.signal_tramp);
     } > kernel_memory
     _text_end = .;
 

@@ -122,7 +122,7 @@ export AUTOGEN_HEADERS+=$(CONFIG_TARGETS)
 all: kernel modules
 
 .PHONY: kernel
-kernel: $(BIN_DIR)/kernel.bin
+kernel: $(BIN_DIR)/kernel.bin $(BIN_DIR)/kernel.sym
 
 include $(MOD_SOURCE_DIR)/module.mk
 
@@ -130,7 +130,14 @@ include $(MAKE_SCRIPTS)
 
 $(BIN_DIR)/kernel.bin: $(AUTOGEN_HEADERS) $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(SOURCE_DIR)/kernel.ld
 	mkdir -p $(@D)
-	$(LD64) $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(STATIC_MODULE_OBJS) -o $@ -Map=$@.map
+	$(LD64) --oformat binary $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(STATIC_MODULE_OBJS) -o $@ -Map=$@.map
+
+$(BIN_DIR)/kernel.sym: $(BIN_DIR)/kernel.elf
+	$(OBJCOPY64) --only-keep-debug $< $@
+
+$(BIN_DIR)/kernel.elf: $(AUTOGEN_HEADERS) $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(SOURCE_DIR)/kernel.ld
+	mkdir -p $(@D)
+	$(LD64) --oformat elf64-x86-64 -r -m elf_x86_64 $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(STATIC_MODULE_OBJS) -o $@
 
 .PHONY: modules
 modules: $(MODULE_TARGETS)

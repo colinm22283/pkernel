@@ -57,7 +57,7 @@ static inline void timer_update(timer_t * timer) {
         } break;
 
         case RUNNING: {
-            if (timer->current_ticks >= timer->interval_ticks) {
+            if (timer->interval_ticks != 0 && timer->current_ticks >= timer->interval_ticks) {
                 timer->handler(timer);
 
                 timer->current_ticks -= timer->interval_ticks;
