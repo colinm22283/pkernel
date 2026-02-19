@@ -13,7 +13,7 @@
 #endif
 #include <debug/debug_logger.h>
 
-DEFINE_DEBUG_LOGGER("module loader");
+DEFINE_KERNEL_PRINTF("module loader");
 
 module_t loaded_head, loaded_tail;
 
@@ -40,11 +40,7 @@ int64_t sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offs
 }
 
 error_number_t module_register_static(const char * module_name, const char ** deps, size_t dep_count, module_init_t * init, module_free_t * free) {
-    DEBUG_LOG(
-        DEBUG_PRINT("Register static module \'");
-        DEBUG_PRINT(module_name);
-        DEBUG_PRINT("\'");
-    );
+    kprintf("Register static module '%s'", module_name);
 
     size_t module_name_len = strlen(module_name);
 
@@ -85,11 +81,7 @@ error_number_t module_load(const char * name) {
         }
     }
 
-    DEBUG_LOG(
-        DEBUG_PRINT("Load module \'");
-        DEBUG_PRINT(name);
-        DEBUG_PRINT("\'");
-    );
+    kprintf("Load module '%s'", name);
 
     for (module_t * module = modules_head.next; module != &modules_tail; module = module->next) {
         if (strcmp(module->name, name) == 0) {
@@ -158,11 +150,7 @@ error_number_t module_unload(const char * name) {
         return ERROR_MOD_NONE;
     }
 
-    DEBUG_LOG(
-        DEBUG_PRINT("Unload module \'");
-        DEBUG_PRINT(found_module->name);
-        DEBUG_PRINT("\'");
-    );
+    kprintf("Unload module '%s'", found_module->name);
 
     return ERROR_UNIMPLEMENTED;
 }

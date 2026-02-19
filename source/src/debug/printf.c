@@ -9,9 +9,17 @@
 void printf(const char * format, ...) {
     va_list args;
 
+    va_start(args, format);
+
+    vprintf(format, args);
+
+    va_end(args);
+}
+
+void vprintf(const char * format, va_list args) {
     bool in_insert = false;
 
-    for (va_start(args, format); *format != '\0'; ++format) {
+    for (; *format != '\0'; ++format) {
         if (!in_insert) {
             if (*format == '%') {
                 in_insert = true;
@@ -26,6 +34,14 @@ void printf(const char * format, ...) {
                     int i = va_arg(args, int);
 
                     debug_print_dec(i);
+
+                    in_insert = false;
+                } break;
+
+                case 'H': {
+                    int i = va_arg(args, int);
+
+                    debug_print_hex(i);
 
                     in_insert = false;
                 } break;
@@ -46,6 +62,15 @@ void printf(const char * format, ...) {
                     in_insert = false;
                 } break;
 
+                case 'p': {
+                    const void * ptr = va_arg(args, const void *);
+
+                    debug_print("0x");
+                    debug_print_hex((intptr_t) ptr);
+
+                    in_insert = false;
+                } break;
+
                 case '%': {
                     debug_print("%");
 
@@ -60,6 +85,5 @@ void printf(const char * format, ...) {
             }
         }
     }
-
-        va_end(args);
 }
+
