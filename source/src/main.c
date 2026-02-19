@@ -1,8 +1,5 @@
 #include <stddef.h>
 
-#include <sys/halt.h>
-#include <sys/asm/sti.h>
-
 #include <memory/primary_region.h>
 
 #include <paging/init.h>
@@ -10,7 +7,6 @@
 
 #include <util/heap/heap.h>
 
-#include <interrupt/init.h>
 #include <interrupt/interrupt_registry.h>
 
 #include <process/process.h>
@@ -20,10 +16,6 @@
 
 #include <device/device.h>
 
-#include <devfs/devfs.h>
-
-#include <sysfs/sysfs.h>
-
 #include <timer/timer.h>
 
 #include <io/arbitrator.h>
@@ -31,22 +23,17 @@
 #include <filesystem/filesystem.h>
 #include <filesystem/ramfs/ramfs.h>
 
-#include <util/string/strlen.h>
-#include <util/memory/memcpy.h>
 #include <util/memory/memset.h>
-#include <util/math/max.h>
 
 #include <modules/init.h>
-
-#include <scheduler/scheduler.h>
 
 #include <module/module.h>
 
 #include <application/application_start_table.h>
 
-#include <pci/pci.h>
-
 #include <tty/tty.h>
+
+#include <debug/printf.h>
 
 #include <entry_error.h>
 
@@ -225,6 +212,8 @@ __NORETURN void kernel_main(void) {
     thread_load_pc(init_process->threads[0], PROCESS_TEXT_USER_VADDR);
 
     thread_run(init_process->threads[0]);
+
+    printf("this is a number %i and this is a string %s\n", 10, "hello");
 
     DEBUG_LOG(DEBUG_PRINT("Start init process"));
     scheduler_yield();

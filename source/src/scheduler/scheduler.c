@@ -19,7 +19,7 @@
 
 #include <sys/halt.h>
 
-#define SCHEDULER_QUANTUM (0)
+#include <config/scheduler.h>
 
 enum {
     SYSFS_PROCESS_COUNT,
