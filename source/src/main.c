@@ -30,6 +30,7 @@
 
 #include <filesystem/filesystem.h>
 #include <filesystem/ramfs/ramfs.h>
+#include <filesystem/procfs/procfs.h>
 
 #include <util/string/strlen.h>
 #include <util/memory/memcpy.h>
@@ -119,6 +120,9 @@ __NORETURN void kernel_main(void) {
 
     DEBUG_LOG(DEBUG_PRINT("Init ramfs"));
     if (!fs_ramfs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_INIT_ERROR);
+
+    DEBUG_LOG(DEBUG_PRINT("Init procfs"));
+    if (!fs_procfs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_INIT_ERROR);
 
     DEBUG_LOG(DEBUG_PRINT("Mount ramfs"));
     if (fs_mount_root("ramfs", NULL) != ERROR_OK) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_MOUNT_ERROR);
