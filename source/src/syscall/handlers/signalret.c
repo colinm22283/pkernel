@@ -6,7 +6,23 @@
 
 #include <syscall/handlers/signalret.h>
 
+#include <util/memory/memcpy.h>
+
+#include <sys/function/pop_tsr.h>
+#include <sys/debug/print.h>
+
+#include <debug/printf.h>
+
 error_number_t syscall_signalret(void) {
-    return ERROR_UNIMPLEMENTED;
+    thread_t * kern_thread = scheduler_current_thread();
+    thread_t * thread = kern_thread->twin_thread;
+    process_t * process = thread->process;
+
+    pop_tsr(process, &thread->tsr);
+
+    kern_thread->state = TS_STOPPED;
+    thread_run(thread);
+
+    scheduler_yield();
 }
 

@@ -4,6 +4,7 @@
 #include <scheduler/event.h>
 
 #include <util/heap/heap.h>
+#include <util/memory/memcpy.h>
 
 #include <config/event.h>
 
@@ -50,25 +51,6 @@ void event_invoke(event_t * event) {
     }
     else {
         event->has_signal = true;
-    }
-}
-
-void event_interrupt(event_t * event) {
-    kprintf("event_interrupt()");
-
-    while (event->waiter_head.next != &event->waiter_tail) { // TODO: loop?
-        waiter_t * waiter = event->waiter_head.next;
-        thread_t * thread = waiter->thread;
-
-        waiter_free(waiter);
-
-        thread->waiter = NULL;
-        thread->event = NULL;
-
-        heap_free(waiter);
-
-        thread_run(thread);
-        thread->state = TS_INTERRUPTED;
     }
 }
 

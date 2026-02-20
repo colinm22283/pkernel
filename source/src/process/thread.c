@@ -122,7 +122,7 @@ void thread_free(thread_t * thread) {
         thread_free(thread->twin_thread);
     }
 
-    if (thread->state == TS_WAITING) {
+    if (thread->state == TS_UNINTERRUPTABLE_WAIT) {
         waiter_free(thread->waiter);
     }
 
@@ -157,12 +157,22 @@ void thread_load_pc(thread_t * thread, void * pc) {
     tsr_load_pc(&thread->tsr, pc);
 }
 
-void thread_interrupt(thread_t * thread, void * addr, arg_t * argv, size_t argc) {
-    if (thread->twin_thread->state == TS_WAITING) {
-        event_invoke(thread->twin_thread->event);
+error_number_t thread_interrupt(thread_t * thread) {
+    if (thread->state == TS_UNINTERRUPTABLE_WAIT) return ERROR_UNINTERRUPTABLE;
+
+    if (thread->state == TS_INTERRUPTABLE_WAIT) {
+        waiter_free(thread->waiter);
+
+        thread->waiter = NULL;
+        thread->event = NULL;
+        thread->twin_thread->waiter = NULL;
+        thread->twin_thread->event = NULL;
+
+        thread->state = TS_INTERRUPTED;
+        scheduler_queue(thread);
     }
 
-    push_function(thread->process, &thread->tsr, addr, argv, argc);
+    return ERROR_OK;
 }
 
 __NORETURN void thread_resume(thread_t * thread) {
@@ -181,6 +191,8 @@ __NORETURN void thread_resume(thread_t * thread) {
             // debug_print("\n");
             //
             // debug_print("RESUME USER\n");
+
+            signal_table_resume(thread);
 
             resume_tsr_user(&thread->tsr, thread->process->paging_context);
         } break;

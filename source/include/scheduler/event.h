@@ -19,5 +19,6 @@ event_t * event_init(void);
 void event_free(event_t * event);
 
 void event_invoke(event_t * event);
+void event_interrupt(event_t * event);
 
 void waiter_free(waiter_t * waiter);

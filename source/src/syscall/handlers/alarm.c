@@ -11,7 +11,7 @@
 void alarm_timer_handler(timer_t * timer) {
     process_t * process = timer->cookie;
 
-    signal_table_invoke(process, SIG_ALARM, process->threads[0]);
+    signal_table_invoke(process, SIG_ALARM);
 
     timer_free(timer);
 }

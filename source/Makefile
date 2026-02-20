@@ -87,6 +87,7 @@ KN_OBJS+=$(KN_OD_64)/timer/timer.o
 KN_OBJS+=$(KN_OD_64)/process/process.o
 KN_OBJS+=$(KN_OD_64)/process/thread.o
 KN_OBJS+=$(KN_OD_64)/process/file_table.o
+KN_OBJS+=$(KN_OD_64)/process/trampoline.o
 
 KN_OBJS+=$(KN_OD_64)/scheduler/scheduler.o
 KN_OBJS+=$(KN_OD_64)/scheduler/core.o
@@ -117,6 +118,7 @@ CONFIG_TARGETS+=$(KN_CD)/tty.h
 CONFIG_TARGETS+=$(KN_CD)/scheduler.h
 CONFIG_TARGETS+=$(KN_CD)/event.h
 CONFIG_TARGETS+=$(KN_CD)/thread.h
+CONFIG_TARGETS+=$(KN_CD)/signal.h
 
 OPTIMIZATION=3
 

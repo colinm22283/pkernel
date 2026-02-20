@@ -47,6 +47,8 @@ typedef enum {
     ERROR_EXISTS,
 
     ERROR_NO_SIG,
+    ERROR_SIG_FULL,
+    ERROR_SIG_EMPTY,
 
     ERROR_PORT_UNAVAIL,
     ERROR_INT_UNAVAIL,
@@ -57,4 +59,5 @@ typedef enum {
     ERROR_PROC_NOT_FOUND,
 
     ERROR_INTERRUPTED,
+    ERROR_UNINTERRUPTABLE,
 } error_number_t;

@@ -1,4 +1,5 @@
 #include <process/process.h>
+#include <process/trampoline.h>
 
 #include <util/heap/heap.h>
 
@@ -8,6 +9,7 @@
 
 #include <scheduler/scheduler.h>
 #include <sys/paging/page_size.h>
+#include <sys/process/trampoline.h>
 
 pid_t current_pid = 0;
 
@@ -18,6 +20,9 @@ void processes_init(void) {
     process_head.global_prev = NULL;
     process_tail.global_next = NULL;
     process_tail.global_prev = &process_head;
+
+    kernel_trampoline_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, process_trampoline_size);
+    memcpy(kernel_trampoline_mapping->vaddr, process_trampoline, process_trampoline_size);
 }
 
 process_t * process_create(void) {
@@ -79,7 +84,19 @@ process_t * process_create_fork(process_t * parent) {
         pman_mapping_t * mapping = mappings[i];
 
         if (mapping->protection & PMAN_PROT_SHARED) {
-            debug_print("oh dear\n");
+            switch (mapping->type) {
+                case PMAN_MAPPING_BORROWED: {
+                    debug_print("oh dear\n");
+                } break;
+
+                case PMAN_MAPPING_SHARED: {
+                    pman_mapping_t * root_mapping = get_root_mapping(mapping);
+
+                    pman_context_add_shared(process->paging_context, mapping->protection, root_mapping, mapping->vaddr);
+                } break;
+
+                default: break;
+            }
         }
         else {
             void * vaddr = mapping->vaddr;
@@ -120,7 +137,7 @@ void process_free(process_t * process) {
     process_t * parent = process_lookup(process->parent_id);
 
     if (parent != NULL) {
-        signal_table_invoke(parent, SIG_CHILD, NULL);
+        signal_table_invoke(parent, SIG_CHILD);
 
         event_invoke(parent->child_finished);
     }

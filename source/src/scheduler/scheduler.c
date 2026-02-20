@@ -88,7 +88,7 @@ error_number_t scheduler_await(event_t * event) {
         scheduler_core_t * current_core = scheduler_current_core();
         thread_t * thread = current_core->current_thread;
 
-        thread->state = TS_WAITING;
+        thread->state = TS_UNINTERRUPTABLE_WAIT;
 
         waiter_t * waiter = heap_alloc_debug(sizeof(waiter_t), "waiter");
 
@@ -107,11 +107,40 @@ error_number_t scheduler_await(event_t * event) {
 
         store_tsr_and_yield(&thread->tsr);
 
-        if (thread->state == TS_INTERRUPTED) {
-            thread->state = TS_RUNNING;
+        return ERROR_OK;
+    }
+    else {
+        event->has_signal = false;
 
-            return ERROR_INTERRUPTED;
-        }
+        return ERROR_OK;
+    }
+}
+
+error_number_t scheduler_await_interruptable(event_t * event) {
+    if (!event->has_signal) {
+        scheduler_core_t * current_core = scheduler_current_core();
+        thread_t * thread = current_core->current_thread;
+
+        thread->state = TS_INTERRUPTABLE_WAIT;
+
+        waiter_t * waiter = heap_alloc_debug(sizeof(waiter_t), "waiter");
+
+        waiter->thread = thread;
+
+        waiter->next = &event->waiter_tail;
+        waiter->prev = event->waiter_tail.prev;
+        event->waiter_tail.prev->next = waiter;
+        event->waiter_tail.prev = waiter;
+
+        thread->next->prev = thread->prev;
+        thread->prev->next = thread->next;
+
+        thread->waiter = waiter;
+        thread->event = event;
+
+        store_tsr_and_yield(&thread->tsr);
+
+        if (thread->state == TS_INTERRUPTED) return ERROR_INTERRUPTED;
         else return ERROR_OK;
     }
     else {
@@ -225,7 +254,7 @@ __NORETURN void scheduler_yield(void) {
                         thread_resume(thread);
                     } break;
 
-                    case TS_WAITING: case TS_STOPPED: break;
+                    case TS_WAITING: case TS_INTERRUPTABLE_WAIT: case TS_UNINTERRUPTABLE_WAIT: case TS_STOPPED: break;
 
                     case TS_DEAD: {
                         thread_free(thread);

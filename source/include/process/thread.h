@@ -20,8 +20,10 @@ typedef enum {
     TS_RUNNING,
     TS_STOPPED,
     TS_WAITING,
+    TS_UNINTERRUPTABLE_WAIT,
+    TS_INTERRUPTABLE_WAIT,
     TS_INTERRUPTED,
-    TS_DEAD
+    TS_DEAD,
 } thread_state_t;
 
 typedef enum {
@@ -59,10 +61,10 @@ thread_t * thread_create_kernel(void);
 
 void thread_free(thread_t * thread);
 
-void thread_interrupt(thread_t * thread, void * addr, arg_t * argv, size_t argc);
-
 void thread_run(thread_t * thread);
 void thread_kill(thread_t * thread);
 void thread_load_pc(thread_t * thread, void * pc);
+
+error_number_t thread_interrupt(thread_t * thread);
 
 __NORETURN void thread_resume(thread_t * thread);

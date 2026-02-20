@@ -25,19 +25,19 @@ static inline void push_main_args(process_t * process, task_state_record_t * tsr
 }
 
 static inline void push_args(process_t * process, task_state_record_t * tsr, arg_t * argv, size_t argc) {
-    if (argc <= 1) {
+    if (argc >= 1) {
         tsr->rdi = argv[0];
     }
-    if (argc <= 2) {
+    if (argc >= 2) {
         tsr->rsi = argv[1];
     }
-    if (argc <= 3) {
+    if (argc >= 3) {
         tsr->rdx = argv[2];
     }
-    if (argc <= 4) {
+    if (argc >= 4) {
         tsr->rcx = argv[3];
     }
-    if (argc <= 5) {
+    if (argc >= 5) {
         tsr->r8 = argv[4];
     }
 }

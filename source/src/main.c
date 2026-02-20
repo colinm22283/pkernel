@@ -9,6 +9,7 @@
 
 #include <interrupt/interrupt_registry.h>
 
+#include <process/trampoline.h>
 #include <process/process.h>
 #include <process/user_vaddrs.h>
 
@@ -41,6 +42,7 @@
 
 #include <sys/setup.h>
 #include <sys/interrupt/interrupt_code.h>
+#include <sys/process/trampoline.h>
 
 #include <sys/panic.h>
 
@@ -206,6 +208,10 @@ __NORETURN void kernel_main(void) {
 
         memset(process_bss, 0, start_table.bss_size);
     }
+
+    kprintf("Mapping signal trampoline", process_trampoline_size);
+
+    pman_context_add_shared(init_process->paging_context, PMAN_PROT_EXECUTE | PMAN_PROT_SHARED, kernel_trampoline_mapping, PROCESS_TRAMPOLINE_USER_VADDR);
 
     process_add_thread(init_process, thread_create_user(init_process->paging_context, init_process));
 

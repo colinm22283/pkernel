@@ -631,9 +631,15 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         debug_print_hex(tsr->rip);
         debug_print("\n");
 
+        if (error_code->present) debug_print("Reason: PROTECTION VIOLATION\n");
+        else debug_print("Reason: NOT PRESENT\n");
+        if (error_code->write) debug_print("WRITE\n");
+        if (error_code->instruction_fetch) debug_print("INSTRUCTION FETCH\n");
+        if (error_code->user) debug_print("USER\n");
+
         thread_t * current_thread = scheduler_current_thread();
 
-        signal_table_invoke(current_process, SIG_PAGE, current_thread);
+        signal_table_invoke(current_process, SIG_PAGE);
 
         thread_resume(current_thread);
 

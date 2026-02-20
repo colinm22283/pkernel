@@ -1,6 +1,7 @@
 #pragma once
 
 #include <process/process.h>
+#include <process/user_vaddrs.h>
 
 #include <sys/function/push_args.h>
 
@@ -10,8 +11,8 @@ static inline void push_function(process_t * process, task_state_record_t * tsr,
         (void *) tsr->rsp
     );
     kern_rsp--;
-    kern_rsp[0] = tsr->rip;
-    tsr->rsp -= sizeof(uint64_t);
+    kern_rsp[0] = (intptr_t) PROCESS_TRAMPOLINE_USER_VADDR;
+    tsr->rsp -= 1 * sizeof(intptr_t);
 
     push_args(process, tsr, argv, argc);
 
