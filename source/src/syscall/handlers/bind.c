@@ -4,7 +4,7 @@
 
 #include <process/process.h>
 
-#include <syscall/handlers/connect.h>
+#include <syscall/handlers/bind.h>
 
 error_number_t syscall_bind(fd_t sock_fd, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
     process_t * current_process = scheduler_current_process();

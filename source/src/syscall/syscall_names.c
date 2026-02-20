@@ -29,4 +29,5 @@ const char * syscall_names[_SYSCALL_COUNT] = {
     "SYSCALL_SIGNALRET",
     "SYSCALL_ALARM",
     "SYSCALL_KILL",
+    "SYSCALL_THREAD",
 };

@@ -233,3 +233,10 @@ static inline error_number_t kill(pid_t pid) {
     return ret;
 }
 
+static inline error_number_t thread(__NORETURN void (* handler)(void)) {
+    fd_t ret;
+
+    asm volatile ("int $0x30" : "=a" (ret) : "a" (SYSCALL_THREAD), "S" ((uint64_t) handler) : "memory", "cc");
+
+    return ret;
+}

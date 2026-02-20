@@ -70,6 +70,7 @@ KN_OBJS+=$(KN_OD_64)/syscall/handlers/signal.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/signalret.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/alarm.o
 KN_OBJS+=$(KN_OD_64)/syscall/handlers/kill.o
+KN_OBJS+=$(KN_OD_64)/syscall/handlers/thread.o
 
 KN_OBJS+=$(KN_OD_64)/filesystem/filesystem.o
 KN_OBJS+=$(KN_OD_64)/filesystem/directory_entry.o

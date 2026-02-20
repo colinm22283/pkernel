@@ -32,6 +32,7 @@
 #include <syscall/handlers/signalret.h>
 #include <syscall/handlers/alarm.h>
 #include <syscall/handlers/kill.h>
+#include <syscall/handlers/thread.h>
 
 #include <sys/debug/print.h>
 
@@ -132,6 +133,8 @@ uint64_t syscall_handler(
         case SYSCALL_ALARM: return syscall_alarm((size_t) arg0);
 
         case SYSCALL_KILL: return syscall_kill((size_t) arg0);
+
+        case SYSCALL_THREAD: return syscall_thread((void *) arg0);
 
         default: return ERROR_BAD_SYSCALL;
     }

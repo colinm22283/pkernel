@@ -52,6 +52,7 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
     tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * PAGE_SIZE);
 
     thread->waiter = NULL;
+    thread->event = NULL;
 
     thread->next = NULL;
     thread->prev = NULL;
