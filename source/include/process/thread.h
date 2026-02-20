@@ -20,6 +20,7 @@ typedef enum {
     TS_RUNNING,
     TS_STOPPED,
     TS_WAITING,
+    TS_INTERRUPTED,
     TS_DEAD
 } thread_state_t;
 
@@ -45,6 +46,9 @@ typedef struct thread_s {
 
     struct thread_s * twin_thread;
 
+    struct waiter_s * waiter;
+    struct event_s * event;
+
     struct thread_s * next;
     struct thread_s * prev;
 } thread_t;
@@ -55,9 +59,10 @@ thread_t * thread_create_kernel(void);
 
 void thread_free(thread_t * thread);
 
-void thread_push_function(thread_t * thread, void * addr, arg_t * argv, size_t argc);
+void thread_interrupt(thread_t * thread, void * addr, arg_t * argv, size_t argc);
 
 void thread_run(thread_t * thread);
+void thread_kill(thread_t * thread);
 void thread_load_pc(thread_t * thread, void * pc);
 
 __NORETURN void thread_resume(thread_t * thread);

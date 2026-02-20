@@ -83,25 +83,41 @@ void scheduler_queue(thread_t * thread) {
     }
 }
 
-void scheduler_await(event_t * event) {
+error_number_t scheduler_await(event_t * event) {
     if (!event->has_signal) {
         scheduler_core_t * current_core = scheduler_current_core();
+        thread_t * thread = current_core->current_thread;
 
-        current_core->current_thread->state = TS_WAITING;
+        thread->state = TS_WAITING;
 
         waiter_t * waiter = heap_alloc_debug(sizeof(waiter_t), "waiter");
 
-        waiter->thread = current_core->current_thread;
+        waiter->thread = thread;
 
         waiter->next = &event->waiter_tail;
         waiter->prev = event->waiter_tail.prev;
         event->waiter_tail.prev->next = waiter;
         event->waiter_tail.prev = waiter;
 
-        store_tsr_and_yield(&current_core->current_thread->tsr);
+        thread->next->prev = thread->prev;
+        thread->prev->next = thread->next;
+
+        thread->waiter = waiter;
+        thread->event = event;
+
+        store_tsr_and_yield(&thread->tsr);
+
+        if (thread->state == TS_INTERRUPTED) {
+            thread->state = TS_RUNNING;
+
+            return ERROR_INTERRUPTED;
+        }
+        else return ERROR_OK;
     }
     else {
         event->has_signal = false;
+
+        return ERROR_OK;
     }
 }
 
@@ -203,7 +219,7 @@ __NORETURN void scheduler_yield(void) {
                 thread->next->prev = thread->prev;
 
                 switch (thread->state) {
-                    case TS_RUNNING: {
+                    case TS_RUNNING: case TS_INTERRUPTED: {
                         current_core->current_thread = thread;
 
                         thread_resume(thread);

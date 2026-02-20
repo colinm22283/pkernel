@@ -257,7 +257,7 @@ void process_set_working_dir(process_t * process, fs_directory_entry_t * dirent)
 void process_kill(process_t * process) {
     for (size_t i = 0; i < process->thread_count; i++) {
         process->threads[i]->process = NULL;
-        process->threads[i]->state = TS_DEAD;
+        thread_kill(process->threads[i]);
     }
 
     process_free(process);

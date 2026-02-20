@@ -603,6 +603,16 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         debug_print_hex((uint64_t) fault_vaddr);
         debug_print("\n");
 
+        debug_print("ip: ");
+        debug_print_hex(tsr->rip);
+        debug_print("\n");
+
+        if (error_code->present) debug_print("Reason: PROTECTION VIOLATION\n");
+        else debug_print("Reason: NOT PRESENT\n");
+        if (error_code->write) debug_print("WRITE\n");
+        if (error_code->instruction_fetch) debug_print("INSTRUCTION FETCH\n");
+        if (error_code->user) debug_print("USER\n");
+
         halt();
     }
 
@@ -612,12 +622,6 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         // fs_file_t * out_file = file_table_get(&current_process->file_table, stdout);
 
         // if (out_file != NULL) file_write(out_file, "PAGE FAULT: Bad address\n", 24);
-
-        if (error_code->present) debug_print("Reason: PROTECTION VIOLATION\n");
-        else debug_print("Reason: NOT PRESENT\n");
-        if (error_code->write) debug_print("WRITE\n");
-        if (error_code->instruction_fetch) debug_print("INSTRUCTION FETCH\n");
-        if (error_code->user) debug_print("USER\n");
 
         debug_print("Fault VAddr: ");
         debug_print_hex((uint64_t) fault_vaddr);

@@ -9,7 +9,7 @@ typedef struct waiter_s {
     struct waiter_s * prev;
 } waiter_t;
 
-typedef struct {
+typedef struct event_s {
     bool has_signal;
 
     waiter_t waiter_head, waiter_tail;
@@ -19,3 +19,5 @@ event_t * event_init(void);
 void event_free(event_t * event);
 
 void event_invoke(event_t * event);
+
+void waiter_free(waiter_t * waiter);

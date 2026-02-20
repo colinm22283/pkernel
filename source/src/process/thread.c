@@ -19,8 +19,19 @@
 
 #include <sys/panic.h>
 
+#include <config/thread.h>
+
+#ifdef THREAD_DEBUG
+#define DEBUG_LOGGER_ENABLED
+#endif
+#include <debug/debug_logger.h>
+
+DEFINE_KERNEL_PRINTF("thread");
+
 thread_t * thread_create_user(pman_context_t * user_context, process_t * parent) {
     thread_t * thread = heap_alloc_debug(sizeof(thread_t), "thread user");
+
+    kprintf("thread_create_user()");
 
     thread->process = parent;
 
@@ -40,6 +51,8 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
 
     tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * PAGE_SIZE);
 
+    thread->waiter = NULL;
+
     thread->next = NULL;
     thread->prev = NULL;
 
@@ -48,6 +61,8 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
 
 thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent, thread_t * target) {
     thread_t * thread = heap_alloc_debug(sizeof(thread_t), "thread fork");
+
+    kprintf("thread_create_fork()");
 
     thread->process = parent;
 
@@ -63,6 +78,8 @@ thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent,
 
     memcpy(&thread->tsr, &target->tsr, sizeof(task_state_record_t));
 
+    thread->waiter = NULL;
+
     thread->next = NULL;
     thread->prev = NULL;
 
@@ -71,6 +88,8 @@ thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent,
 
 thread_t * thread_create_kernel(void) {
     thread_t * thread = heap_alloc_debug(sizeof(thread_t), "thread kernel");
+
+    kprintf("thread_create_kernel()");
 
     thread->process = NULL;
 
@@ -86,6 +105,8 @@ thread_t * thread_create_kernel(void) {
 
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
 
+    thread->waiter = NULL;
+
     thread->next = NULL;
     thread->prev = NULL;
 
@@ -93,30 +114,54 @@ thread_t * thread_create_kernel(void) {
 }
 
 void thread_free(thread_t * thread) {
+    kprintf("thread_free()");
+
     if (thread->twin_thread != NULL) {
         thread->twin_thread->twin_thread = NULL;
 
         thread_free(thread->twin_thread);
     }
 
+    if (thread->state == TS_WAITING) {
+        waiter_free(thread->waiter);
+    }
+
     if (thread->level == TL_KERNEL) {
         pman_context_unmap(thread->stack_mapping);
     }
+
+    heap_overview();
 
     heap_free(thread);
 }
 
 void thread_run(thread_t * thread) {
-    thread->state = TS_RUNNING;
+    // if (thread->twin_thread != NULL) thread->twin_thread->state = TS_STOPPED;
 
-    scheduler_queue(thread);
+    if (thread->state != TS_RUNNING) {
+        thread->state = TS_RUNNING;
+
+        scheduler_queue(thread);
+    }
+}
+
+void thread_kill(thread_t * thread) {
+    if (thread->state != TS_RUNNING) {
+        scheduler_queue(thread);
+    }
+
+    thread->state = TS_DEAD;
 }
 
 void thread_load_pc(thread_t * thread, void * pc) {
     tsr_load_pc(&thread->tsr, pc);
 }
 
-void thread_push_function(thread_t * thread, void * addr, arg_t * argv, size_t argc) {
+void thread_interrupt(thread_t * thread, void * addr, arg_t * argv, size_t argc) {
+    if (thread->twin_thread->state == TS_WAITING) {
+        event_invoke(thread->twin_thread->event);
+    }
+
     push_function(thread->process, &thread->tsr, addr, argv, argc);
 }
 

@@ -15,9 +15,7 @@ void signal_table_init(signal_table_t * st) {
     }
 }
 
-void signal_table_free(signal_table_t * st) {
-
-}
+void signal_table_free(signal_table_t * st) { }
 
 error_number_t signal_table_invoke(process_t * process, signal_number_t sig, thread_t * handling_thread) {
     if (sig >= _SIG_COUNT) return ERROR_NO_SIG;
@@ -48,7 +46,7 @@ error_number_t signal_table_invoke(process_t * process, signal_number_t sig, thr
     else {
         arg_t args[1] = { sig };
 
-        thread_push_function(handling_thread, signal->user_handler, args, 1);
+        thread_interrupt(handling_thread, signal->user_handler, args, 1);
         thread_run(handling_thread);
     }
 

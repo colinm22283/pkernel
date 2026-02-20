@@ -13,7 +13,7 @@ void alarm_timer_handler(timer_t * timer) {
 
     signal_table_invoke(process, SIG_ALARM, process->threads[0]);
 
-    // timer_free(timer);
+    timer_free(timer);
 }
 
 error_number_t syscall_alarm(size_t seconds) {
