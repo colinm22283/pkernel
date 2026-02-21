@@ -32,7 +32,11 @@
 
 #include <application/application_start_table.h>
 
+#include <prog_loader/prog_loader.h>
+
 #include <tty/tty.h>
+
+#include <elf/elf.h>
 
 #include <debug/printf.h>
 
@@ -59,6 +63,16 @@ DEFINE_KERNEL_PRINTF("init");
 
 void gpf() {
     panic0("GPF ENCOUNTERED");
+}
+
+size_t read_dirent(void * cookie, char * buf, size_t size, size_t offset) {
+    fs_directory_entry_t * dirent = cookie;
+
+    fs_size_t read_bytes;
+
+    dirent->superblock->superblock_ops->read(dirent, buf, size, offset, &read_bytes);
+
+    return read_bytes;
 }
 
 __NORETURN void kernel_main(void) {
@@ -99,6 +113,9 @@ __NORETURN void kernel_main(void) {
 
     kprintf("Init ttys");
     ttys_init();
+
+    kprintf("Init ELF loader");
+    elf_init(heap_alloc, heap_free);
 
     kprintf("Init devices");
     if (!device_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_DEVICE_INIT_ERROR);
@@ -159,63 +176,18 @@ __NORETURN void kernel_main(void) {
     fs_directory_entry_release(dev_dirent);
 
     kprintf("Load init process");
-    fs_directory_entry_t * test_file_dirent = fs_open_path(&fs_root, "bin/init");
-
-    uint64_t read_bytes;
-
-    application_start_table_t start_table;
-    test_file_dirent->superblock->superblock_ops->read(test_file_dirent, (char *) &start_table, sizeof(application_start_table_t), 0, &read_bytes);
 
     process_t * init_process = process_create();
-
-    if (start_table.text_size > 0) {
-        void * process_text = process_create_segment(init_process, PROCESS_TEXT_USER_VADDR, start_table.text_size, PMAN_PROT_EXECUTE);
-        test_file_dirent->superblock->superblock_ops->read(
-            test_file_dirent,
-            process_text,
-            start_table.text_size,
-            sizeof(application_start_table_t),
-            &read_bytes
-        );
-    }
-
-    if (start_table.data_size > 0) {
-        void * process_data = process_create_segment(init_process, PROCESS_DATA_USER_VADDR, start_table.data_size, PMAN_PROT_WRITE);
-
-        test_file_dirent->superblock->superblock_ops->read(
-            test_file_dirent,
-            process_data,
-            start_table.data_size,
-            sizeof(application_start_table_t) + start_table.text_size,
-            &read_bytes
-        );
-    }
-
-    if (start_table.rodata_size > 0) {
-        void * process_rodata = process_create_segment(init_process, PROCESS_RODATA_USER_VADDR, start_table.rodata_size, 0);
-
-        test_file_dirent->superblock->superblock_ops->read(
-            test_file_dirent,
-            process_rodata,
-            start_table.rodata_size,
-            sizeof(application_start_table_t) + start_table.text_size + start_table.data_size,
-            &read_bytes
-        );
-    }
-
-    if (start_table.bss_size > 0) {
-        void * process_bss = process_create_segment(init_process, PROCESS_BSS_USER_VADDR, start_table.bss_size, PMAN_PROT_WRITE);
-
-        memset(process_bss, 0, start_table.bss_size);
-    }
-
-    kprintf("Mapping signal trampoline", process_trampoline_size);
 
     pman_context_add_shared(init_process->paging_context, PMAN_PROT_EXECUTE | PMAN_PROT_SHARED, kernel_trampoline_mapping, PROCESS_TRAMPOLINE_USER_VADDR);
 
     process_add_thread(init_process, thread_create_user(init_process->paging_context, init_process));
 
-    thread_load_pc(init_process->threads[0], PROCESS_TEXT_USER_VADDR);
+    fs_directory_entry_t * elf_dirent = fs_open_path(&fs_root, "bin/init");
+
+    load_program(init_process, elf_dirent);
+
+    fs_directory_entry_release(elf_dirent);
 
     thread_run(init_process->threads[0]);
 

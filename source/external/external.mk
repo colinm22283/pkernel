@@ -1,0 +1,8 @@
+EXT_INCLUDES=
+EXT_OBJS=
+
+EXT_OBJ_DIR=$(OBJ_DIR)/64/external/pkelf
+EXT_DIR=$(EXT_SOURCE_DIR)/pkelf
+include $(EXT_DIR)/external.mk
+
+INCLUDE_DIRS+=$(EXT_INCLUDES)

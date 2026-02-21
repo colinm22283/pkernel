@@ -105,6 +105,8 @@ KN_OBJS+=$(KN_OD_64)/interrupt/interrupt_registry.o
 
 KN_OBJS+=$(KN_OD_64)/tty/tty.o
 
+KN_OBJS+=$(KN_OD_64)/prog_loader/prog_loader.o
+
 KN_OBJS+=$(KN_OD_64)/debug/printf.o
 
 KN_OBJS+=$(KN_OD_64)/main.o
@@ -133,19 +135,20 @@ all: kernel modules
 kernel: $(BIN_DIR)/kernel.bin $(BIN_DIR)/kernel.sym
 
 include $(MOD_SOURCE_DIR)/module.mk
+include $(EXT_SOURCE_DIR)/external.mk
 
 include $(MAKE_SCRIPTS)
 
-$(BIN_DIR)/kernel.bin: $(AUTOGEN_HEADERS) $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(SOURCE_DIR)/kernel.ld
+$(BIN_DIR)/kernel.bin: $(AUTOGEN_HEADERS) $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(EXT_OBJS) $(SOURCE_DIR)/kernel.ld
 	mkdir -p $(@D)
-	$(LD64) --oformat binary $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(STATIC_MODULE_OBJS) -o $@ -Map=$@.map
+	$(LD64) --oformat binary $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(EXT_OBJS) $(STATIC_MODULE_OBJS) -o $@ -Map=$@.map
 
 $(BIN_DIR)/kernel.sym: $(BIN_DIR)/kernel.elf
 	$(OBJCOPY64) --only-keep-debug $< $@
 
-$(BIN_DIR)/kernel.elf: $(AUTOGEN_HEADERS) $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(SOURCE_DIR)/kernel.ld
+$(BIN_DIR)/kernel.elf: $(AUTOGEN_HEADERS) $(STATIC_MODULE_OBJS) $(STATIC_MODULE_HDRS) $(KN_OBJS) $(EXT_OBJS) $(SOURCE_DIR)/kernel.ld
 	mkdir -p $(@D)
-	$(LD64) --oformat elf64-x86-64 -r -m elf_x86_64 $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(STATIC_MODULE_OBJS) -o $@
+	$(LD64) --oformat elf64-x86-64 -r -m elf_x86_64 $(LDFLAGS) -T$(SOURCE_DIR)/kernel.ld $(KN_OBJS) $(EXT_OBJS) $(STATIC_MODULE_OBJS) -o $@
 
 .PHONY: modules
 modules: $(MODULE_TARGETS)

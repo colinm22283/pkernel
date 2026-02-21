@@ -1,0 +1,3 @@
+[submodule "external/pkelf"]
+	path = source/external/pkelf
+	url = git@pksrv:/srv/git/pkelf.git

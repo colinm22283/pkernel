@@ -62,4 +62,6 @@ typedef enum {
     ERROR_UNINTERRUPTABLE,
 
     ERROR_OTHER,
+
+    ERROR_BAD_ELF,
 } error_number_t;
