@@ -122,6 +122,7 @@ CONFIG_TARGETS+=$(KN_CD)/scheduler.h
 CONFIG_TARGETS+=$(KN_CD)/event.h
 CONFIG_TARGETS+=$(KN_CD)/thread.h
 CONFIG_TARGETS+=$(KN_CD)/signal.h
+CONFIG_TARGETS+=$(KN_CD)/prog_loader.h
 
 OPTIMIZATION=3
 

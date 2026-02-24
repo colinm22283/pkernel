@@ -2,7 +2,14 @@
 
 #include <elf/elf.h>
 
-#include <debug/printf.h>
+#include <config/prog_loader.h>
+
+#ifdef PROG_LOADER_DEBUG
+    #define DEBUG_LOGGER_ENABLED
+#endif
+#include <debug/debug_logger.h>
+
+DEFINE_KERNEL_PRINTF("prog loader");
 
 size_t prog_read_handler(void * cookie, char * buffer, size_t size, size_t offset) {
     fs_directory_entry_t * dirent = cookie;
@@ -32,34 +39,56 @@ error_number_t load_program(process_t * process, fs_directory_entry_t * dirent) 
         return ERROR_BAD_ELF;
     }
 
+    kprintf("Loading ELF headers");
+
     for (size_t i = 0; i < elf.pheader_count; i++) {
         elf_pheader_t * header = &elf.pheaders[i];
 
         if (header->type == ELF_PH_TYPE_LOAD) {
+            kprintf("  ELF_PH_TYPE_LOAD: vaddr = %p, memsz = %i", (void *) header->vaddr, header->memsz);
+
             pman_mapping_t * mapping = pman_context_get_vaddr(process->paging_context, (void *) header->vaddr);
 
             void * process_mapping = NULL;
 
             if (mapping == NULL) {
                 if (header->memsz != 0) {
+                    kprintf("    Mapping as new segment");
+
                     pman_protection_flags_t prot = 0;
 
                     if (header->flags & ELF_PH_FLAGS_W) prot |= PMAN_PROT_WRITE;
                     if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_PROT_EXECUTE;
 
+                    kprintf("    Mapping new kernel segment");
                     pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, header->memsz);
+
+                    if (kernel_mapping == NULL) {
+                        return ERROR_BAD_MAP;
+                    }
+
+                    kprintf("    Mapping new user segment");
                     mapping = pman_context_add_shared(process->paging_context, prot, kernel_mapping, (void *) header->vaddr);
+
+                    if (mapping == NULL) {
+                        return ERROR_BAD_MAP;
+                    }
+
                     process_mapping = kernel_mapping->vaddr;
                     pman_context_unmap(kernel_mapping);
                 }
             }
             else {
                 if (header->memsz == 0) {
+                    kprintf("    Unmapping old segment");
+
                     pman_context_unmap(mapping);
 
                     process_mapping = NULL;
                 }
                 else {
+                    kprintf("    Remapping old segment");
+
                     mapping = pman_context_resize(mapping, header->memsz);
 
                     process_mapping = get_root_mapping(mapping)->vaddr;
