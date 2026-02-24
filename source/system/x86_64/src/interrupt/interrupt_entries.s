@@ -31,6 +31,7 @@
 .macro EXCEPTION_WITH_CODE_INTERRUPT name, handler
 .global \name
 \name:
+    hlt
     push 24(%rsp)
     push 16(%rsp)
     push %r15

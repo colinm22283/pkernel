@@ -64,4 +64,5 @@ typedef enum {
     ERROR_OTHER,
 
     ERROR_BAD_ELF,
+    ERROR_BAD_MAP,
 } error_number_t;

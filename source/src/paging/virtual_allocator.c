@@ -9,7 +9,7 @@
 #include <entry_error.h>
 
 #define VALLOC_REGION_SIZE (0x1000000000000)
-#define VALLOC_PAGE_SIZE   (0x1000)
+#define VALLOC_PAGE_SIZE   (PAGE_SIZE)
 
 void valloc_init(valloc_t * valloc) {
     valloc_node_t * node = heap_alloc_debug(sizeof(valloc_node_t), "valloc_node_t");

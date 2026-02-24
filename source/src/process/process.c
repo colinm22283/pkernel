@@ -7,6 +7,8 @@
 
 #include <sys/function/push_args.h>
 
+#include <debug/printf.h>
+
 #include <scheduler/scheduler.h>
 #include <sys/paging/page_size.h>
 #include <sys/process/trampoline.h>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <paging/translation_map.h>
+
 #define PAGING_TEMP_PT_VADDR                  ((void *) 0xD0000000)
 
 #define PAGING_BITMAP_VADDR           ((uint64_t *) 0x008000000000)

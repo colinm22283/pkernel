@@ -150,29 +150,29 @@ void paging_init() {
 }
 
 bool paging_init_stage2(void) {
-    paging_mapping_t mapping;
+    // paging_mapping_t mapping;
 
-    if (!paging_map_ex(
-        &paging_kernel_pml4t,
-        &mapping,
-        primary_region_start + ((uint64_t) MODULES_TEXT - (uint64_t) KERNEL_START),
-        MODULES_TEXT,
-        DIV_UP(MODULES_TEXT_SIZE, PAGE_SIZE),
-        false,
-        false,
-        true
-    )) return false;
-
-    if (!paging_map_ex(
-        &paging_kernel_pml4t,
-        &mapping,
-        primary_region_start + ((uint64_t) MODULES_DATA - (uint64_t) KERNEL_START),
-        MODULES_DATA,
-        DIV_UP(MODULES_DATA_SIZE, PAGE_SIZE),
-        false,
-        false,
-        true
-    )) return false;
+    // if (!paging_map_ex(
+    //     pman_kernel_context()->top_level_table,
+    //     &mapping,
+    //     primary_region_start + ((uint64_t) MODULES_TEXT - (uint64_t) KERNEL_START),
+    //     MODULES_TEXT,
+    //     DIV_UP(MODULES_TEXT_SIZE, PAGE_SIZE),
+    //     false,
+    //     false,
+    //     true
+    // )) return false;
+    //
+    // if (!paging_map_ex(
+    //     pman_kernel_context()->top_level_table,
+    //     &mapping,
+    //     primary_region_start + ((uint64_t) MODULES_DATA - (uint64_t) KERNEL_START),
+    //     MODULES_DATA,
+    //     DIV_UP(MODULES_DATA_SIZE, PAGE_SIZE),
+    //     false,
+    //     false,
+    //     true
+    // )) return false;
 
     return true;
 }
