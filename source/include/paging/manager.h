@@ -20,9 +20,10 @@ typedef error_number_t (* pman_mapping_write_handler_t)(uint64_t address_offset)
 typedef error_number_t (* pman_mapping_read_handler_t)(uint64_t address_offset);
 
 typedef enum {
-    PMAN_PROT_WRITE   = 0b00001,
-    PMAN_PROT_EXECUTE = 0b00010,
-    PMAN_PROT_SHARED  = 0b00100,
+    PMAN_PROT_WRITE    = 0b00001,
+    PMAN_PROT_EXECUTE  = 0b00010,
+    PMAN_PROT_SHARED   = 0b00100,
+    PMAN_PROT_VRESERVE = 0b01000,
 } pman_protection_flags_t;
 
 typedef enum {
@@ -115,7 +116,6 @@ static inline void pman_add_reference(pman_mapping_t * mapping) {
 void pman_init(void);
 
 pman_context_t * pman_new_context(void);
-pman_context_t * pman_new_kernel_context(void);
 error_number_t pman_free_context(pman_context_t * context);
 
 void pman_context_load_table(pman_context_t * context);

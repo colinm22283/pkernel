@@ -16,11 +16,8 @@ typedef struct {
 } paging_mapping_t;
 
 bool paging_map_ex(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr, void * vaddr, uint64_t size_pages, bool read_write, bool execute_disable, bool user_super);
-static inline bool paging_map(paging_mapping_t * mapping, uint64_t paddr, void * vaddr, uint64_t size_pages) {
-    return paging_map_ex(&paging_kernel_pml4t, mapping, paddr, vaddr, size_pages, true, false, false);
-}
-static inline bool paging_map_page(paging_mapping_t * mapping, uint64_t paddr, void * vaddr) {
-    return paging_map(mapping, paddr, vaddr, 1);
+static inline bool paging_map(pml4t64_t * pml4t, paging_mapping_t * mapping, uint64_t paddr, void * vaddr, uint64_t size_pages) {
+    return paging_map_ex(pml4t, mapping, paddr, vaddr, size_pages, true, false, false);
 }
 
 void paging_unmap(pml4t64_t * pml4t, paging_mapping_t * mapping);

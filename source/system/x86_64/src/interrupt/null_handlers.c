@@ -10,7 +10,7 @@
 #include <defs.h>
 
 __NORETURN void null_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 

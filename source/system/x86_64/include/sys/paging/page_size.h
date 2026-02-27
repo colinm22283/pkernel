@@ -1,3 +1,8 @@
 #pragma once
 
-#define PAGE_SIZE 0x1000
+#define PAGE_SIZE 0x1000ULL
+
+#define PT_SIZE (512ULL * PAGE_SIZE)
+#define PDT_SIZE (512ULL * PT_SIZE)
+#define PDPT_SIZE (512ULL * PDT_SIZE)
+#define PML4T_SIZE (512ULL * PDPT_SIZE)

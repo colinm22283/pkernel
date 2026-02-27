@@ -26,7 +26,6 @@ KN_OBJS+=$(KN_OD_64)/util/heap/internal.o
 KN_OBJS+=$(KN_OD_64)/paging/tables.o
 KN_OBJS+=$(KN_OD_64)/paging/init.o
 KN_OBJS+=$(KN_OD_64)/paging/region.o
-KN_OBJS+=$(KN_OD_64)/paging/bitmap.o
 KN_OBJS+=$(KN_OD_64)/paging/mapper.o
 KN_OBJS+=$(KN_OD_64)/paging/translation_map.o
 KN_OBJS+=$(KN_OD_64)/paging/table_allocator.o

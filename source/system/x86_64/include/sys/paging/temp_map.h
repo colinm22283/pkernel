@@ -4,8 +4,6 @@
 #include <paging/tables.h>
 #include <paging/virtual_reservations.h>
 
-#include <debug/printf.h>
-
 #include <sys/paging/pml4t.h>
 #include <sys/paging/pdpt.h>
 #include <sys/paging/pdt.h>
@@ -46,3 +44,4 @@ static inline void * temp_pt_map_2mb(uint64_t paddr) {
 
     return PAGING_TEMP_PT_VADDR;
 }
+

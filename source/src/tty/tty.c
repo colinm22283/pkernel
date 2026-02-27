@@ -8,6 +8,8 @@
 #include <util/string/writestr.h>
 #include <util/memory/memcpy.h>
 
+#include <debug/printf.h>
+
 #include <config/tty.h>
 
 tty_t tty_head, tty_tail;

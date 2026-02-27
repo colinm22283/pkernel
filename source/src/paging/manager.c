@@ -21,6 +21,7 @@
 #include <sys/paging/page_size.h>
 #include <sys/paging/load_page_table.h>
 #include <sys/paging/read_fault_vaddr.h>
+#include <sys/paging/map_kernel.h>
 #include <sys/halt.h>
 #include <sys/panic.h>
 
@@ -42,13 +43,18 @@ pman_context_t kernel_context;
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr, void * _error_code);
 
 void pman_init(void) {
-    kernel_context.top_level_table_allocation.vaddr = NULL;
-    kernel_context.top_level_table = &paging_kernel_pml4t;
-    kernel_context.top_level_table_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    if (!paging_talloc_alloc(&kernel_context.top_level_table_allocation)) panic0("Unable to allocate pman kern table");
+
+    kernel_context.top_level_table = kernel_context.top_level_table_allocation.vaddr;
+    kernel_context.top_level_table_paddr = kernel_context.top_level_table_allocation.paddr;
+
+    memset(kernel_context.top_level_table, 0, sizeof(pml4t64_t));
 
     valloc_init(&kernel_context.valloc);
 
-    valloc_reserve(&kernel_context.valloc, (void *) 0, (uint64_t) KERNEL_END);
+    sys_paging_map_kernel_regions(&kernel_context);
+
+    // valloc_reserve(&kernel_context.valloc, (void *) 0, (uint64_t) KERNEL_END);
 
     kernel_context.head.next = &kernel_context.tail;
     kernel_context.head.prev = NULL;
@@ -56,6 +62,8 @@ void pman_init(void) {
     kernel_context.tail.prev = &kernel_context.head;
 
     interrupt_registry_register(IC_PAGE_FAULT, pman_page_fault_handler);
+
+    pman_context_load_table(&kernel_context);
 }
 
 pman_context_t * pman_new_context(void) {
@@ -69,42 +77,10 @@ pman_context_t * pman_new_context(void) {
     context->top_level_table_paddr = context->top_level_table_allocation.paddr;
 
     memset(context->top_level_table, 0, sizeof(pml4t64_t));
-    pml4t64_entry_t * pml4t_entry = pml4t64_map_address(context->top_level_table, paging_kernel_virtual_to_physical(paging_kernel_pdpt), KERNEL_START);
-    pml4t_entry->present = 1;
-    pml4t_entry->read_write = 1;
-    pml4t_entry->user_super = 1;
 
     valloc_init(&context->valloc);
 
-    valloc_reserve(&context->valloc, (void *) 0, DIV_UP((uint64_t) KERNEL_END, 0x8000000000) * 0x8000000000);
-
-    context->head.next = &context->tail;
-    context->head.prev = NULL;
-    context->tail.next = NULL;
-    context->tail.prev = &context->head;
-
-    return context;
-}
-
-pman_context_t * pman_new_kernel_context(void) {
-    kprintf("New kernel context");
-
-    pman_context_t * context = heap_alloc_debug(sizeof(pman_context_t), "kernel pman_context_t");
-
-    if (!paging_talloc_alloc(&context->top_level_table_allocation)) return NULL;
-
-    context->top_level_table = context->top_level_table_allocation.vaddr;
-    context->top_level_table_paddr = context->top_level_table_allocation.paddr;
-
-    memset(context->top_level_table, 0, sizeof(pml4t64_t));
-    pml4t64_entry_t * pml4t_entry = pml4t64_map_address(context->top_level_table, paging_kernel_virtual_to_physical(paging_kernel_pdpt), KERNEL_START);
-    pml4t_entry->present = 1;
-    pml4t_entry->read_write = 0;
-    pml4t_entry->user_super = 1;
-
-    valloc_init(&context->valloc);
-
-    valloc_reserve(&context->valloc, (void *) 0, (uint64_t) KERNEL_END);
+    sys_paging_map_kernel_executable(context);
 
     context->head.next = &context->tail;
     context->head.prev = NULL;
@@ -131,6 +107,8 @@ error_number_t pman_free_context(pman_context_t * context) { // TODO
 }
 
 void pman_context_load_table(pman_context_t * context) {
+    kprintf("Load PDPT: %p, %p", (void *) context->top_level_table_paddr, paging_kernel_virtual_to_physical(&paging_kernel_pml4t));
+
     load_page_table((void *) context->top_level_table_paddr);
 }
 
@@ -194,7 +172,7 @@ pman_mapping_t * pman_context_add_map(pman_context_t * context, pman_protection_
     mapping->protection = prot;
     mapping->size_pages = size_pages;
 
-    if (vaddr == NULL) mapping->vaddr = valloc_alloc(&context->valloc, size);
+    if (vaddr == NULL && !(prot & PMAN_PROT_VRESERVE)) mapping->vaddr = valloc_alloc(&context->valloc, size);
     else mapping->vaddr = valloc_reserve(&context->valloc, vaddr, size);
 
     mapping->map.references = 1;
@@ -251,11 +229,6 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
         }
 
         for (uint64_t i = 0; i < mapping->borrowed.mapping_count; i++) {
-            if ((intptr_t) current_vaddr < 0xD0000000) {
-                debug_print("gurp\n");
-                halt();
-            }
-
             paging_map_ex(
                 context->top_level_table,
                 &mapping->borrowed.mappings[i],

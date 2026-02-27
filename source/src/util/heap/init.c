@@ -21,6 +21,8 @@ enum {
     SYSFS_USAGE = 1,
 };
 
+uint64_t heap_pdpt_paddr;
+
 int64_t heap_sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offset) {
     if (offset != 0) return 0;
 
@@ -53,12 +55,12 @@ void heap_init(void) {
         page_data_t * vaddr = PAGING_HEAP_VADDR;
 
         while (true) {
-            uint64_t pdpt_paddr = bitmap_reserve();
-            pml4t64_entry_t * pml4t_entry = pml4t64_map_address(&paging_kernel_pml4t, pdpt_paddr, vaddr);
+            heap_pdpt_paddr = bitmap_reserve();
+            pml4t64_entry_t * pml4t_entry = pml4t64_map_address(&paging_kernel_pml4t, heap_pdpt_paddr, vaddr);
             pml4t_entry->present = true;
             pml4t_entry->read_write = true;
 
-            pdpt64_t * pdpt = temp_pt_map_page_slot(pdpt_paddr, 0);
+            pdpt64_t * pdpt = temp_pt_map_page_slot(heap_pdpt_paddr, 0);
             memset(pdpt, 0, sizeof(pdpt64_t));
 
             for (uint64_t i = 0; i < 512; i++) {

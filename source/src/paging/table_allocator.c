@@ -10,6 +10,7 @@
 #include <util/memory/memset.h>
 
 #include <sys/paging/page_type.h>
+#include <sys/paging/reload_page_table.h>
 
 page_data_t * current_vaddr = PAGING_TALLOC_VADDR;
 
@@ -56,7 +57,7 @@ static inline uint64_t add_pt(void) {
         (*pt)[0].read_write = true;
     }
 
-    load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+    reload_page_table();
 
     current_vaddr += 512;
 
@@ -108,7 +109,7 @@ bool paging_talloc_alloc(paging_table_allocation_t * alloc) {
                 (*pt)[i].present = true;
                 (*pt)[i].read_write = true;
 
-                load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+                reload_page_table();
 
                 alloc->pt = pt;
                 alloc->paddr = paddr;

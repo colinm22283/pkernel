@@ -41,11 +41,17 @@ error_number_t load_program(process_t * process, fs_directory_entry_t * dirent) 
 
     kprintf("Loading ELF headers");
 
+    kprintf("  Entry: %p", (void *) elf.header.entry);
+
     for (size_t i = 0; i < elf.pheader_count; i++) {
         elf_pheader_t * header = &elf.pheaders[i];
 
         if (header->type == ELF_PH_TYPE_LOAD) {
             kprintf("  ELF_PH_TYPE_LOAD: vaddr = %p, memsz = %i", (void *) header->vaddr, header->memsz);
+
+            void * aligned_vaddr = (void *) (((intptr_t) header->vaddr / PAGE_SIZE) * PAGE_SIZE);
+            size_t extra_size = (header->vaddr - (intptr_t) aligned_vaddr);
+            kprintf("  aligned_vaddr = %p, extra = %i", aligned_vaddr, extra_size);
 
             pman_mapping_t * mapping = pman_context_get_vaddr(process->paging_context, (void *) header->vaddr);
 
@@ -61,20 +67,20 @@ error_number_t load_program(process_t * process, fs_directory_entry_t * dirent) 
                     if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_PROT_EXECUTE;
 
                     kprintf("    Mapping new kernel segment");
-                    pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, header->memsz);
+                    pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, header->memsz + extra_size);
 
                     if (kernel_mapping == NULL) {
                         return ERROR_BAD_MAP;
                     }
 
                     kprintf("    Mapping new user segment");
-                    mapping = pman_context_add_shared(process->paging_context, prot, kernel_mapping, (void *) header->vaddr);
+                    mapping = pman_context_add_shared(process->paging_context, prot, kernel_mapping, aligned_vaddr);
 
                     if (mapping == NULL) {
                         return ERROR_BAD_MAP;
                     }
 
-                    process_mapping = kernel_mapping->vaddr;
+                    process_mapping = kernel_mapping->vaddr + extra_size;
                     pman_context_unmap(kernel_mapping);
                 }
             }
@@ -95,7 +101,12 @@ error_number_t load_program(process_t * process, fs_directory_entry_t * dirent) 
                 }
             }
 
-            if (process_mapping != NULL) elf_load_segment(&elf, header, process_mapping);
+            if (process_mapping != NULL) {
+                elf_load_segment(&elf, header, process_mapping);
+
+                kprintf("    First 10 bytes:");
+                for (size_t j = 0; j < 10; j++) kprintf("      %i", ((unsigned char *) process_mapping)[j]);
+            }
         }
     }
 

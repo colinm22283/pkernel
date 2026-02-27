@@ -88,6 +88,13 @@ error_number_t init(void) {
     com1_data.port = *(uint16_t *) 0x400;
 #pragma GCC diagnostic pop
 
+    if (com1_data.port == 0) com1_data.port = 0x3F8;
+
+    MODULE_DEBUG(
+        MODULE_PRINT("Com1 port: ");
+        MODULE_PRINT_HEX(com1_data.port);
+    );
+
     com1_data.tty = tty_init(write, &com1_data);
 
     for (size_t i = 0; i < 10; i++) read_com1();
@@ -119,6 +126,13 @@ error_number_t init(void) {
 #pragma GCC diagnostic ignored "-Warray-bounds"
     com2_data.port = *(uint16_t *) 0x402;
 #pragma GCC diagnostic pop
+
+    if (com2_data.port == 0) com2_data.port = 0x2F8;
+
+    MODULE_DEBUG(
+        MODULE_PRINT("Com2 port: ");
+        MODULE_PRINT_HEX(com2_data.port);
+    );
 
     com2_data.tty = tty_init(write, &com2_data);
 

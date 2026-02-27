@@ -79,6 +79,9 @@ __NORETURN void kernel_main(void) {
     kprintf("Init primary region");
     primary_region_init();
 
+    kprintf("Init sys phase 2");
+    sys_setup_phase2();
+
     kprintf("Init paging phase 1");
     paging_init();
 
@@ -95,9 +98,6 @@ __NORETURN void kernel_main(void) {
 
     kprintf("Init paging phase 2");
     if (!paging_init_stage2()) kernel_entry_error(KERNEL_ENTRY_ERROR_PAGING_PHASE_2_ERROR);
-
-    kprintf("Init sys phase 2");
-    sys_setup_phase2();
 
     kprintf("Init timers");
     timers_init();
@@ -185,7 +185,9 @@ __NORETURN void kernel_main(void) {
 
     fs_directory_entry_t * elf_dirent = fs_open_path(&fs_root, "bin/init");
 
-    load_program(init_process, elf_dirent);
+    if (load_program(init_process, elf_dirent) != ERROR_OK) {
+        panic0("Unable to load init process");
+    }
 
     fs_directory_entry_release(elf_dirent);
 

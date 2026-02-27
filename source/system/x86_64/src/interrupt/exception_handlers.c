@@ -18,7 +18,7 @@
 #include <sys/debug/print.h>
 
 __NORETURN void div0_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -30,7 +30,7 @@ __NORETURN void div0_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void nmi_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -42,7 +42,7 @@ __NORETURN void nmi_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void bp_int3_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -54,7 +54,7 @@ __NORETURN void bp_int3_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void ovf_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -66,7 +66,7 @@ __NORETURN void ovf_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void bound_range_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -79,7 +79,7 @@ __NORETURN void bound_range_handler(task_state_record_t * isr) {
 
 __NORETURN void invalid_opcode_handler(task_state_record_t * isr) {
     hlt();
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -91,7 +91,7 @@ __NORETURN void invalid_opcode_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void device_not_avail_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -103,7 +103,7 @@ __NORETURN void device_not_avail_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void double_fault_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -115,7 +115,7 @@ __NORETURN void double_fault_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void coproc_segment_overrun_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -127,7 +127,7 @@ __NORETURN void coproc_segment_overrun_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void invalid_tss_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -139,7 +139,7 @@ __NORETURN void invalid_tss_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void segment_not_present_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -151,7 +151,7 @@ __NORETURN void segment_not_present_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void stack_segment_fault_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -164,7 +164,7 @@ __NORETURN void stack_segment_fault_handler(task_state_record_t * isr) {
 
 __NORETURN void general_protection_fault_handler(task_state_record_t * isr) {
     hlt();
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -176,7 +176,7 @@ __NORETURN void general_protection_fault_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void page_fault_handler(task_state_record_t * isr, page_fault_error_code_t * error_code) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -188,7 +188,7 @@ __NORETURN void page_fault_handler(task_state_record_t * isr, page_fault_error_c
 }
 
 __NORETURN void x87_fpu_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -200,7 +200,7 @@ __NORETURN void x87_fpu_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void alignment_check_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -212,7 +212,7 @@ __NORETURN void alignment_check_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void machine_check_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 
@@ -224,7 +224,7 @@ __NORETURN void machine_check_handler(task_state_record_t * isr) {
 }
 
 __NORETURN void simd_fpu_error_handler(task_state_record_t * isr) {
-    uint64_t new_pml4t_paddr = paging_kernel_virtual_to_physical(paging_kernel_pml4t);
+    uint64_t new_pml4t_paddr = pman_kernel_context()->top_level_table_paddr;
 
     load_page_table((void *) new_pml4t_paddr);
 

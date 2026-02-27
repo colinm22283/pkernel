@@ -8,7 +8,7 @@ kernel_entry:
     mov    %rsp,        %rbp
 
     cld
-    call sys_setup
+    call sys_setup_phase1
 
     jmp kernel_main
 

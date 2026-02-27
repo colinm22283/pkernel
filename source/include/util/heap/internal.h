@@ -21,6 +21,8 @@ extern uint64_t alloc_size;
 extern heap_tag_t * head_tag;
 extern heap_tag_t * tail_tag;
 
+extern uint64_t heap_pdpt_paddr;
+
 void heap_check(void);
 
 void heap_overview(void);

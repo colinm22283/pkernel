@@ -1,6 +1,5 @@
 #include <stdint.h>
 
-#include <paging/bitmap.h>
 #include <paging/region.h>
 #include <paging/tables.h>
 #include <paging/kernel_translation.h>
@@ -12,7 +11,9 @@
 #include <util/memory/memset.h>
 #include <util/math/div_up.h>
 #include <util/math/min.h>
+
 #include <sys/paging/page_size.h>
+#include <paging/bitmap.h>
 
 #include <entry_error.h>
 
