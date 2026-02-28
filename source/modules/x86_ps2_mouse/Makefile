@@ -1,0 +1,7 @@
+MODULE_SOURCE_DIR=$(CURDIR)/src
+MODULE_OD_64=$(MODULE_OD_BASE)/$(MODULE_NAME)/src
+
+include sources.mk
+
+include $(MODULE_MAKE_SCRIPT)
+include $(MAKE_SCRIPTS)

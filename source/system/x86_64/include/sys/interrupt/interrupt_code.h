@@ -22,6 +22,7 @@ enum {
     IC_KEYBOARD,
     IC_COM2,
     IC_COM1,
+    IC_MOUSE,
 
     IC_MAX,
 };

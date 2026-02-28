@@ -7,6 +7,8 @@ STATIC_MODULES+=vga_frame_buffer
 
 STATIC_MODULES+=x86_serial_tty
 
+STATIC_MODULES+=x86_ps2_mouse
+
 STATIC_MODULES+=disc_pio
 STATIC_MODULES+=pkfs
 
