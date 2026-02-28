@@ -6,7 +6,7 @@
 
 #include <syscall/handlers/kill.h>
 
-error_number_t syscall_kill(pid_t pid) {
+int syscall_kill(pid_t pid) {
     process_t * target_proc = process_lookup(pid);
     if (target_proc == NULL) return ERROR_PROC_NOT_FOUND;
 

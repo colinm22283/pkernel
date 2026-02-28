@@ -131,5 +131,5 @@ typedef struct {
 
 extern fs_superblock_ops_t superblock_ops;
 
-error_number_t mount(fs_superblock_t * superblock);
-error_number_t unmount(fs_superblock_t * superblock);
+int mount(fs_superblock_t * superblock);
+int unmount(fs_superblock_t * superblock);

@@ -12,8 +12,8 @@ void scheduler_init_sysfs(void);
 
 void scheduler_queue(thread_t * thread);
 
-error_number_t scheduler_await(event_t * event);
-error_number_t scheduler_await_interruptable(event_t * event);
+int scheduler_await(event_t * event);
+int scheduler_await_interruptable(event_t * event);
 
 void scheduler_load_tsr(task_state_record_t * tsr);
 

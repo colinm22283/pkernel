@@ -1,5 +1,5 @@
 #pragma once
 
-#include <error_number.h>
+#include <errno.h>
 
-error_number_t syscall_mkdir(const char * _path);
+int syscall_mkdir(const char * _path);

@@ -8,7 +8,7 @@
 
 #include <util/math/min.h>
 
-#include <error_number.h>
+#include <errno.h>
 
 extern uint64_t bitmap_paddr;
 extern uint64_t bitmap_available_pages;
@@ -28,4 +28,4 @@ void paging_bitmap_init(void);
 
 uint64_t bitmap_reserve(void);
 uint64_t bitmap_reserve_contiguous(uint64_t size_pages);
-error_number_t bitmap_free(uint64_t address, uint64_t size_pages);
+int bitmap_free(uint64_t address, uint64_t size_pages);

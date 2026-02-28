@@ -119,13 +119,13 @@ void * map(device_t * dev, pman_context_t * context, pman_protection_flags_t pro
     return mapping->vaddr;
 }
 
-error_number_t unmap(device_t * dev, pman_context_t * context, void * map_addr) {
+int unmap(device_t * dev, pman_context_t * context, void * map_addr) {
 
 
     return ERROR_OK;
 }
 
-error_number_t init(void) {
+int init(void) {
     required_pages = FRAME_BUFFER_SIZE_PAGES;
 
     pman_entry = pman_context_add_map(pman_kernel_context(), PMAN_PROT_WRITE, NULL, FRAME_BUFFER_PADDR, 320 * 200);
@@ -147,7 +147,7 @@ error_number_t init(void) {
     return ERROR_OK;
 }
 
-error_number_t free(void) {
+int free(void) {
     devfs_remove(devfs_entry);
     device_remove(device);
 

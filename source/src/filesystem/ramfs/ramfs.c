@@ -29,7 +29,7 @@ fs_node_t * ramfs_alloc_node(fs_superblock_t * superblock) {
     return (fs_node_t *) new_node;
 }
 
-error_number_t ramfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
+int ramfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
     // debug_print("RAMFS FREE NODE\n");
 
     heap_free(node);
@@ -37,7 +37,7 @@ error_number_t ramfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
     return ERROR_OK;
 }
 
-error_number_t ramfs_list(fs_directory_entry_t * dirent) {
+int ramfs_list(fs_directory_entry_t * dirent) {
     fs_directory_entry_add_reference(dirent);
 
     return ERROR_OK;
@@ -79,7 +79,7 @@ fs_directory_entry_node_t * ramfs_link(fs_directory_entry_t * dirent, fs_directo
     return dirent_node;
 }
 
-error_number_t ramfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
+int ramfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
     ramfs_fs_node_t * node = (ramfs_fs_node_t *) dirent->node;
 
     if (offset >= node->size) {
@@ -97,7 +97,7 @@ error_number_t ramfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t 
     return ERROR_OK;
 }
 
-error_number_t ramfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
+int ramfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
     ramfs_fs_node_t * node = (ramfs_fs_node_t *) dirent->node;
 
     if (offset + size > node->size) {
@@ -127,11 +127,11 @@ const fs_superblock_ops_t ramfs_superblock_ops = {
     .write = ramfs_write,
 };
 
-error_number_t fs_ramfs_mount(fs_superblock_t * superblock) {
+int fs_ramfs_mount(fs_superblock_t * superblock) {
     return ERROR_OK;
 }
 
-error_number_t fs_ramfs_unmount(__MAYBE_UNUSED fs_superblock_t * superblock) {
+int fs_ramfs_unmount(__MAYBE_UNUSED fs_superblock_t * superblock) {
     return ERROR_OK;
 }
 

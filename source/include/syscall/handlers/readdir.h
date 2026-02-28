@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include <pkos/defs.h>
+#include <sys/types.h>
 
 #include <defs.h>
 

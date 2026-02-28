@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <error_number.h>
+#include <errno.h>
 
 typedef enum {
     PALLOC_ALLOC,
@@ -20,6 +20,6 @@ typedef struct {
     uint64_t * paddrs;
 } palloc_t;
 
-error_number_t palloc_alloc(palloc_t * palloc, uint64_t size);
-error_number_t palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_t paddr);
-error_number_t palloc_free(palloc_t * palloc);
+int palloc_alloc(palloc_t * palloc, uint64_t size);
+int palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_t paddr);
+int palloc_free(palloc_t * palloc);

@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#include <pkos/types.h>
+#include <sys/types.h>
 
 #include <defs.h>
 
-error_number_t syscall_thread(void * handler);
+int syscall_thread(void * handler);

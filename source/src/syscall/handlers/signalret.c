@@ -13,7 +13,7 @@
 
 #include <debug/printf.h>
 
-error_number_t syscall_signalret(void) {
+int syscall_signalret(void) {
     thread_t * kern_thread = scheduler_current_thread();
     thread_t * thread = kern_thread->twin_thread;
     process_t * process = thread->process;

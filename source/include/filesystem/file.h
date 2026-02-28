@@ -8,7 +8,7 @@
 #include <util/string/strlen.h>
 #include <util/string/strcpy.h>
 
-#include <pkos/types.h>
+#include <sys/types.h>
 
 typedef struct {
     fs_directory_entry_t * dirent;
@@ -21,9 +21,9 @@ typedef struct {
     fs_directory_entry_node_t * current_node;
 } fs_file_t;
 
-error_number_t file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_options_t options);
+int file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_options_t options);
 
-error_number_t file_clone(fs_file_t * dst, fs_file_t * src);
+int file_clone(fs_file_t * dst, fs_file_t * src);
 
 int64_t file_read(fs_file_t * file, char * buffer, uint64_t size);
 

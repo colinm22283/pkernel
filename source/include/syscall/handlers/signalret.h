@@ -4,7 +4,7 @@
 
 #include <defs.h>
 
-#include <error_number.h>
+#include <errno.h>
 
-error_number_t syscall_signalret(void);
+int syscall_signalret(void);
 

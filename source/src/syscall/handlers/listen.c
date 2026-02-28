@@ -6,7 +6,7 @@
 
 #include <syscall/handlers/listen.h>
 
-error_number_t syscall_listen(fd_t sock_fd, uint64_t size) {
+int syscall_listen(fd_t sock_fd, uint64_t size) {
     process_t * current_process = scheduler_current_process();
 
     fs_file_t * file = file_table_get(&current_process->file_table, sock_fd);

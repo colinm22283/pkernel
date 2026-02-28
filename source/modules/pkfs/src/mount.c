@@ -5,7 +5,7 @@
 #include <pkfs.h>
 #include <disc_operations.h>
 
-error_number_t mount(fs_superblock_t * superblock) {
+int mount(fs_superblock_t * superblock) {
     superblock->superblock_ops = &superblock_ops;
 
     fs_directory_entry_t * mount_point = superblock->mount_point;
@@ -22,6 +22,6 @@ error_number_t mount(fs_superblock_t * superblock) {
     return ERROR_OK;
 }
 
-error_number_t unmount(fs_superblock_t * superblock) {
+int unmount(fs_superblock_t * superblock) {
     return ERROR_UNIMPLEMENTED;
 }

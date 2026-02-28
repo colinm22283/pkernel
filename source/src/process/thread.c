@@ -158,7 +158,7 @@ void thread_load_pc(thread_t * thread, void * pc) {
     tsr_load_pc(&thread->tsr, pc);
 }
 
-error_number_t thread_interrupt(thread_t * thread) {
+int thread_interrupt(thread_t * thread) {
     if (thread->state == TS_UNINTERRUPTABLE_WAIT) return ERROR_UNINTERRUPTABLE;
 
     if (thread->state == TS_INTERRUPTABLE_WAIT) {

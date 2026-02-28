@@ -11,7 +11,7 @@
 #include <util/memory/memcpy.h>
 #include <util/heap/heap.h>
 
-#include <error_number.h>
+#include <errno.h>
 #include <entry_error.h>
 
 #include <sys/halt.h>
@@ -37,7 +37,7 @@ bool fs_init() {
     return true;
 }
 
-error_number_t fs_register(const char * name, const fs_superblock_ops_t * superblock_ops, fs_mount_func_t mount, fs_unmount_func_t unmount) {
+int fs_register(const char * name, const fs_superblock_ops_t * superblock_ops, fs_mount_func_t mount, fs_unmount_func_t unmount) {
     for (
         fs_filesystem_node_t * node = fs_filesystem_head.next;
         node != &fs_filesystem_tail;
@@ -65,7 +65,7 @@ error_number_t fs_register(const char * name, const fs_superblock_ops_t * superb
     return ERROR_OK;
 }
 
-error_number_t fs_unregister(const char * name) {
+int fs_unregister(const char * name) {
     for (
         fs_filesystem_node_t * node = fs_filesystem_head.next;
         node != &fs_filesystem_tail;
@@ -87,7 +87,7 @@ error_number_t fs_unregister(const char * name) {
     return ERROR_FILESYSTEM_NOT_FOUND;
 }
 
-error_number_t fs_mount_root(const char * name, device_t * device) {
+int fs_mount_root(const char * name, device_t * device) {
     fs_root.head.next = &fs_root.tail;
     fs_root.head.prev = NULL;
     fs_root.tail.next = NULL;
@@ -112,7 +112,7 @@ error_number_t fs_mount_root(const char * name, device_t * device) {
             fs_node_t * new_node = node->superblock_ops->alloc_node(superblock);
             superblock->mount_point->node = new_node;
 
-            error_number_t result = node->mount(superblock);
+            int result = node->mount(superblock);
             if (result != ERROR_OK) return result;
 
             node->superblock_ops->list(superblock->mount_point);
@@ -127,7 +127,7 @@ error_number_t fs_mount_root(const char * name, device_t * device) {
     return ERROR_FILESYSTEM_NOT_FOUND;
 }
 
-error_number_t fs_mount(const char * name, fs_directory_entry_t * mount_point, device_t * device) {
+int fs_mount(const char * name, fs_directory_entry_t * mount_point, device_t * device) {
     if (mount_point->type != FS_DIRECTORY) return ERROR_NOT_DIR;
 
     for (
@@ -152,7 +152,7 @@ error_number_t fs_mount(const char * name, fs_directory_entry_t * mount_point, d
             fs_node_t * new_node = node->superblock_ops->alloc_node(superblock);
             superblock->mount_point->node = new_node;
 
-            error_number_t result = node->mount(superblock);
+            int result = node->mount(superblock);
             if (result != ERROR_OK) return result;
 
             node->superblock_ops->list(superblock->mount_point);
@@ -167,7 +167,7 @@ error_number_t fs_mount(const char * name, fs_directory_entry_t * mount_point, d
     return ERROR_FILESYSTEM_NOT_FOUND;
 }
 
-error_number_t fs_unmount(fs_directory_entry_t * mount_point) {
+int fs_unmount(fs_directory_entry_t * mount_point) {
      if (mount_point->mounted_fs == NULL) {
          return ERROR_FILESYSTEM_NOT_MOUNTED;
      }
@@ -379,7 +379,7 @@ fs_directory_entry_t * fs_make_path_dirs(fs_directory_entry_t * root, const char
     }
 }
 
-error_number_t fs_remove(fs_directory_entry_t * dirent) {
+int fs_remove(fs_directory_entry_t * dirent) {
     if (dirent->type == FS_DIRECTORY) {
         if (dirent->head.next != &dirent->tail) return ERROR_DIR_NOT_EMPTY;
     }

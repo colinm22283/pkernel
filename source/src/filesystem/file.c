@@ -1,7 +1,7 @@
 #include <filesystem/file.h>
 #include <sys/debug/print.h>
 
-error_number_t file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_options_t options) {
+int file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_options_t options) {
     if (dirent->type == FS_DIRECTORY && (options & OPEN_WRITE)) return ERROR_IS_DIR;
 
     file->dirent = dirent;
@@ -15,7 +15,7 @@ error_number_t file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_o
     return ERROR_OK;
 }
 
-error_number_t file_clone(fs_file_t * dst, fs_file_t * src) {
+int file_clone(fs_file_t * dst, fs_file_t * src) {
     dst->dirent = src->dirent;
 
     dst->options = src->options;
@@ -49,7 +49,7 @@ int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
         return (int64_t) amount_read;
     }
 
-    error_number_t result = file->dirent->superblock->superblock_ops->read(file->dirent, buffer, size, file->offset, &amount_read);
+    int result = file->dirent->superblock->superblock_ops->read(file->dirent, buffer, size, file->offset, &amount_read);
     file->offset += amount_read;
 
     if (result != ERROR_OK) return result;
@@ -65,7 +65,7 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
         case FS_DEVICE: {
             uint64_t amount_written;
 
-            error_number_t result = file->dirent->superblock->superblock_ops->write(file->dirent, buffer, size, file->offset, &amount_written);
+            int result = file->dirent->superblock->superblock_ops->write(file->dirent, buffer, size, file->offset, &amount_written);
             file->offset += amount_written;
 
             if (result != ERROR_OK) return result;
@@ -80,7 +80,7 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
         case FS_PIPE: {
             uint64_t amount_written;
 
-            error_number_t result = pipe_write(file->dirent, buffer, size, 0, &amount_written);
+            int result = pipe_write(file->dirent, buffer, size, 0, &amount_written);
 
             if (result != ERROR_OK) return result;
 
@@ -90,7 +90,7 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
         case FS_SOCKET: {
             uint64_t amount_written;
 
-            error_number_t result = socket_write(file->dirent->socket, buffer, size, &amount_written);
+            int result = socket_write(file->dirent->socket, buffer, size, &amount_written);
 
             if (result != ERROR_OK) return result;
 

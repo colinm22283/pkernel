@@ -23,7 +23,7 @@ void signal_table_init(signal_table_t * st) {
 
 void signal_table_free(signal_table_t * st) { }
 
-error_number_t signal_table_invoke(process_t * process, signal_number_t sig) {
+int signal_table_invoke(process_t * process, signal_number_t sig) {
     if (sig >= _SIG_COUNT) return ERROR_NO_SIG;
 
     signal_table_t * st = &process->signal_table;
@@ -53,7 +53,7 @@ error_number_t signal_table_invoke(process_t * process, signal_number_t sig) {
     return ERROR_OK;
 }
 
-error_number_t signal_table_set(signal_table_t * st, signal_number_t sig, signal_handler_t * handler) {
+int signal_table_set(signal_table_t * st, signal_number_t sig, signal_handler_t * handler) {
     if (sig >= _SIG_COUNT) return ERROR_NO_SIG;
 
     signal_t * signal = &st->handlers[sig];
@@ -63,7 +63,7 @@ error_number_t signal_table_set(signal_table_t * st, signal_number_t sig, signal
     return ERROR_OK;
 }
 
-error_number_t signal_table_reset(signal_table_t * st, signal_number_t sig) {
+int signal_table_reset(signal_table_t * st, signal_number_t sig) {
     if (sig >= _SIG_COUNT) return ERROR_NO_SIG;
 
     signal_t * signal = &st->handlers[sig];
@@ -73,7 +73,7 @@ error_number_t signal_table_reset(signal_table_t * st, signal_number_t sig) {
     return ERROR_OK;
 }
 
-error_number_t signal_table_resume(thread_t * thread) {
+int signal_table_resume(thread_t * thread) {
     process_t * process = thread->process;
 
     signal_table_t * st = &process->signal_table;

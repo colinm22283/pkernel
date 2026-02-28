@@ -16,7 +16,7 @@ typedef struct {
 } pipe_t;
 
 pipe_t * pipe_init(void);
-error_number_t pipe_free(pipe_t * pipe);
+int pipe_free(pipe_t * pipe);
 
-error_number_t pipe_read(struct fs_directory_entry_s * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read);
-error_number_t pipe_write(struct fs_directory_entry_s * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote);
+int pipe_read(struct fs_directory_entry_s * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read);
+int pipe_write(struct fs_directory_entry_s * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote);

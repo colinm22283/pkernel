@@ -1,11 +1,13 @@
 #pragma once
 
+#include <stdint.h>
+
 #include <filesystem/node.h>
 #include <filesystem/superblock.h>
 
 #include <sysfs/sysfs.h>
 
-#include <error_number.h>
+#include <errno.h>
 
 typedef struct {
     fs_node_t base;
@@ -37,6 +39,6 @@ extern sysfs_mount_t * sysfs_mounts;
 
 extern const fs_superblock_ops_t sysfs_superblock_ops;
 
-error_number_t sysfs_mount(fs_superblock_t * superblock);
-error_number_t sysfs_unmount(fs_superblock_t * superblock);
+int sysfs_mount(fs_superblock_t * superblock);
+int sysfs_unmount(fs_superblock_t * superblock);
 

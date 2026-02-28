@@ -2,9 +2,9 @@
 
 #include <syscall/handlers/mkdir.h>
 
-#include <error_number.h>
+#include <errno.h>
 
-error_number_t syscall_mkdir(const char * _path) {
+int syscall_mkdir(const char * _path) {
     process_t * current_process = scheduler_current_process();
 
     const char * path = process_user_to_kernel(current_process, _path);

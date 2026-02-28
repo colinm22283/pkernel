@@ -10,7 +10,7 @@
 
 #include <sys/tsr/tsr_load_return.h>
 
-error_number_t syscall_thread(void * handler) {
+int syscall_thread(void * handler) {
     thread_t * current_thread = scheduler_current_thread();
     process_t * current_process = current_thread->process;
 

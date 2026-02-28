@@ -11,7 +11,7 @@ typedef struct {
     uint64_t (* read)(struct device_s * device, char * buffer, uint64_t size);
 
     void * (* map)(struct device_s * device, pman_context_t * context, pman_protection_flags_t prot, void * map_addr, uint64_t size, uint64_t offset);
-    error_number_t (* unmap)(struct device_s * device, pman_context_t * context, void * map_addr);
+    int (* unmap)(struct device_s * device, pman_context_t * context, void * map_addr);
 } device_char_operations_t;
 
 typedef struct {

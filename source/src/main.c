@@ -30,8 +30,6 @@
 
 #include <module/module.h>
 
-#include <application/application_start_table.h>
-
 #include <prog_loader/prog_loader.h>
 
 #include <tty/tty.h>
@@ -41,8 +39,6 @@
 #include <debug/printf.h>
 
 #include <entry_error.h>
-
-#include <pkos/defs.h>
 
 #include <sys/setup.h>
 #include <sys/interrupt/interrupt_code.h>

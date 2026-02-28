@@ -150,8 +150,8 @@ uint64_t bitmap_reserve_contiguous(uint64_t size_pages) {
     return 0;
 }
 
-error_number_t bitmap_free(uint64_t address, uint64_t size_pages) {
-    error_number_t result = ERROR_OK;
+int bitmap_free(uint64_t address, uint64_t size_pages) {
+    int result = ERROR_OK;
 
     for (uint64_t i = 0; i < size_pages; i++) {
         if (!paging_bitmap_get_index(address / PAGE_SIZE + i)) result = ERROR_BITMAP_NOT_ALLOCATED;

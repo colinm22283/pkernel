@@ -2,8 +2,7 @@
 
 #include <stdint.h>
 
-#include <pkos/defs.h>
-#include <pkos/syscalls.h>
+#include <sys/types.h>
 
 #include <defs.h>
 

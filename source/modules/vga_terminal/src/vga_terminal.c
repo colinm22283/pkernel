@@ -127,7 +127,7 @@ int64_t sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offs
     return 0;
 }
 
-error_number_t init(void) {
+int init(void) {
     cursor_on = true;
     cur_x = 0;
     cur_y = 0;
@@ -160,7 +160,7 @@ error_number_t init(void) {
     return ERROR_OK;
 }
 
-error_number_t free(void) {
+int free(void) {
     devfs_remove(devfs_entry);
     device_remove(device);
 

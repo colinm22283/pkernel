@@ -17,7 +17,7 @@
 #include <key_lut.h>
 
 #include <mod_defs.h>
-#include <error_number.h>
+#include <errno.h>
 
 device_t * device;
 
@@ -67,7 +67,7 @@ uint64_t read(device_t * dev, char * buffer, uint64_t size) {
     else return 0;
 }
 
-error_number_t init(void) {
+int init(void) {
     char_ready = true;
     current_char = '\0';
 
@@ -89,7 +89,7 @@ error_number_t init(void) {
     return ERROR_OK;
 }
 
-error_number_t free(void) {
+int free(void) {
     if (!interrupt_registry_free((interrupt_code_t) IC_KEYBOARD)) return ERROR_UNKNOWN;
 
     if (!io_arbitrator_release(PORT_KB_IN)) return ERROR_UNKNOWN;

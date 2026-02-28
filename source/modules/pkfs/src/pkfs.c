@@ -2,18 +2,18 @@
 #include <stddef.h>
 
 #include <pkfs.h>
-#include <error_number.h>
+#include <errno.h>
 #include <mod_defs.h>
 
 #include <filesystem/filesystem.h>
 
-error_number_t init() {
+int init() {
     fs_register("pkfs", &superblock_ops, mount, unmount);
 
     return ERROR_OK;
 }
 
-error_number_t free() {
+int free() {
     fs_unregister("pkfs");
 
     return ERROR_OK;

@@ -5,7 +5,7 @@
 #include <util/math/div_up.h>
 #include <sys/paging/page_size.h>
 
-error_number_t palloc_alloc(palloc_t * palloc, uint64_t size) {
+int palloc_alloc(palloc_t * palloc, uint64_t size) {
     uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
     palloc->type = PALLOC_ALLOC;
@@ -20,7 +20,7 @@ error_number_t palloc_alloc(palloc_t * palloc, uint64_t size) {
     return ERROR_OK;
 }
 
-error_number_t palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_t paddr) {
+int palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_t paddr) {
     if (paddr == 0) {
         uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
@@ -45,7 +45,7 @@ error_number_t palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_
     return ERROR_OK;
 }
 
-error_number_t palloc_free(palloc_t * palloc) {
+int palloc_free(palloc_t * palloc) {
     switch (palloc->type) {
         case PALLOC_ALLOC: {
             for (uint64_t i = 0; i < palloc->paddr_count; i++) {

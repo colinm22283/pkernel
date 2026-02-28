@@ -2,6 +2,6 @@
 
 #include <process/process.h>
 
-#include <error_number.h>
+#include <errno.h>
 
-error_number_t syscall_exec(const char * path, const char ** argv, uint64_t argc);
+int syscall_exec(const char * path, const char ** argv, uint64_t argc);

@@ -65,6 +65,6 @@ void thread_run(thread_t * thread);
 void thread_kill(thread_t * thread);
 void thread_load_pc(thread_t * thread, void * pc);
 
-error_number_t thread_interrupt(thread_t * thread);
+int thread_interrupt(thread_t * thread);
 
 __NORETURN void thread_resume(thread_t * thread);

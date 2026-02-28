@@ -57,7 +57,7 @@ void unix_socket_listen(unix_socket_t * socket, size_t listen_queue_capacity) {
     socket->listen_queue_capacity = listen_queue_capacity;
 }
 
-error_number_t unix_socket_connect(unix_socket_t * socket, unix_socket_t * target) {
+int unix_socket_connect(unix_socket_t * socket, unix_socket_t * target) {
     if (target->listen_queue_size == target->listen_queue_capacity) return ERROR_CON_REFUSED;
 
     unix_socket_listen_req_t * req = heap_alloc_debug(sizeof(unix_socket_listen_req_t), "unix_socket listener");
@@ -75,7 +75,7 @@ error_number_t unix_socket_connect(unix_socket_t * socket, unix_socket_t * targe
     return ERROR_OK;
 }
 
-error_number_t unix_socket_accept(unix_socket_t * socket, unix_socket_t ** _new_socket) {
+int unix_socket_accept(unix_socket_t * socket, unix_socket_t ** _new_socket) {
     if (socket->listen_queue_capacity == 0) return ERROR_NOT_LISTENER;
 
     while (socket->listen_queue_head.next == &socket->listen_queue_tail) {
@@ -99,7 +99,7 @@ error_number_t unix_socket_accept(unix_socket_t * socket, unix_socket_t ** _new_
     return ERROR_OK;
 }
 
-error_number_t unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_size_t * read) {
+int unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_size_t * read) {
     if (socket->paired_socket == NULL) {
         return ERROR_NO_ADDR;
     }
@@ -141,7 +141,7 @@ error_number_t unix_socket_read(unix_socket_t * socket, char * data, fs_size_t s
     return ERROR_OK;
 }
 
-error_number_t unix_socket_write(unix_socket_t * socket, const char * data, fs_size_t size, fs_size_t * wrote) {
+int unix_socket_write(unix_socket_t * socket, const char * data, fs_size_t size, fs_size_t * wrote) {
     if (socket->paired_socket == NULL) {
         return ERROR_NO_ADDR;
     }

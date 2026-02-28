@@ -15,7 +15,7 @@
 #include <util/memory/memcpy.h>
 #include <util/string/strlen.h>
 
-#include <pkos/defs.h>
+#include <defs.h>
 
 #include <sys/paging/page_type.h>
 #include <sys/paging/page_size.h>
@@ -28,6 +28,7 @@
 #include <util/heap/internal.h>
 
 #include <pkos/syscalls.h>
+#include <pkos/fileno.h>
 
 #include <config/pman.h>
 
@@ -90,7 +91,7 @@ pman_context_t * pman_new_context(void) {
     return context;
 }
 
-error_number_t pman_free_context(pman_context_t * context) { // TODO
+int pman_free_context(pman_context_t * context) { // TODO
     kprintf("Free context");
 
     while (context->head.next != &context->tail) {
@@ -337,7 +338,7 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
     return mapping;
 }
 
-error_number_t pman_context_unmap(pman_mapping_t * mapping) {
+int pman_context_unmap(pman_mapping_t * mapping) {
     kprintf("Unmap");
 
     switch (mapping->type) {
@@ -621,7 +622,7 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
     }
 
     if (pman_context_prepare_write(current_process, mapping) == NULL) {
-        fs_file_t * out_file = file_table_get(&current_process->file_table, stdout);
+        fs_file_t * out_file = file_table_get(&current_process->file_table, STDOUT_FILENO);
 
         if (out_file != NULL) file_write(out_file, "PAGE FAULT: Unwritable\n", 23);
 

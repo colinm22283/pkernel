@@ -7,7 +7,7 @@
 
 #include <util/heap/heap.h>
 
-error_number_t sysfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
+int sysfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
     sysfs_fs_node_t * node = (sysfs_fs_node_t *) dirent->node;
 
     int64_t result = node->read(node->id, data, size, offset);
@@ -24,7 +24,7 @@ error_number_t sysfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t 
     }
 }
 
-error_number_t sysfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
+int sysfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
     sysfs_fs_node_t * node = (sysfs_fs_node_t *) dirent->node;
 
     int64_t result = node->write(node->id, data, size, offset);
@@ -53,13 +53,13 @@ fs_node_t * sysfs_alloc_node(fs_superblock_t * superblock) {
     return (fs_node_t *) new_node;
 }
 
-error_number_t sysfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
+int sysfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
     heap_free(node);
 
     return ERROR_OK;
 }
 
-error_number_t sysfs_list(fs_directory_entry_t * dirent) {
+int sysfs_list(fs_directory_entry_t * dirent) {
     fs_directory_entry_add_reference(dirent);
 
     return ERROR_OK;
@@ -78,7 +78,7 @@ fs_directory_entry_node_t * sysfs_create(struct fs_directory_entry_s * parent, s
     return dirent_node;
 }
 
-error_number_t sysfs_delete(struct fs_directory_entry_s * dirent) {
+int sysfs_delete(struct fs_directory_entry_s * dirent) {
     fs_directory_entry_release(dirent);
 
     return ERROR_OK;

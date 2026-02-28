@@ -26,7 +26,7 @@ void socket_free(socket_t * socket) {
     heap_free(socket);
 }
 
-error_number_t socket_connect(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
+int socket_connect(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
     switch (socket->domain) {
         case SOCKET_UNIX: {
             process_t * current_process = scheduler_current_process();
@@ -49,7 +49,7 @@ error_number_t socket_connect(socket_t * socket, const sockaddr_t * _sockaddr, s
     return ERROR_UNIMPLEMENTED;
 }
 
-error_number_t socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
+int socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
     switch (socket->domain) {
         case SOCKET_UNIX: {
             process_t * current_process = scheduler_current_process();
@@ -86,7 +86,7 @@ error_number_t socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size
     return ERROR_UNIMPLEMENTED;
 }
 
-error_number_t socket_listen(socket_t * socket, size_t size) {
+int socket_listen(socket_t * socket, size_t size) {
     switch (socket->domain) {
         case SOCKET_UNIX: {
             unix_socket_listen(socket->unix.socket, size);
@@ -98,12 +98,12 @@ error_number_t socket_listen(socket_t * socket, size_t size) {
     return ERROR_UNIMPLEMENTED;
 }
 
-error_number_t socket_accept(socket_t * socket, socket_t ** _new_socket) {
+int socket_accept(socket_t * socket, socket_t ** _new_socket) {
     switch (socket->domain) {
         case SOCKET_UNIX: {
             unix_socket_t * unix_socket;
 
-            error_number_t result = unix_socket_accept(socket->unix.socket, &unix_socket);
+            int result = unix_socket_accept(socket->unix.socket, &unix_socket);
             if (result != ERROR_OK) return result;
 
             socket_t * new_socket = heap_alloc_debug(sizeof(socket_t), "socket accept");
@@ -123,7 +123,7 @@ error_number_t socket_accept(socket_t * socket, socket_t ** _new_socket) {
     return ERROR_UNIMPLEMENTED;
 }
 
-error_number_t socket_read(socket_t * socket, char * data, fs_size_t size, fs_size_t * read) {
+int socket_read(socket_t * socket, char * data, fs_size_t size, fs_size_t * read) {
     switch (socket->domain) {
         case SOCKET_UNIX: {
             return unix_socket_read(socket->unix.socket, data, size, read);
@@ -133,7 +133,7 @@ error_number_t socket_read(socket_t * socket, char * data, fs_size_t size, fs_si
     return ERROR_UNIMPLEMENTED;
 }
 
-error_number_t socket_write(socket_t * socket, const char * data, fs_size_t size, fs_size_t * wrote) {
+int socket_write(socket_t * socket, const char * data, fs_size_t size, fs_size_t * wrote) {
     switch (socket->domain) {
         case SOCKET_UNIX: {
             return unix_socket_write(socket->unix.socket, data, size, wrote);

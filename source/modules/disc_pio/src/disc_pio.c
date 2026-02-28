@@ -100,7 +100,7 @@ void add_ide_device(port_t io_port, port_t control_port, bool is_master) {
     }
 }
 
-error_number_t init(void) {
+int init(void) {
     ide_device_count = 0;
     ide_devices = heap_alloc_debug(1, "disc_pio ide_devices");
 
@@ -109,7 +109,7 @@ error_number_t init(void) {
     return ERROR_OK;
 }
 
-error_number_t free(void) {
+int free(void) {
     pci_unwatch(pci_watcher);
 
     return ERROR_OK;

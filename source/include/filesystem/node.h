@@ -6,9 +6,9 @@
 #include <filesystem/types.h>
 #include <filesystem/directory_entry.h>
 
-#include <error_number.h>
+#include <errno.h>
 
-#include <pkos/types.h>
+#include <sys/types.h>
 
 typedef struct fs_node_s {
     bool delete;

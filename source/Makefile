@@ -2,7 +2,7 @@ KN_OD_64=$(OBJ_DIR)/64/src
 KN_CD=$(CONFIG_DIR)/kernel/config
 
 export INCLUDE_DIRS+=$(CURDIR)/include
-export INCLUDE_DIRS+=$(SOURCE_DIR)/shared/include
+export INCLUDE_DIRS+=$(FSROOT_DIR)/usr/include
 export INCLUDE_DIRS+=$(CONFIG_DIR)/kernel
 
 KN_OBJS+=$(KN_OD_64)/util/memory/memcpy.o

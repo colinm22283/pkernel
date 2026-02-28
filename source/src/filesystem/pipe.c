@@ -42,7 +42,7 @@ pipe_t * pipe_init(void) {
     return pipe;
 }
 
-error_number_t pipe_free(pipe_t * pipe) {
+int pipe_free(pipe_t * pipe) {
     pman_context_unmap(pipe->buffer_alloc);
 
     heap_free(pipe);
@@ -50,7 +50,7 @@ error_number_t pipe_free(pipe_t * pipe) {
     return ERROR_OK;
 }
 
-error_number_t pipe_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
+int pipe_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
     pipe_t * pipe = dirent->pipe;
 
     for (fs_size_t i = 0; i < size; i++) {
@@ -64,7 +64,7 @@ error_number_t pipe_read(fs_directory_entry_t * dirent, char * data, fs_size_t s
     return ERROR_OK;
 }
 
-error_number_t pipe_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
+int pipe_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
     pipe_t * pipe = dirent->pipe;
 
     for (fs_size_t i = 0; i < size; i++) {

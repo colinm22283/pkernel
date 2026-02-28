@@ -14,13 +14,13 @@ fs_node_t * alloc_node(fs_superblock_t * superblock) {
     return (fs_node_t *) new_node;
 }
 
-error_number_t free_node(fs_superblock_t * superblock, fs_node_t * node) {
+int free_node(fs_superblock_t * superblock, fs_node_t * node) {
     heap_free(node);
 
     return ERROR_OK;
 }
 
-error_number_t list(fs_directory_entry_t * dirent) {
+int list(fs_directory_entry_t * dirent) {
     pkfs_fs_node_t * node = (pkfs_fs_node_t *) dirent->node;
 
     directory_iterator_t itr;
@@ -51,7 +51,7 @@ error_number_t list(fs_directory_entry_t * dirent) {
     }
 }
 
-error_number_t lookup(fs_directory_entry_t * dirent, fs_directory_entry_node_t * dirent_node, fs_node_t * _node) {
+int lookup(fs_directory_entry_t * dirent, fs_directory_entry_node_t * dirent_node, fs_node_t * _node) {
     pkfs_fs_node_t * parent_node = (pkfs_fs_node_t *) dirent->node;
     pkfs_fs_node_t * node = (pkfs_fs_node_t *) _node;
 
@@ -136,7 +136,7 @@ fs_directory_entry_node_t * create(struct fs_directory_entry_s * parent, struct 
     }
 }
 
-error_number_t delete(fs_directory_entry_t * dirent) {
+int delete(fs_directory_entry_t * dirent) {
     pkfs_fs_node_t * node = (pkfs_fs_node_t *) dirent->node;
 
     if (dirent->type == FS_DIRECTORY) {
@@ -152,7 +152,7 @@ fs_directory_entry_node_t * link(fs_directory_entry_t * dirent, fs_directory_ent
     return NULL;
 }
 
-error_number_t write(fs_directory_entry_t * dirent, const char * buffer, uint64_t size, uint64_t offset, uint64_t * wrote) {
+int write(fs_directory_entry_t * dirent, const char * buffer, uint64_t size, uint64_t offset, uint64_t * wrote) {
     pkfs_fs_node_t * node = (pkfs_fs_node_t *) dirent->node;
 
     *wrote = write_file(dirent->superblock->device, node->file_page, buffer, size, offset);
@@ -162,7 +162,7 @@ error_number_t write(fs_directory_entry_t * dirent, const char * buffer, uint64_
     return ERROR_OK;
 }
 
-error_number_t read(fs_directory_entry_t * dirent, char * buffer, uint64_t size, uint64_t offset, uint64_t * read) {
+int read(fs_directory_entry_t * dirent, char * buffer, uint64_t size, uint64_t offset, uint64_t * read) {
     pkfs_fs_node_t * node = (pkfs_fs_node_t *) dirent->node;
 
     *read = read_file(dirent->superblock->device, node->file_page, buffer, size, offset);

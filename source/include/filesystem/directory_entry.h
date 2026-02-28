@@ -8,9 +8,9 @@
 #include <filesystem/pipe.h>
 #include <filesystem/socket.h>
 
-#include <error_number.h>
+#include <errno.h>
 
-#include <pkos/types.h>
+#include <sys/types.h>
 
 typedef struct fs_directory_entry_node_s {
     struct fs_directory_entry_s * dirent;

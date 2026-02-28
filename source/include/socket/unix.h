@@ -41,8 +41,8 @@ unix_socket_t * unix_socket_init(void);
 void unix_socket_free(unix_socket_t * socket);
 
 void unix_socket_listen(unix_socket_t * socket, size_t listen_queue_capacity);
-error_number_t unix_socket_connect(unix_socket_t * socket, unix_socket_t * target);
-error_number_t unix_socket_accept(unix_socket_t * socket, unix_socket_t ** new_socket);
+int unix_socket_connect(unix_socket_t * socket, unix_socket_t * target);
+int unix_socket_accept(unix_socket_t * socket, unix_socket_t ** new_socket);
 
-error_number_t unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_size_t * read);
-error_number_t unix_socket_write(unix_socket_t * socket, const char * data, fs_size_t size, fs_size_t * wrote);
+int unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_size_t * read);
+int unix_socket_write(unix_socket_t * socket, const char * data, fs_size_t size, fs_size_t * wrote);

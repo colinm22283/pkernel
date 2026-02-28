@@ -7,8 +7,8 @@
 
 #include <sysfs/sysfs.h>
 
-typedef error_number_t module_init_t(void);
-typedef error_number_t module_free_t(void);
+typedef int module_init_t(void);
+typedef int module_free_t(void);
 
 typedef enum {
     MODULE_STATIC,
@@ -37,8 +37,8 @@ typedef struct module_s {
 
 void modules_init(void);
 
-error_number_t module_register_static(const char * module_name, const char ** deps, size_t dep_count, module_init_t * init, module_free_t * free);
+int module_register_static(const char * module_name, const char ** deps, size_t dep_count, module_init_t * init, module_free_t * free);
 
-error_number_t module_load(const char * name);
+int module_load(const char * name);
 
-error_number_t module_unload(const char * name);
+int module_unload(const char * name);

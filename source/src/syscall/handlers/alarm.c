@@ -16,7 +16,7 @@ void alarm_timer_handler(timer_t * timer) {
     timer_free(timer);
 }
 
-error_number_t syscall_alarm(size_t seconds) {
+int syscall_alarm(size_t seconds) {
     process_t * current_process = scheduler_current_process();
 
     timer_init(alarm_timer_handler, current_process, TIMER_S_TO_TICKS(seconds), 0);

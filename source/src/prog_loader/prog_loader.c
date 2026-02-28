@@ -21,7 +21,7 @@ size_t prog_read_handler(void * cookie, char * buffer, size_t size, size_t offse
     return read_bytes;
 }
 
-error_number_t load_program(process_t * process, fs_directory_entry_t * dirent) {
+int load_program(process_t * process, fs_directory_entry_t * dirent) {
     if (dirent == NULL) {
         return ERROR_FS_NO_ENT;
     }

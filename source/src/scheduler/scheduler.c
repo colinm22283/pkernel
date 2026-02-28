@@ -83,7 +83,7 @@ void scheduler_queue(thread_t * thread) {
     }
 }
 
-error_number_t scheduler_await(event_t * event) {
+int scheduler_await(event_t * event) {
     if (!event->has_signal) {
         scheduler_core_t * current_core = scheduler_current_core();
         thread_t * thread = current_core->current_thread;
@@ -116,7 +116,7 @@ error_number_t scheduler_await(event_t * event) {
     }
 }
 
-error_number_t scheduler_await_interruptable(event_t * event) {
+int scheduler_await_interruptable(event_t * event) {
     if (!event->has_signal) {
         scheduler_core_t * current_core = scheduler_current_core();
         thread_t * thread = current_core->current_thread;

@@ -39,7 +39,7 @@ int64_t sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offs
     return 0;
 }
 
-error_number_t module_register_static(const char * module_name, const char ** deps, size_t dep_count, module_init_t * init, module_free_t * free) {
+int module_register_static(const char * module_name, const char ** deps, size_t dep_count, module_init_t * init, module_free_t * free) {
     kprintf("Register static module '%s'", module_name);
 
     size_t module_name_len = strlen(module_name);
@@ -74,7 +74,7 @@ error_number_t module_register_static(const char * module_name, const char ** de
     return ERROR_OK;
 }
 
-error_number_t module_load(const char * name) {
+int module_load(const char * name) {
     for (module_t * module = loaded_head.next; module != &loaded_tail; module = module->next) {
         if (strcmp(module->name, name) == 0) {
             return ERROR_MOD_LOADED;
@@ -85,7 +85,7 @@ error_number_t module_load(const char * name) {
 
     for (module_t * module = modules_head.next; module != &modules_tail; module = module->next) {
         if (strcmp(module->name, name) == 0) {
-            error_number_t result;
+            int result;
 
             for (size_t i = 0; i < module->dep_count; i++) {
                 result = module_load(module->deps[i]);
@@ -135,7 +135,7 @@ error_number_t module_load(const char * name) {
     return ERROR_MOD_NONE;
 }
 
-error_number_t module_unload(const char * name) {
+int module_unload(const char * name) {
     module_t * found_module = NULL;
 
     for (module_t * module = loaded_head.next; module != &loaded_tail; module = module->next) {

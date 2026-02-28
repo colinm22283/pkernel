@@ -2,7 +2,7 @@
 
 #include <syscall/handlers/unmount.h>
 
-error_number_t syscall_unmount(const char * _path) {
+int syscall_unmount(const char * _path) {
     process_t * current_process = scheduler_current_process();
 
     const char * path = process_user_to_kernel(current_process, _path);

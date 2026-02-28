@@ -5,7 +5,7 @@
 #include <paging/bitmap.h>
 #include <paging/physical_allocator.h>
 
-#include <error_number.h>
+#include <errno.h>
 
 #include <sys/paging/pml4t.h>
 #include <sys/exceptions/page_fault_error_code.h>
@@ -16,8 +16,8 @@
 struct pman_context_s;
 struct process_s;
 
-typedef error_number_t (* pman_mapping_write_handler_t)(uint64_t address_offset);
-typedef error_number_t (* pman_mapping_read_handler_t)(uint64_t address_offset);
+typedef int (* pman_mapping_write_handler_t)(uint64_t address_offset);
+typedef int (* pman_mapping_read_handler_t)(uint64_t address_offset);
 
 typedef enum {
     PMAN_PROT_WRITE    = 0b00001,
@@ -116,7 +116,7 @@ static inline void pman_add_reference(pman_mapping_t * mapping) {
 void pman_init(void);
 
 pman_context_t * pman_new_context(void);
-error_number_t pman_free_context(pman_context_t * context);
+int pman_free_context(pman_context_t * context);
 
 void pman_context_load_table(pman_context_t * context);
 
@@ -126,7 +126,7 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
 pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protection_flags_t prot, pman_mapping_t * lender, void * vaddr);
 pman_mapping_t * pman_context_add_handler(pman_context_t * context, pman_protection_flags_t prot, void * vaddr, uint64_t paddr);
 
-error_number_t pman_context_unmap(pman_mapping_t * mapping);
+int pman_context_unmap(pman_mapping_t * mapping);
 
 pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size);
 

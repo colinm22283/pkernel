@@ -6,7 +6,7 @@
 
 #include <syscall/handlers/connect.h>
 
-error_number_t syscall_connect(fd_t sock_fd, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
+int syscall_connect(fd_t sock_fd, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
     process_t * current_process = scheduler_current_process();
 
     const sockaddr_t * sockaddr = process_user_to_kernel(current_process, _sockaddr);

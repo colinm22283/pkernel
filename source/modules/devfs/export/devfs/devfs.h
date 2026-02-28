@@ -4,7 +4,7 @@
 
 #include <filesystem/node.h>
 
-#include <error_number.h>
+#include <errno.h>
 
 typedef struct devfs_entry_s {
     char * name;
@@ -14,7 +14,7 @@ typedef struct devfs_entry_s {
     struct devfs_entry_s * prev;
 } devfs_entry_t;
 
-error_number_t devfs_init(void);
+int devfs_init(void);
 
 devfs_entry_t * devfs_register(device_t * device);
-error_number_t devfs_remove(devfs_entry_t * entry);
+int devfs_remove(devfs_entry_t * entry);

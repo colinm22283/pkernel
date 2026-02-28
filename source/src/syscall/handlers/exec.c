@@ -28,7 +28,7 @@
 #include <sys/tsr/tsr_set_stack.h>
 #include <sys/paging/page_size.h>
 
-error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
+int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
     const char * path = process_user_to_kernel(
         scheduler_current_process(),
         _path
@@ -56,7 +56,14 @@ error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t ar
 
     process_t * current_process = scheduler_current_process();
 
+    fs_directory_entry_t * elf_dirent = process_open_path(
+        scheduler_current_process(),
+        path
+    );
 
+    if (elf_dirent == NULL) {
+        return ERROR_FILESYSTEM_NOT_FOUND;
+    }
 
     if (argc != 0) {
         const char ** argv = process_user_to_kernel(current_process, _argv);
@@ -71,12 +78,7 @@ error_number_t syscall_exec(const char * _path, const char ** _argv, uint64_t ar
         process_push_args(current_process, NULL, 0);
     }
 
-    fs_directory_entry_t * elf_dirent = process_open_path(
-        scheduler_current_process(),
-        path
-    );
-
-    error_number_t load_result = load_program(current_process, elf_dirent);
+    int load_result = load_program(current_process, elf_dirent);
 
     if (load_result != ERROR_OK) return load_result;
 

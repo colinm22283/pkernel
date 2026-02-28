@@ -4,7 +4,7 @@
 
 #include <util/heap/heap.h>
 
-error_number_t sysfs_mount(fs_superblock_t * superblock) {
+int sysfs_mount(fs_superblock_t * superblock) {
     sysfs_mounts[sysfs_mount_count++].mount_point = superblock->mount_point;
     sysfs_mounts = heap_realloc(sysfs_mounts, (sysfs_mount_count + 1) * sizeof(sysfs_mount_t));
 
@@ -37,7 +37,7 @@ void sysfs_unmount_recur(fs_directory_entry_t * dirent) {
     }
 }
 
-error_number_t sysfs_unmount(fs_superblock_t * superblock) {
+int sysfs_unmount(fs_superblock_t * superblock) {
     for (uint64_t i = 0; i < sysfs_mount_count; i++) {
         if (sysfs_mounts[i].mount_point == superblock->mount_point) {
             sysfs_mount_count--;

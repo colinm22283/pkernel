@@ -8,6 +8,8 @@
 #include <util/string/strlen.h>
 #include <util/string/strcpy.h>
 
+#include <errno.h>
+
 #include <mod_defs.h>
 
 devfs_entry_t devfs_head, devfs_tail;
@@ -19,13 +21,13 @@ __MOD_EXPORT fs_node_t * devfs_alloc(fs_superblock_t * superblock) {
     return heap_alloc_debug(sizeof(fs_node_t), "devfs alloc fsnode");
 }
 
-__MOD_EXPORT error_number_t devfs_free(fs_superblock_t * superblock, fs_node_t * node) {
+__MOD_EXPORT int devfs_free(fs_superblock_t * superblock, fs_node_t * node) {
     heap_free(node);
 
     return ERROR_OK;
 }
 
-__MOD_EXPORT error_number_t devfs_list(fs_directory_entry_t * dirent) {
+__MOD_EXPORT int devfs_list(fs_directory_entry_t * dirent) {
     for (
         devfs_entry_t * entry = devfs_head.next;
         entry != &devfs_tail;
@@ -46,7 +48,7 @@ __MOD_EXPORT error_number_t devfs_list(fs_directory_entry_t * dirent) {
     return ERROR_OK;
 }
 
-__MOD_EXPORT error_number_t devfs_write(fs_directory_entry_t * dirent, const char * data, uint64_t size, uint64_t offset, uint64_t * wrote) {
+__MOD_EXPORT int devfs_write(fs_directory_entry_t * dirent, const char * data, uint64_t size, uint64_t offset, uint64_t * wrote) {
     device_t * device = dirent->device;
 
     *wrote = device_write(device, data, size, offset);
@@ -54,7 +56,7 @@ __MOD_EXPORT error_number_t devfs_write(fs_directory_entry_t * dirent, const cha
     return ERROR_OK;
 }
 
-__MOD_EXPORT error_number_t devfs_read(fs_directory_entry_t * dirent, char * data, uint64_t size, uint64_t offset, uint64_t * read) {
+__MOD_EXPORT int devfs_read(fs_directory_entry_t * dirent, char * data, uint64_t size, uint64_t offset, uint64_t * read) {
     device_t * device = dirent->device;
 
     *read = device_read(device, data, size, offset);
@@ -72,14 +74,14 @@ fs_superblock_ops_t devfs_superblock_ops = {
     .read  = devfs_read,
 };
 
-__MOD_EXPORT error_number_t devfs_mount(fs_superblock_t * superblock) {
+__MOD_EXPORT int devfs_mount(fs_superblock_t * superblock) {
     devfs_mounts[devfs_mount_count++] = superblock->mount_point;
     devfs_mounts = heap_realloc(devfs_mounts, (devfs_mount_count + 1) * sizeof(fs_directory_entry_t *));
 
     return ERROR_OK;
 }
 
-__MOD_EXPORT error_number_t devfs_unmount(fs_superblock_t * superblock) {
+__MOD_EXPORT int devfs_unmount(fs_superblock_t * superblock) {
     for (uint64_t i = 0; i < devfs_mount_count; i++) {
         if (devfs_mounts[i] == superblock->mount_point) {
             for (i++; i < devfs_mount_count; i++) {
@@ -126,7 +128,7 @@ __MOD_EXPORT devfs_entry_t * devfs_register(device_t * device) {
     return new_entry;
 }
 
-__MOD_EXPORT error_number_t devfs_remove(devfs_entry_t * entry) {
+__MOD_EXPORT int devfs_remove(devfs_entry_t * entry) {
     entry->next->prev = entry->prev;
     entry->prev->next = entry->next;
 
@@ -136,7 +138,7 @@ __MOD_EXPORT error_number_t devfs_remove(devfs_entry_t * entry) {
     return ERROR_OK;
 }
 
-error_number_t init(void) {
+int init(void) {
     devfs_head.next = &devfs_tail;
     devfs_head.prev = NULL;
     devfs_tail.next = NULL;
@@ -150,7 +152,7 @@ error_number_t init(void) {
     return ERROR_OK;
 }
 
-error_number_t free(void) { return ERROR_OK; }
+int free(void) { return ERROR_OK; }
 
 MODULE_NAME("devfs");
 MODULE_DEPS_NONE();

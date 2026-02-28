@@ -76,7 +76,7 @@ uint64_t write(tty_t * tty, const char * buffer, uint64_t size) {
     return size;
 }
 
-error_number_t init(void) {
+int init(void) {
 #ifdef COM1_ENABLE
 
     MODULE_DEBUG(
@@ -158,7 +158,7 @@ error_number_t init(void) {
     return ERROR_OK;
 }
 
-error_number_t free(void) {
+int free(void) {
 #ifdef COM1_ENABLE
     interrupt_registry_free((interrupt_code_t) IC_COM1);
 

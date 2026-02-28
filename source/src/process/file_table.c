@@ -74,7 +74,7 @@ void file_table_clone(file_table_t * dst, file_table_t * src) {
     }
 }
 
-error_number_t file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
+int file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
     if ((size_t) src >= file_table->file_capacity || file_table->files[src] == NULL) return ERROR_BAD_FD;
 
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file dup");
@@ -90,7 +90,7 @@ error_number_t file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
 fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, open_options_t options) {
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file open");
 
-    error_number_t init_result = file_init(file, node, options);
+    int init_result = file_init(file, node, options);
     if (init_result != ERROR_OK) return init_result;
 
     return file_table_add(file_table, file);
@@ -99,7 +99,7 @@ fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, ope
 fd_t file_table_openat(file_table_t * file_table, fd_t fd, fs_directory_entry_t * node, open_options_t options) {
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file openat");
 
-    error_number_t init_result = file_init(file, node, options);
+    int init_result = file_init(file, node, options);
     if (init_result != ERROR_OK) return init_result;
 
     file_table_set(file_table, fd, file);
@@ -113,7 +113,7 @@ fs_file_t * file_table_get(file_table_t * file_table, fd_t fd) {
     return file_table->files[fd];
 }
 
-error_number_t file_table_close(file_table_t * file_table, fd_t fd) {
+int file_table_close(file_table_t * file_table, fd_t fd) {
     if ((size_t) fd >= file_table->file_capacity || file_table->files[fd] == NULL) return ERROR_BAD_FD;
 
     file_close(file_table->files[fd]);

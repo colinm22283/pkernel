@@ -1,7 +1,7 @@
 #pragma once
 
-#include <error_number.h>
+#include <errno.h>
 
-#include <pkos/types.h>
+#include <sys/types.h>
 
-error_number_t syscall_unmount(const char * _path);
+int syscall_unmount(const char * _path);

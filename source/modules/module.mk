@@ -42,8 +42,8 @@ $(STATIC_MODULE_OUT)/modules/%.h: modules/module.mk
 	mkdir -p $(STATIC_MODULE_OUT)/modules
 	
 	echo "#pragma once" > $@
-	echo "error_number_t module_$*_init(void);" >> $@
-	echo "error_number_t module_$*_free(void);" >> $@
+	echo "int module_$*_init(void);" >> $@
+	echo "int module_$*_free(void);" >> $@
 	echo "extern const char module_$*_name[];" >> $@
 	echo "extern const char * module_$*_deps[];" >> $@
 	echo "extern const size_t module_$*_dep_count;" >> $@
