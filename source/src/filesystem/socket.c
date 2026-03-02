@@ -79,7 +79,7 @@ int socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr
 
             socket->unix.socket = unix_socket_init();
 
-            return ERROR_OK;
+            return 0;
         } break;
     }
 
@@ -91,7 +91,7 @@ int socket_listen(socket_t * socket, size_t size) {
         case SOCKET_UNIX: {
             unix_socket_listen(socket->unix.socket, size);
 
-            return ERROR_OK;
+            return 0;
         } break;
     }
 
@@ -104,7 +104,7 @@ int socket_accept(socket_t * socket, socket_t ** _new_socket) {
             unix_socket_t * unix_socket;
 
             int result = unix_socket_accept(socket->unix.socket, &unix_socket);
-            if (result != ERROR_OK) return result;
+            if (result != 0) return result;
 
             socket_t * new_socket = heap_alloc_debug(sizeof(socket_t), "socket accept");
 
@@ -116,7 +116,7 @@ int socket_accept(socket_t * socket, socket_t ** _new_socket) {
 
             *_new_socket = new_socket;
 
-            return ERROR_OK;
+            return 0;
         } break;
     }
 

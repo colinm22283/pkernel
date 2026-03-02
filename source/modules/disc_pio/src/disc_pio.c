@@ -106,13 +106,13 @@ int init(void) {
 
     pci_watcher = pci_watch(pci_probe, NULL);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int free(void) {
     pci_unwatch(pci_watcher);
 
-    return ERROR_OK;
+    return 0;
 }
 
 uint64_t block_write(device_t * device, const char * buffer, uint64_t block_size, uint64_t block_offset) {

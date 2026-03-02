@@ -123,7 +123,7 @@ __NORETURN void kernel_main(void) {
     if (!fs_ramfs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_INIT_ERROR);
 
     kprintf("Mount ramfs");
-    if (fs_mount_root("ramfs", NULL) != ERROR_OK) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_MOUNT_ERROR);
+    if (fs_mount_root("ramfs", NULL) != 0) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_MOUNT_ERROR);
 
     fs_directory_entry_t * dev_dirent = fs_make(&fs_root, "dev", FS_DIRECTORY);
     fs_directory_entry_t * sys_dirent = fs_make(&fs_root, "sys", FS_DIRECTORY);
@@ -181,7 +181,7 @@ __NORETURN void kernel_main(void) {
 
     fs_directory_entry_t * elf_dirent = fs_open_path(&fs_root, "bin/init");
 
-    if (load_program(init_process, elf_dirent) != ERROR_OK) {
+    if (load_program(init_process, elf_dirent) != 0) {
         panic0("Unable to load init process");
     }
 

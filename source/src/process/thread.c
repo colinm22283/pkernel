@@ -173,7 +173,7 @@ int thread_interrupt(thread_t * thread) {
         scheduler_queue(thread);
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 __NORETURN void thread_resume(thread_t * thread) {

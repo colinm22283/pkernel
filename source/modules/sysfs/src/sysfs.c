@@ -28,10 +28,10 @@ int init(void) {
 
     fs_register("sysfs", &sysfs_superblock_ops, sysfs_mount, sysfs_unmount);
 
-    return ERROR_OK;
+    return 0;
 }
 
-int free(void) { return ERROR_OK; }
+int free(void) { return 0; }
 
 __MOD_EXPORT int sysfs_add_entry(const char * path, sysfs_id_t id, sysfs_read_op_t * read_op, sysfs_write_op_t * write_op) {
     sysfs_entry_t * entry = heap_alloc_debug(sizeof(sysfs_entry_t), "sysfs entry");
@@ -61,7 +61,7 @@ __MOD_EXPORT int sysfs_add_entry(const char * path, sysfs_id_t id, sysfs_read_op
         node->write = write_op;
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 __MOD_EXPORT int sysfs_remove_entry(const char * path) {

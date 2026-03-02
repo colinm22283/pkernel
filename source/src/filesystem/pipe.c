@@ -47,7 +47,7 @@ int pipe_free(pipe_t * pipe) {
 
     heap_free(pipe);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int pipe_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
@@ -56,12 +56,12 @@ int pipe_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_siz
     for (fs_size_t i = 0; i < size; i++) {
         if (!pipe_pop(pipe, &data[i])) {
             *read = i;
-            return ERROR_OK;
+            return 0;
         }
     }
 
     *read = size;
-    return ERROR_OK;
+    return 0;
 }
 
 int pipe_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
@@ -70,10 +70,10 @@ int pipe_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size,
     for (fs_size_t i = 0; i < size; i++) {
         if (!pipe_push(pipe, data[i])) {
             *wrote = i;
-            return ERROR_OK;
+            return 0;
         }
     }
 
     *wrote = size;
-    return ERROR_OK;
+    return 0;
 }

@@ -17,7 +17,7 @@ int palloc_alloc(palloc_t * palloc, uint64_t size) {
         palloc->paddrs[i] = bitmap_reserve();
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 int palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_t paddr) {
@@ -42,7 +42,7 @@ int palloc_alloc_contiguous(palloc_t * palloc, uint64_t size, uint64_t paddr) {
         palloc->paddrs[0] = paddr;
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 int palloc_free(palloc_t * palloc) {
@@ -66,5 +66,5 @@ int palloc_free(palloc_t * palloc) {
         } break;
     }
 
-    return ERROR_OK;
+    return 0;
 }

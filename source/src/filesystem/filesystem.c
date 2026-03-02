@@ -62,7 +62,7 @@ int fs_register(const char * name, const fs_superblock_ops_t * superblock_ops, f
     fs_filesystem_head.next->prev = new_node;
     fs_filesystem_head.next = new_node;
 
-    return ERROR_OK;
+    return 0;
 }
 
 int fs_unregister(const char * name) {
@@ -80,7 +80,7 @@ int fs_unregister(const char * name) {
             heap_free(node->name);
             heap_free(node);
 
-            return ERROR_OK;
+            return 0;
         }
     }
 
@@ -113,14 +113,14 @@ int fs_mount_root(const char * name, device_t * device) {
             superblock->mount_point->node = new_node;
 
             int result = node->mount(superblock);
-            if (result != ERROR_OK) return result;
+            if (result != 0) return result;
 
             node->superblock_ops->list(superblock->mount_point);
             superblock->mount_point->mounted_fs = node;
 
             node->mount_count++;
 
-            return ERROR_OK;
+            return 0;
         }
     }
 
@@ -153,7 +153,7 @@ int fs_mount(const char * name, fs_directory_entry_t * mount_point, device_t * d
             superblock->mount_point->node = new_node;
 
             int result = node->mount(superblock);
-            if (result != ERROR_OK) return result;
+            if (result != 0) return result;
 
             node->superblock_ops->list(superblock->mount_point);
             superblock->mount_point->mounted_fs = node;

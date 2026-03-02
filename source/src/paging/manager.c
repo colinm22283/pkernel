@@ -104,7 +104,7 @@ int pman_free_context(pman_context_t * context) { // TODO
 
     heap_free(context);
 
-    return ERROR_OK;
+    return 0;
 }
 
 void pman_context_load_table(pman_context_t * context) {
@@ -410,7 +410,7 @@ int pman_context_unmap(pman_mapping_t * mapping) {
         default: break;
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
@@ -425,7 +425,7 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
                 size
             );
 
-            memcpy(new_alloc->vaddr, mapping->vaddr, mapping->size_pages * PAGE_SIZE);
+            memcpy(new_alloc->vaddr, mapping->vaddr, MIN(mapping->size_pages * PAGE_SIZE, size));
 
             pman_context_unmap(mapping);
 
@@ -444,7 +444,7 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
                 size
             );
 
-            memcpy(new_lender->vaddr, get_root_mapping(mapping)->vaddr, mapping->size_pages * 0x1000);
+            memcpy(new_lender->vaddr, get_root_mapping(mapping)->vaddr, MIN(mapping->size_pages * PAGE_SIZE, size));
 
             pman_context_unmap(mapping);
 
@@ -475,7 +475,7 @@ pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) 
     while (mapping != &context->tail) {
         if (
             vaddr >= mapping->vaddr &&
-            vaddr < (void *) ((char *) mapping->vaddr + mapping->size_pages * 0x1000)
+            vaddr < (void *) ((char *) mapping->vaddr + mapping->size_pages * PAGE_SIZE)
         ) return mapping;
 
         mapping = mapping->next;
@@ -517,10 +517,10 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
                 pman_kernel_context(),
                 PMAN_PROT_WRITE,
                 NULL,
-                root_mapping->size_pages * 0x1000
+                root_mapping->size_pages * PAGE_SIZE
             );
 
-            memcpy(kernel_alloc->vaddr, root_mapping->vaddr, root_mapping->size_pages * 0x1000);
+            memcpy(kernel_alloc->vaddr, root_mapping->vaddr, root_mapping->size_pages * PAGE_SIZE);
 
             pman_context_unmap(mapping);
 

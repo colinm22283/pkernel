@@ -115,10 +115,10 @@ int init(void) {
         }
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
-int free(void) { return ERROR_OK; }
+int free(void) { return 0; }
 
 MODULE_NAME("x86_pci");
 MODULE_DEPS_NONE();

@@ -84,14 +84,14 @@ int file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
 
     file_table_set(file_table, dst, file);
 
-    return ERROR_OK;
+    return 0;
 }
 
 fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, open_options_t options) {
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file open");
 
     int init_result = file_init(file, node, options);
-    if (init_result != ERROR_OK) return init_result;
+    if (init_result != 0) return init_result;
 
     return file_table_add(file_table, file);
 }
@@ -100,7 +100,7 @@ fd_t file_table_openat(file_table_t * file_table, fd_t fd, fs_directory_entry_t 
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file openat");
 
     int init_result = file_init(file, node, options);
-    if (init_result != ERROR_OK) return init_result;
+    if (init_result != 0) return init_result;
 
     file_table_set(file_table, fd, file);
 
@@ -121,5 +121,5 @@ int file_table_close(file_table_t * file_table, fd_t fd) {
 
     file_table->files[fd] = NULL;
 
-    return ERROR_OK;
+    return 0;
 }

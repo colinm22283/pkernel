@@ -23,5 +23,5 @@ int64_t syscall_chdir(const char * _path) {
 
     process_set_working_dir(current_process, node);
 
-    return ERROR_OK;
+    return 0;
 }

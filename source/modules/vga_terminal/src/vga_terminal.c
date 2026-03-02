@@ -157,7 +157,7 @@ int init(void) {
 
     vga_term_device = device;
 
-    return ERROR_OK;
+    return 0;
 }
 
 int free(void) {
@@ -168,7 +168,7 @@ int free(void) {
 
     pman_context_unmap(buffer_mapping);
 
-    return ERROR_OK;
+    return 0;
 }
 
 MODULE_NAME("vga_tty");

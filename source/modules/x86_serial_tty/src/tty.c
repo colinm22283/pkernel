@@ -155,7 +155,7 @@ int init(void) {
     
 #endif
 
-    return ERROR_OK;
+    return 0;
 }
 
 int free(void) {
@@ -171,7 +171,7 @@ int free(void) {
     tty_free(com2_data.tty);
 #endif
 
-    return ERROR_OK;
+    return 0;
 }
 
 MODULE_NAME("x86_serial_tty");

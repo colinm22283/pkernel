@@ -18,7 +18,7 @@ fd_t syscall_accept(fd_t sock_fd) {
     socket_t * new_socket;
 
     int result = socket_accept(file->dirent->socket, &new_socket);
-    if (result != ERROR_OK) return result;
+    if (result != 0) return result;
 
     fs_directory_entry_t * dirent = fs_make_anon(FS_SOCKET);
 

@@ -86,7 +86,7 @@ int init(void) {
 
     if (!interrupt_registry_register((interrupt_code_t) IC_KEYBOARD, keyboard_handler)) return ERROR_INT_UNAVAIL;
 
-    return ERROR_OK;
+    return 0;
 }
 
 int free(void) {
@@ -96,7 +96,7 @@ int free(void) {
 
     device_remove(device);
 
-    return ERROR_OK;
+    return 0;
 }
 
 MODULE_NAME("kbd_pio");

@@ -50,7 +50,7 @@ int signal_table_invoke(process_t * process, signal_number_t sig) {
         thread_interrupt(thread);
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 int signal_table_set(signal_table_t * st, signal_number_t sig, signal_handler_t * handler) {
@@ -60,7 +60,7 @@ int signal_table_set(signal_table_t * st, signal_number_t sig, signal_handler_t 
 
     signal->user_handler = handler;
 
-    return ERROR_OK;
+    return 0;
 }
 
 int signal_table_reset(signal_table_t * st, signal_number_t sig) {
@@ -70,7 +70,7 @@ int signal_table_reset(signal_table_t * st, signal_number_t sig) {
 
     signal->user_handler = NULL;
 
-    return ERROR_OK;
+    return 0;
 }
 
 int signal_table_resume(thread_t * thread) {
@@ -111,5 +111,5 @@ int signal_table_resume(thread_t * thread) {
         push_function(thread->process, &thread->tsr, signal->user_handler, args, 1);
     }
 
-    return ERROR_OK;
+    return 0;
 }

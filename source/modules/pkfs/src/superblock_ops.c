@@ -17,7 +17,7 @@ fs_node_t * alloc_node(fs_superblock_t * superblock) {
 int free_node(fs_superblock_t * superblock, fs_node_t * node) {
     heap_free(node);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int list(fs_directory_entry_t * dirent) {
@@ -31,7 +31,7 @@ int list(fs_directory_entry_t * dirent) {
 
         filesystem_directory_entry_type_t result = directory_iterator_next(dirent->superblock->device, &itr, &page_address);
 
-        if (page_address == 0) return ERROR_OK;
+        if (page_address == 0) return 0;
 
         char buffer[FILESYSTEM_NAME_MAX_SIZE];
 
@@ -44,7 +44,7 @@ int list(fs_directory_entry_t * dirent) {
                 get_directory_name(dirent->superblock->device, page_address, buffer);
             } break;
 
-            case FS_DET_NONE: return ERROR_OK;
+            case FS_DET_NONE: return 0;
         }
 
         fs_directory_entry_add_entry(dirent, buffer);
@@ -88,7 +88,7 @@ int lookup(fs_directory_entry_t * dirent, fs_directory_entry_node_t * dirent_nod
             dirent_node->dirent = fs_directory_entry_create(node_type, dirent, dirent_node);
             dirent_node->dirent->node = _node;
 
-            return ERROR_OK;
+            return 0;
         }
     }
 }
@@ -143,7 +143,7 @@ int delete(fs_directory_entry_t * dirent) {
         return ERROR_UNIMPLEMENTED;
     }
     else {
-        if (delete_file(dirent->superblock->device, 64, node->file_page)) return ERROR_OK;
+        if (delete_file(dirent->superblock->device, 64, node->file_page)) return 0;
         else return ERROR_UNKNOWN;
     }
 }

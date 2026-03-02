@@ -18,7 +18,7 @@ int sysfs_mount(fs_superblock_t * superblock) {
         node->write = entry->write;
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 void sysfs_unmount_recur(fs_directory_entry_t * dirent) {
@@ -53,5 +53,5 @@ int sysfs_unmount(fs_superblock_t * superblock) {
 
     sysfs_unmount_recur(superblock->mount_point);
 
-    return ERROR_OK;
+    return 0;
 }

@@ -16,5 +16,5 @@ int syscall_mkdir(const char * _path) {
 
     fs_directory_entry_release(new_dirent);
 
-    return ERROR_OK;
+    return 0;
 }

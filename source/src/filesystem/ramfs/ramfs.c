@@ -34,13 +34,13 @@ int ramfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
 
     heap_free(node);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int ramfs_list(fs_directory_entry_t * dirent) {
     fs_directory_entry_add_reference(dirent);
 
-    return ERROR_OK;
+    return 0;
 }
 
 fs_directory_entry_node_t * ramfs_create(struct fs_directory_entry_s * parent, struct fs_node_s * _node, const char * name, fs_file_type_t type) {
@@ -84,7 +84,7 @@ int ramfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_si
 
     if (offset >= node->size) {
         *read = 0;
-        return ERROR_OK;
+        return 0;
     }
 
     uint64_t limited_size;
@@ -94,7 +94,7 @@ int ramfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_si
     memcpy(data, node->data + offset, limited_size);
     *read = limited_size;
 
-    return ERROR_OK;
+    return 0;
 }
 
 int ramfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
@@ -110,7 +110,7 @@ int ramfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size
 
     *wrote = size;
 
-    return ERROR_OK;
+    return 0;
 }
 
 const fs_superblock_ops_t ramfs_superblock_ops = {
@@ -128,7 +128,7 @@ const fs_superblock_ops_t ramfs_superblock_ops = {
 };
 
 int fs_ramfs_mount(fs_superblock_t * superblock) {
-    return ERROR_OK;
+    return 0;
 }
 
 int fs_ramfs_unmount(__MAYBE_UNUSED fs_superblock_t * superblock) {

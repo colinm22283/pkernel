@@ -122,7 +122,7 @@ void * map(device_t * dev, pman_context_t * context, pman_protection_flags_t pro
 int unmap(device_t * dev, pman_context_t * context, void * map_addr) {
 
 
-    return ERROR_OK;
+    return 0;
 }
 
 int init(void) {
@@ -144,7 +144,7 @@ int init(void) {
     device = device_create_char("vga", NULL, &operations, &data);
     devfs_entry = devfs_register(device);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int free(void) {
@@ -154,7 +154,7 @@ int free(void) {
     paging_unmap(&paging_kernel_pml4t, &mapping);
 //    paging_valloc_free(frame_buffer, required_pages);
 
-    return ERROR_OK;
+    return 0;
 }
 
 MODULE_NAME("vga_fb");

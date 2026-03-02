@@ -71,7 +71,7 @@ int module_register_static(const char * module_name, const char ** deps, size_t 
     modules_head.next->prev = module;
     modules_head.next = module;
 
-    return ERROR_OK;
+    return 0;
 }
 
 int module_load(const char * name) {
@@ -90,7 +90,7 @@ int module_load(const char * name) {
             for (size_t i = 0; i < module->dep_count; i++) {
                 result = module_load(module->deps[i]);
 
-                if (result != ERROR_OK && result != ERROR_MOD_LOADED) {
+                if (result != 0 && result != ERROR_MOD_LOADED) {
                     debug_print("Failed to load module dependency \"");
                     debug_print(module->deps[i]);
                     debug_print("\"\n");
@@ -100,7 +100,7 @@ int module_load(const char * name) {
             }
 
             result = module->init();
-            if (result != ERROR_OK) {
+            if (result != 0) {
                 debug_print("Failed to init module \"");
                 debug_print(module->name);
                 debug_print("\"\n");

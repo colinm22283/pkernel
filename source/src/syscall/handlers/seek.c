@@ -23,5 +23,5 @@ int64_t syscall_seek(fd_t fd, int64_t offset, seek_origin_t origin) {
         default: return ERROR_BAD_ARG;
     }
 
-    return ERROR_OK;
+    return 0;
 }

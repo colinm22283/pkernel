@@ -12,7 +12,7 @@ int syscall_kill(pid_t pid) {
 
     process_kill(target_proc);
 
-    return ERROR_OK;
+    return 0;
 }
 
 

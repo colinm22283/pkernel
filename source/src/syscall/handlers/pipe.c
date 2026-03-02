@@ -18,6 +18,6 @@ int64_t syscall_pipe(fd_t * _fds, open_options_t options) {
     fds[0] = file_table_open(&current_process->file_table, dirent, OPEN_WRITE);
     fds[1] = file_table_open(&current_process->file_table, dirent, OPEN_READ);
 
-    return ERROR_OK;
+    return 0;
 }
 

@@ -22,6 +22,6 @@ int syscall_thread(void * handler) {
 
     thread_run(new_thread);
 
-    return ERROR_OK;
+    return 0;
 }
 

@@ -24,7 +24,7 @@ __MOD_EXPORT fs_node_t * devfs_alloc(fs_superblock_t * superblock) {
 __MOD_EXPORT int devfs_free(fs_superblock_t * superblock, fs_node_t * node) {
     heap_free(node);
 
-    return ERROR_OK;
+    return 0;
 }
 
 __MOD_EXPORT int devfs_list(fs_directory_entry_t * dirent) {
@@ -45,7 +45,7 @@ __MOD_EXPORT int devfs_list(fs_directory_entry_t * dirent) {
         new_dirent->device = entry->device;
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 __MOD_EXPORT int devfs_write(fs_directory_entry_t * dirent, const char * data, uint64_t size, uint64_t offset, uint64_t * wrote) {
@@ -53,7 +53,7 @@ __MOD_EXPORT int devfs_write(fs_directory_entry_t * dirent, const char * data, u
 
     *wrote = device_write(device, data, size, offset);
 
-    return ERROR_OK;
+    return 0;
 }
 
 __MOD_EXPORT int devfs_read(fs_directory_entry_t * dirent, char * data, uint64_t size, uint64_t offset, uint64_t * read) {
@@ -61,7 +61,7 @@ __MOD_EXPORT int devfs_read(fs_directory_entry_t * dirent, char * data, uint64_t
 
     *read = device_read(device, data, size, offset);
 
-    return ERROR_OK;
+    return 0;
 }
 
 fs_superblock_ops_t devfs_superblock_ops = {

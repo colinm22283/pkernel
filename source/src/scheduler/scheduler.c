@@ -107,12 +107,12 @@ int scheduler_await(event_t * event) {
 
         store_tsr_and_yield(&thread->tsr);
 
-        return ERROR_OK;
+        return 0;
     }
     else {
         event->has_signal = false;
 
-        return ERROR_OK;
+        return 0;
     }
 }
 
@@ -141,12 +141,12 @@ int scheduler_await_interruptable(event_t * event) {
         store_tsr_and_yield(&thread->tsr);
 
         if (thread->state == TS_INTERRUPTED) return ERROR_INTERRUPTED;
-        else return ERROR_OK;
+        else return 0;
     }
     else {
         event->has_signal = false;
 
-        return ERROR_OK;
+        return 0;
     }
 }
 

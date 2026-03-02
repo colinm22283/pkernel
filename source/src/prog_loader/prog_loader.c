@@ -23,20 +23,20 @@ size_t prog_read_handler(void * cookie, char * buffer, size_t size, size_t offse
 
 int load_program(process_t * process, fs_directory_entry_t * dirent) {
     if (dirent == NULL) {
-        return ERROR_FS_NO_ENT;
+        return -ENOENT;
     }
 
-    if (dirent->type != FS_REGULAR) {
+    if (dirent->type == FS_DIRECTORY) {
         fs_directory_entry_release(dirent);
 
-        return ERROR_NOT_REG;
+        return -EISDIR;
     }
 
     elf_t elf;
     if (elf_load(&elf, dirent, prog_read_handler) != ELF_ERROR_OK) {
         fs_directory_entry_release(dirent);
 
-        return ERROR_BAD_ELF;
+        return -ENOEXEC;
     }
 
     kprintf("Loading ELF headers");
@@ -66,18 +66,18 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                     if (header->flags & ELF_PH_FLAGS_W) prot |= PMAN_PROT_WRITE;
                     if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_PROT_EXECUTE;
 
-                    kprintf("    Mapping new kernel segment");
+                    kprintf("    Mapping new kernel segment of size %i", header->memsz + extra_size);
                     pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, header->memsz + extra_size);
 
                     if (kernel_mapping == NULL) {
-                        return ERROR_BAD_MAP;
+                        return -ENOMEM;
                     }
 
                     kprintf("    Mapping new user segment");
                     mapping = pman_context_add_shared(process->paging_context, prot, kernel_mapping, aligned_vaddr);
 
                     if (mapping == NULL) {
-                        return ERROR_BAD_MAP;
+                        return -ENOMEM;
                     }
 
                     process_mapping = kernel_mapping->vaddr + extra_size;
@@ -93,11 +93,11 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                     process_mapping = NULL;
                 }
                 else {
-                    kprintf("    Remapping old segment");
+                    kprintf("    Remapping old segment to size %i", header->memsz + extra_size);
 
-                    mapping = pman_context_resize(mapping, header->memsz);
+                    mapping = pman_context_resize(mapping, header->memsz + extra_size);
 
-                    process_mapping = get_root_mapping(mapping)->vaddr;
+                    process_mapping = get_root_mapping(mapping)->vaddr + extra_size;
                 }
             }
 
@@ -114,5 +114,5 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
 
     elf_release(&elf);
 
-    return ERROR_OK;
+    return 0;
 }

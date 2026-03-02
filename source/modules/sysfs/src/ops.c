@@ -20,7 +20,7 @@ int sysfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_si
     else {
         *read = result;
 
-        return ERROR_OK;
+        return 0;
     }
 }
 
@@ -37,7 +37,7 @@ int sysfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size
     else {
         *wrote = result;
 
-        return ERROR_OK;
+        return 0;
     }
 }
 
@@ -56,13 +56,13 @@ fs_node_t * sysfs_alloc_node(fs_superblock_t * superblock) {
 int sysfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
     heap_free(node);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int sysfs_list(fs_directory_entry_t * dirent) {
     fs_directory_entry_add_reference(dirent);
 
-    return ERROR_OK;
+    return 0;
 }
 
 fs_directory_entry_node_t * sysfs_create(struct fs_directory_entry_s * parent, struct fs_node_s * _node, const char * name, fs_file_type_t type) {

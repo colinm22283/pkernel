@@ -72,7 +72,7 @@ int unix_socket_connect(unix_socket_t * socket, unix_socket_t * target) {
     event_invoke(target->listener_arrived);
     scheduler_await(target->listener_accepted);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int unix_socket_accept(unix_socket_t * socket, unix_socket_t ** _new_socket) {
@@ -96,7 +96,7 @@ int unix_socket_accept(unix_socket_t * socket, unix_socket_t ** _new_socket) {
 
     event_invoke(socket->listener_accepted);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_size_t * read) {
@@ -138,7 +138,7 @@ int unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_siz
         heap_free(packet);
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 int unix_socket_write(unix_socket_t * socket, const char * data, fs_size_t size, fs_size_t * wrote) {
@@ -163,5 +163,5 @@ int unix_socket_write(unix_socket_t * socket, const char * data, fs_size_t size,
 
     *wrote = size;
 
-    return ERROR_OK;
+    return 0;
 }

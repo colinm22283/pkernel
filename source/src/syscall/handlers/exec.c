@@ -62,7 +62,7 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
     );
 
     if (elf_dirent == NULL) {
-        return ERROR_FILESYSTEM_NOT_FOUND;
+        return -ENOENT;
     }
 
     if (argc != 0) {
@@ -80,7 +80,7 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
 
     int load_result = load_program(current_process, elf_dirent);
 
-    if (load_result != ERROR_OK) return load_result;
+    if (load_result != 0) return load_result;
 
     fs_directory_entry_release(elf_dirent);
 
@@ -92,5 +92,5 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
 
     push_main_args(current_process, &current_process->threads[0]->tsr, current_process->threads[0]->stack_mapping, current_process->argc, current_process->argv);
 
-    return ERROR_OK;
+    return 0;
 }

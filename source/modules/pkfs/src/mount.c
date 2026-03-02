@@ -19,7 +19,7 @@ int mount(fs_superblock_t * superblock) {
 
     root_node->file_page = open_filesystem(superblock->device, 64);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int unmount(fs_superblock_t * superblock) {

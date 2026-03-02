@@ -21,6 +21,6 @@ int syscall_alarm(size_t seconds) {
 
     timer_init(alarm_timer_handler, current_process, TIMER_S_TO_TICKS(seconds), 0);
 
-    return ERROR_OK;
+    return 0;
 }
 

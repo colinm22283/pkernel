@@ -10,13 +10,13 @@
 int init() {
     fs_register("pkfs", &superblock_ops, mount, unmount);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int free() {
     fs_unregister("pkfs");
 
-    return ERROR_OK;
+    return 0;
 }
 
 MODULE_NAME("pkfs");

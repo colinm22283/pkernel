@@ -12,7 +12,7 @@ int file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_options_t op
         file->current_node = file->dirent->head.next;
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 int file_clone(fs_file_t * dst, fs_file_t * src) {
@@ -27,7 +27,7 @@ int file_clone(fs_file_t * dst, fs_file_t * src) {
         dst->current_node = dst->dirent->head.next;
     }
 
-    return ERROR_OK;
+    return 0;
 }
 
 int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
@@ -52,7 +52,7 @@ int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
     int result = file->dirent->superblock->superblock_ops->read(file->dirent, buffer, size, file->offset, &amount_read);
     file->offset += amount_read;
 
-    if (result != ERROR_OK) return result;
+    if (result != 0) return result;
 
     return (int64_t) amount_read;
 }
