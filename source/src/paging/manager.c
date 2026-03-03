@@ -28,7 +28,8 @@
 #include <util/heap/internal.h>
 
 #include <pkos/syscalls.h>
-#include <pkos/fileno.h>
+
+#include <shared/fileno.h>
 
 #include <config/pman.h>
 

@@ -23,5 +23,5 @@ int mount(fs_superblock_t * superblock) {
 }
 
 int unmount(fs_superblock_t * superblock) {
-    return ERROR_UNIMPLEMENTED;
+    return ENOTSUP;
 }

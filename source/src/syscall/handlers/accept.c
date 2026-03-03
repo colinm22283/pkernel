@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <fcntl.h>
 
 #include <scheduler/scheduler.h>
 
@@ -24,6 +25,6 @@ fd_t syscall_accept(fd_t sock_fd) {
 
     dirent->socket = new_socket;
 
-    return file_table_open(&current_process->file_table, dirent, OPEN_READ | OPEN_WRITE);
+    return file_table_open(&current_process->file_table, dirent, O_RDWR);
 }
 

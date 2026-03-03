@@ -78,7 +78,7 @@ __MOD_EXPORT int devfs_mount(fs_superblock_t * superblock) {
     devfs_mounts[devfs_mount_count++] = superblock->mount_point;
     devfs_mounts = heap_realloc(devfs_mounts, (devfs_mount_count + 1) * sizeof(fs_directory_entry_t *));
 
-    return ERROR_OK;
+    return 0;
 }
 
 __MOD_EXPORT int devfs_unmount(fs_superblock_t * superblock) {
@@ -90,11 +90,11 @@ __MOD_EXPORT int devfs_unmount(fs_superblock_t * superblock) {
 
             devfs_mount_count--;
 
-            return ERROR_OK;
+            return 0;
         }
     }
 
-    return ERROR_UNKNOWN;
+    return ENOSYS;
 }
 
 __MOD_EXPORT devfs_entry_t * devfs_register(device_t * device) {
@@ -135,7 +135,7 @@ __MOD_EXPORT int devfs_remove(devfs_entry_t * entry) {
     heap_free(entry->name);
     heap_free(entry);
 
-    return ERROR_OK;
+    return 0;
 }
 
 int init(void) {
@@ -149,10 +149,10 @@ int init(void) {
     devfs_mount_count = 0;
     devfs_mounts = heap_alloc_debug(sizeof(fs_directory_entry_t *), "devfs mounts");
 
-    return ERROR_OK;
+    return 0;
 }
 
-int free(void) { return ERROR_OK; }
+int free(void) { return 0; }
 
 MODULE_NAME("devfs");
 MODULE_DEPS_NONE();

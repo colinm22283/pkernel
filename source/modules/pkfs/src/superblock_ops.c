@@ -6,6 +6,8 @@
 #include <pkfs.h>
 #include <disc_operations.h>
 
+#include "../../../../../fsroot/usr/include/errno.h"
+
 fs_node_t * alloc_node(fs_superblock_t * superblock) {
     pkfs_fs_node_t * new_node = heap_alloc_debug(sizeof(pkfs_fs_node_t), "pkfs fsnode");
 
@@ -24,7 +26,7 @@ int list(fs_directory_entry_t * dirent) {
     pkfs_fs_node_t * node = (pkfs_fs_node_t *) dirent->node;
 
     directory_iterator_t itr;
-    if (!directory_iterator_init(dirent->superblock->device, &itr, node->file_page)) return ERROR_UNKNOWN;
+    if (!directory_iterator_init(dirent->superblock->device, &itr, node->file_page)) return ENOTSUP;
 
     while (true) {
         filesystem_page_address_t page_address;
@@ -56,14 +58,14 @@ int lookup(fs_directory_entry_t * dirent, fs_directory_entry_node_t * dirent_nod
     pkfs_fs_node_t * node = (pkfs_fs_node_t *) _node;
 
     directory_iterator_t itr;
-    if (!directory_iterator_init(dirent->superblock->device, &itr, parent_node->file_page)) return ERROR_UNKNOWN;
+    if (!directory_iterator_init(dirent->superblock->device, &itr, parent_node->file_page)) return ENOTSUP;
 
     while (true) {
         filesystem_page_address_t page_address;
 
         filesystem_directory_entry_type_t result = directory_iterator_next(dirent->superblock->device, &itr, &page_address);
 
-        if (page_address == 0) return ERROR_FS_NO_ENT;
+        if (page_address == 0) return ENOENT;
 
         char buffer[FILESYSTEM_NAME_MAX_SIZE];
         fs_file_type_t node_type;

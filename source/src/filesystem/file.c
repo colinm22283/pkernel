@@ -1,8 +1,10 @@
+#include <fcntl.h>
+
 #include <filesystem/file.h>
 #include <sys/debug/print.h>
 
-int file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_options_t options) {
-    if (dirent->type == FS_DIRECTORY && (options & OPEN_WRITE)) return ERROR_IS_DIR;
+int file_init(fs_file_t * file, fs_directory_entry_t * dirent, int options) {
+    if (dirent->type == FS_DIRECTORY && (options & O_WR)) return ERROR_IS_DIR;
 
     file->dirent = dirent;
     file->options = options;
@@ -31,7 +33,7 @@ int file_clone(fs_file_t * dst, fs_file_t * src) {
 }
 
 int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
-    if (!(file->options & OPEN_READ)) return ERROR_BAD_PERM;
+    if (!(file->options & O_RD)) return ERROR_BAD_PERM;
 
     if (file->dirent->type == FS_DIRECTORY) return ERROR_IS_DIR;
 
@@ -58,7 +60,7 @@ int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
 }
 
 int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
-    if (!(file->options & OPEN_WRITE)) return ERROR_BAD_PERM;
+    if (!(file->options & O_WR)) return ERROR_BAD_PERM;
 
     switch (file->dirent->type) {
         case FS_REGULAR:
@@ -108,7 +110,7 @@ void * file_map(fs_file_t * file, pman_context_t * context, void * map_addr, uin
 
             switch (device->type) {
                 case DT_CHARACTER: {
-                    return device->char_ops.map(device, context, file->options & OPEN_WRITE ? PMAN_PROT_WRITE : 0, map_addr, size, offset);
+                    return device->char_ops.map(device, context, file->options & O_WR ? PMAN_PROT_WRITE : 0, map_addr, size, offset);
                 } break;
 
                 default: return (void *) ERROR_UNIMPLEMENTED;
@@ -126,7 +128,7 @@ void file_close(fs_file_t * file) {
 }
 
 int64_t file_readdir(fs_file_t * file, directory_entry_t * entries, uint64_t buffer_size) {
-    if (!(file->options & OPEN_READ)) return ERROR_BAD_PERM;
+    if (!(file->options & O_RD)) return ERROR_BAD_PERM;
 
     if (file->dirent->type != FS_DIRECTORY) return ERROR_NOT_DIR;
 

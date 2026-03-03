@@ -12,7 +12,7 @@
 
 typedef struct {
     fs_directory_entry_t * dirent;
-    open_options_t options;
+    int options;
 
     // file data
     uint64_t offset;
@@ -21,7 +21,7 @@ typedef struct {
     fs_directory_entry_node_t * current_node;
 } fs_file_t;
 
-int file_init(fs_file_t * file, fs_directory_entry_t * dirent, open_options_t options);
+int file_init(fs_file_t * file, fs_directory_entry_t * dirent, int options);
 
 int file_clone(fs_file_t * dst, fs_file_t * src);
 

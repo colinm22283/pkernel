@@ -96,7 +96,7 @@ uint64_t syscall_handler(
             return 0;
         }
 
-        case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (open_options_t) arg1);
+        case SYSCALL_PIPE: return syscall_pipe((fd_t *) arg0, (int) arg1);
 
         case SYSCALL_DUP: return syscall_dup((fd_t) arg0, (fd_t) arg1);
 
@@ -114,7 +114,7 @@ uint64_t syscall_handler(
 
         case SYSCALL_REMOVE: return syscall_remove((const char *) arg0);
 
-        case SYSCALL_OPENAT: return syscall_openat((fd_t) arg0, (const char *) arg1, (open_options_t) arg2);
+        case SYSCALL_OPENAT: return syscall_openat((fd_t) arg0, (const char *) arg1, (int) arg2);
 
         case SYSCALL_SOCKET: return syscall_socket((socket_domain_t) arg0, (socket_type_t) arg1, (uint64_t) arg2);
 

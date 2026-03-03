@@ -87,7 +87,7 @@ int file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
     return 0;
 }
 
-fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, open_options_t options) {
+fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, int options) {
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file open");
 
     int init_result = file_init(file, node, options);
@@ -96,7 +96,7 @@ fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, ope
     return file_table_add(file_table, file);
 }
 
-fd_t file_table_openat(file_table_t * file_table, fd_t fd, fs_directory_entry_t * node, open_options_t options) {
+fd_t file_table_openat(file_table_t * file_table, fd_t fd, fs_directory_entry_t * node, int options) {
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file openat");
 
     int init_result = file_init(file, node, options);

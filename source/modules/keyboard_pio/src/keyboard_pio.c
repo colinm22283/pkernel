@@ -79,20 +79,20 @@ int init(void) {
     device = device_create_char("kbd", NULL, &operations, &data);
     devfs_register(device);
 
-    if (!io_arbitrator_reserve(PORT_KB_IN)) return ERROR_PORT_UNAVAIL;
+    if (!io_arbitrator_reserve(PORT_KB_IN)) return ENOTSUP;
     inb(PORT_KB_IN);
     inb(PORT_KB_IN);
     inb(PORT_KB_IN);
 
-    if (!interrupt_registry_register((interrupt_code_t) IC_KEYBOARD, keyboard_handler)) return ERROR_INT_UNAVAIL;
+    if (!interrupt_registry_register((interrupt_code_t) IC_KEYBOARD, keyboard_handler)) return ENOTSUP;
 
     return 0;
 }
 
 int free(void) {
-    if (!interrupt_registry_free((interrupt_code_t) IC_KEYBOARD)) return ERROR_UNKNOWN;
+    if (!interrupt_registry_free((interrupt_code_t) IC_KEYBOARD)) return ENOTSUP;
 
-    if (!io_arbitrator_release(PORT_KB_IN)) return ERROR_UNKNOWN;
+    if (!io_arbitrator_release(PORT_KB_IN)) return ENOTSUP;
 
     device_remove(device);
 

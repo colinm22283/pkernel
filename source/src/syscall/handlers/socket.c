@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <fcntl.h>
 
 #include <scheduler/scheduler.h>
 
@@ -12,7 +13,7 @@ fd_t syscall_socket(socket_domain_t domain, socket_type_t type, uint64_t protoco
     fs_directory_entry_t * dirent = fs_make_anon_socket(domain, type, protocol);
     if (dirent == NULL) return ERROR_UNKNOWN;
 
-    fd_t fd = file_table_open(&current_process->file_table, dirent, OPEN_WRITE | OPEN_READ);
+    fd_t fd = file_table_open(&current_process->file_table, dirent, O_RDWR);
 
     return fd;
 }
