@@ -8,27 +8,27 @@
 
 #include <util/string/strcmp.h>
 
-int syscall_mount(const char * _dst, const char * _src, const char * _fs, mount_options_t options, const char * _data) {
+int syscall_mount(const char * _src, const char * _dst, const char * _fs, unsigned long options, const char * _data) {
     process_t * current_process = scheduler_current_process();
 
     const char * dst = process_user_to_kernel(current_process, _dst);
-    if (dst == NULL) return ERROR_BAD_PTR;
+    if (dst == NULL) return -EINVAL;
 
     const char * fs = process_user_to_kernel(current_process, _fs);
-    if (fs == NULL) return ERROR_BAD_PTR;
+    if (fs == NULL) return -EINVAL;
 
     const char * data = process_user_to_kernel(current_process, _data);
-    if (data == NULL) return ERROR_BAD_PTR;
+    if (data == NULL) return -EINVAL;
 
     device_t * dev = NULL;
     if (_src != NULL) {
         const char * src = process_user_to_kernel(current_process, _src);
-        if (src == NULL) return ERROR_BAD_PTR;
+        if (src == NULL) return -EINVAL;
 
         fs_directory_entry_t * dirent = process_open_path(current_process, src);
-        if (dirent == NULL) return ERROR_FS_NO_ENT;
+        if (dirent == NULL) return -ENOENT;
 
-        if (dirent->type != FS_DEVICE) return ERROR_NOT_DEV;
+        if (dirent->type != FS_DEVICE) return -ENODEV;
 
         dev = dirent->device;
 

@@ -104,7 +104,7 @@ uint64_t syscall_handler(
             (const char *) arg0,
             (const char *) arg1,
             (const char *) arg2,
-            (mount_options_t) arg3,
+            (unsigned long) arg3,
             (const char *) arg4
         );
 
