@@ -47,7 +47,8 @@ int signal_table_invoke(process_t * process, signal_number_t sig) {
     }
 
     if (thread != NULL) {
-        thread_interrupt(thread);
+        int result = thread_interrupt(thread);
+        if (result < 0) return result;
     }
 
     return 0;
@@ -91,6 +92,8 @@ int signal_table_resume(thread_t * thread) {
         switch (signal->action) {
             case ACT_TERMINATE: {
                 process_kill(process);
+
+                scheduler_yield();
             } break;
 
             case ACT_CONTINUE: {

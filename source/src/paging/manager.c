@@ -612,11 +612,11 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         if (error_code->instruction_fetch) debug_print("INSTRUCTION FETCH\n");
         if (error_code->user) debug_print("USER\n");
 
-        thread_t * current_thread = scheduler_current_thread();
+        // thread_t * current_thread = scheduler_current_thread();
 
         signal_table_invoke(current_process, SIG_PAGE);
 
-        thread_resume(current_thread);
+        // thread_resume(current_thread);
 
         // process_kill(current_process);
         return;
