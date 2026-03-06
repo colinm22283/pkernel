@@ -179,19 +179,13 @@ int thread_interrupt(thread_t * thread) {
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
-            // debug_print("RESUME KERNEL\n");
+            kprintf("resume kernel");
 
             resume_tsr_kernel(&thread->tsr);
         } break;
 
         case TL_USER: {
-            // debug_print("RESUME IP: ");
-            // debug_print_hex(thread->tsr.rip);
-            // debug_print(" FOR ");
-            // debug_print_hex(thread->process->id);
-            // debug_print("\n");
-            //
-            // debug_print("RESUME USER\n");
+            kprintf("resume user");
 
             signal_table_resume(thread);
 

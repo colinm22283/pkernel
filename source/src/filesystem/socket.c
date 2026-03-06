@@ -56,7 +56,7 @@ int socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr
 
             const sockaddr_unix_t * sockaddr = (const sockaddr_unix_t *) _sockaddr;
 
-            if (sockaddr->path[sockaddr_len - 1] != '\0') return ERROR_BAD_PTR;
+            if (sockaddr->path[sockaddr_len - 1] != '\0') return -EINVAL;
 
             {
                 fs_directory_entry_t * dirent = process_open_path(current_process, sockaddr->path);
@@ -64,26 +64,23 @@ int socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr
                 if (dirent != NULL) {
                     fs_directory_entry_release(dirent);
 
-                    return ERROR_EXISTS;
-                }
-                else {
-                    fs_directory_entry_release(dirent);
+                    return -EEXIST;
                 }
             }
 
             fs_directory_entry_t * dirent = process_make_path(current_process, sockaddr->path, FS_SOCKET);
 
-            if (dirent == NULL) return ERROR_FS_CANT_CREATE;
+            if (dirent == NULL) return -ENOENT;
 
             dirent->socket = socket;
 
-            socket->unix.socket = unix_socket_init();
+            // socket->unix.socket = unix_socket_init();
 
             return 0;
         } break;
     }
 
-    return ERROR_UNIMPLEMENTED;
+    return -ENOTSUP;
 }
 
 int socket_listen(socket_t * socket, size_t size) {
@@ -95,7 +92,7 @@ int socket_listen(socket_t * socket, size_t size) {
         } break;
     }
 
-    return ERROR_UNIMPLEMENTED;
+    return -ENOTSUP;
 }
 
 int socket_accept(socket_t * socket, socket_t ** _new_socket) {

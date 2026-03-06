@@ -36,7 +36,7 @@ void event_free(event_t * event) {
 }
 
 void event_invoke(event_t * event) {
-    kprintf("event_invoke()");
+    kprintf("event_invoke(): %p, %p", event, event->waiter_head.next->thread);
 
     if (event->waiter_head.next != &event->waiter_tail) {
         waiter_t * waiter = event->waiter_head.next;

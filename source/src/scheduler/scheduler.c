@@ -17,12 +17,20 @@
 #include <sys/tsr/tsr_load_return.h>
 #include <sys/paging/page_size.h>
 
-#include <sys/halt.h>
+#include <debug/printf.h>
 
 #include <config/scheduler.h>
 
+#ifdef SCHEDULER_DEBUG
+#define DEBUG_LOGGER_ENABLED
+#endif
+#include <debug/debug_logger.h>
+
+DEFINE_KERNEL_PRINTF("scheduler");
+
 enum {
     SYSFS_PROCESS_COUNT,
+    SYSFS_THREADS_COUNT,
 };
 
 typedef struct {
@@ -41,6 +49,14 @@ int64_t scheduler_sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t o
             for (process_t * proc = process_head.global_next; proc != &process_tail; proc = proc->global_next) proc_count++;
 
             return (int64_t) writestr(data, size, offset, proc_count);
+        } break;
+
+        case SYSFS_THREADS_COUNT: {
+            size_t thread_count = 0;
+
+            for (process_t * proc = process_head.global_next; proc != &process_tail; proc = proc->global_next) thread_count += proc->thread_count;
+
+            return (int64_t) writestr(data, size, offset, thread_count);
         } break;
 
         default: break;
@@ -68,11 +84,15 @@ void scheduler_init(void) {
 }
 
 void scheduler_init_sysfs(void) {
-    sysfs_add_entry("sched/count", SYSFS_PROCESS_COUNT, scheduler_sysfs_read, scheduler_sysfs_write);
+    sysfs_add_entry("sched/processes", SYSFS_PROCESS_COUNT, scheduler_sysfs_read, scheduler_sysfs_write);
+    sysfs_add_entry("sched/threads", SYSFS_THREADS_COUNT, scheduler_sysfs_read, scheduler_sysfs_write);
 }
 
 void scheduler_queue(thread_t * thread) {
+    kprintf("scheduler_queue()");
     if (thread->state == TS_RUNNING || thread->state == TS_DEAD) {
+        kprintf("queue accepted %p, %i", (void *) thread->tsr.rip, thread->priority);
+
         scheduler_queue_t * queue = &scheduler_queues[thread->priority];
 
         thread->prev = queue->tail.prev;
@@ -81,6 +101,17 @@ void scheduler_queue(thread_t * thread) {
         queue->tail.prev->next = thread;
         queue->tail.prev = thread;
     }
+
+    size_t proc_count = 0;
+    for (size_t i = 0; i < TP_COUNT; i++) {
+        thread_t * thread = scheduler_queues[i].head.next;
+        while (thread != &scheduler_queues[i].tail) {
+            proc_count++;
+
+            thread = thread->next;
+        }
+    }
+    kprintf("proc_count %i", proc_count);
 }
 
 int scheduler_await(event_t * event) {
@@ -99,13 +130,14 @@ int scheduler_await(event_t * event) {
         event->waiter_tail.prev->next = waiter;
         event->waiter_tail.prev = waiter;
 
-        thread->next->prev = thread->prev;
-        thread->prev->next = thread->next;
-
         thread->waiter = waiter;
         thread->event = event;
 
+        kprintf("await %p, %p", event, thread);
+
         store_tsr_and_yield(&thread->tsr);
+
+        kprintf("done");
 
         return 0;
     }
@@ -226,10 +258,7 @@ __NORETURN void scheduler_yield(void) {
     //         thread = thread->next;
     //     }
     // }
-
-    // vga_print("yield ");
-    // vga_print_hex(proc_count);
-    // vga_print("\n");
+    // kprintf("yield %i", proc_count);
 
     scheduler_core_t * current_core = scheduler_current_core();
 
@@ -257,6 +286,8 @@ __NORETURN void scheduler_yield(void) {
                     case TS_WAITING: case TS_INTERRUPTABLE_WAIT: case TS_UNINTERRUPTABLE_WAIT: case TS_STOPPED: break;
 
                     case TS_DEAD: {
+                        kprintf("kill thread");
+
                         thread_free(thread);
                     } break;
                 }

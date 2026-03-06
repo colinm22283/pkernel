@@ -7,7 +7,18 @@
 #include <util/heap/heap.h>
 #include <util/memory/memcpy.h>
 
+#include <config/unix_socket.h>
+
+#ifdef UNIX_SOCKET_DEBUG
+    #define DEBUG_LOGGER_ENABLED
+#endif
+#include <debug/debug_logger.h>
+
+DEFINE_KERNEL_PRINTF("unix socket");
+
 unix_socket_t * unix_socket_init(void) {
+    kprintf("unix_socket_init()");
+
     unix_socket_t * socket = heap_alloc_debug(sizeof(unix_socket_t), "unix_socket");
 
     socket->listener_arrived = event_init();
@@ -34,10 +45,14 @@ unix_socket_t * unix_socket_init(void) {
 }
 
 void unix_socket_free(unix_socket_t * socket) { // TODO
+    kprintf("unix_socket_free()");
+
     heap_free(socket);
 }
 
 void unix_socket_listen(unix_socket_t * socket, size_t listen_queue_capacity) {
+    kprintf("unix_socket_listen(): %p", socket);
+
     {
         unix_socket_listen_req_t * req = socket->listen_queue_head.next;
         while (req != &socket->listen_queue_tail) {
@@ -58,6 +73,8 @@ void unix_socket_listen(unix_socket_t * socket, size_t listen_queue_capacity) {
 }
 
 int unix_socket_connect(unix_socket_t * socket, unix_socket_t * target) {
+    kprintf("unix_socket_connect(): %p, %p", socket, target);
+
     if (target->listen_queue_size == target->listen_queue_capacity) return ERROR_CON_REFUSED;
 
     unix_socket_listen_req_t * req = heap_alloc_debug(sizeof(unix_socket_listen_req_t), "unix_socket listener");
@@ -76,6 +93,8 @@ int unix_socket_connect(unix_socket_t * socket, unix_socket_t * target) {
 }
 
 int unix_socket_accept(unix_socket_t * socket, unix_socket_t ** _new_socket) {
+    kprintf("unix_socket_accept(): %p", socket);
+
     if (socket->listen_queue_capacity == 0) return ERROR_NOT_LISTENER;
 
     while (socket->listen_queue_head.next == &socket->listen_queue_tail) {
@@ -109,7 +128,7 @@ int unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_siz
     unix_packet_t * packet = socket->incoming_head.next;
 
     if (packet->size - packet->pos > size) {
-        memcpy(data, packet->data, size);
+        memcpy(data, packet->data + packet->pos, size);
 
         packet->pos += size;
 
@@ -119,7 +138,7 @@ int unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_siz
         packet->next->prev = packet->prev;
         packet->prev->next = packet->next;
 
-        memcpy(data, packet->data, packet->size - packet->pos);
+        memcpy(data, packet->data + packet->pos, packet->size - packet->pos);
 
         *read = packet->size - packet->pos;
 
@@ -130,7 +149,7 @@ int unix_socket_read(unix_socket_t * socket, char * data, fs_size_t size, fs_siz
         packet->next->prev = packet->prev;
         packet->prev->next = packet->next;
 
-        memcpy(data, packet->data, size);
+        memcpy(data, packet->data + packet->pos, size);
 
         *read = size;
 
