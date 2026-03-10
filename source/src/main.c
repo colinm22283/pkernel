@@ -59,16 +59,6 @@ void gpf() {
     panic0("GPF ENCOUNTERED");
 }
 
-size_t read_dirent(void * cookie, char * buf, size_t size, size_t offset) {
-    fs_directory_entry_t * dirent = cookie;
-
-    fs_size_t read_bytes;
-
-    dirent->superblock->superblock_ops->read(dirent, buf, size, offset, &read_bytes);
-
-    return read_bytes;
-}
-
 __NORETURN void kernel_main(void) {
     kprintf("Init primary region");
     primary_region_init();
