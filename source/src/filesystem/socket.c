@@ -33,12 +33,12 @@ int socket_connect(socket_t * socket, const sockaddr_t * _sockaddr, size_t socka
 
             const sockaddr_unix_t * sockaddr = (const sockaddr_unix_t *) _sockaddr;
 
-            if (sockaddr->path[sockaddr_len - 1] != '\0') return ERROR_BAD_PTR;
+            if (sockaddr->path[sockaddr_len - 1] != '\0') return -EINVAL;
 
             fs_directory_entry_t * dirent = process_open_path(current_process, sockaddr->path);
 
-            if (dirent == NULL) return ERROR_FS_NO_ENT;
-            if (dirent->type != FS_SOCKET) return ERROR_NOT_SOCKET;
+            if (dirent == NULL) return -ENOENT;
+            if (dirent->type != FS_SOCKET) return -ENOTSOCK;
 
             unix_socket_t * unix_socket = dirent->socket->unix.socket;
 
@@ -46,7 +46,7 @@ int socket_connect(socket_t * socket, const sockaddr_t * _sockaddr, size_t socka
         } break;
     }
 
-    return ERROR_UNIMPLEMENTED;
+    return -ENOTSUP;
 }
 
 int socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
@@ -73,8 +73,6 @@ int socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr
             if (dirent == NULL) return -ENOENT;
 
             dirent->socket = socket;
-
-            // socket->unix.socket = unix_socket_init();
 
             return 0;
         } break;
@@ -117,7 +115,7 @@ int socket_accept(socket_t * socket, socket_t ** _new_socket) {
         } break;
     }
 
-    return ERROR_UNIMPLEMENTED;
+    return -ENOTSUP;
 }
 
 int socket_read(socket_t * socket, char * data, fs_size_t size, fs_size_t * read) {

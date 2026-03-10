@@ -12,8 +12,11 @@ fd_t syscall_accept(fd_t sock_fd) {
 
     fs_file_t * file = file_table_get(&current_process->file_table, sock_fd);
 
+    if (file == NULL) {
+        return -EBADF;
+    }
     if (file->dirent->type != FS_SOCKET) {
-        return ERROR_NOT_SOCKET;
+        return -ENOTSOCK;
     }
 
     socket_t * new_socket;

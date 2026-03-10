@@ -113,12 +113,12 @@ void * file_map(fs_file_t * file, pman_context_t * context, void * map_addr, uin
                     return device->char_ops.map(device, context, file->options & O_WR ? PMAN_PROT_WRITE : 0, map_addr, size, offset);
                 } break;
 
-                default: return (void *) ERROR_UNIMPLEMENTED;
+                default: return NULL;
             }
         } break;
 
         default: {
-            return (void *) ERROR_IS_DIR;
+            return NULL;
         } break;
     }
 }

@@ -6,4 +6,4 @@
 
 #include <defs.h>
 
-int64_t syscall_chdir(const char * _path);
+int syscall_chdir(const char * _path);

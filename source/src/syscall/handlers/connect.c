@@ -13,8 +13,12 @@ int syscall_connect(fd_t sock_fd, const sockaddr_t * _sockaddr, size_t sockaddr_
 
     fs_file_t * file = file_table_get(&current_process->file_table, sock_fd);
 
+    if (file == NULL) {
+        return -EBADF;
+    }
+
     if (file->dirent->type != FS_SOCKET) {
-        return ERROR_NOT_SOCKET;
+        return -ENOTSOCK;
     }
 
     socket_t * socket = file->dirent->socket;

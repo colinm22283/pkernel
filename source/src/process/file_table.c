@@ -75,7 +75,7 @@ void file_table_clone(file_table_t * dst, file_table_t * src) {
 }
 
 int file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
-    if ((size_t) src >= file_table->file_capacity || file_table->files[src] == NULL) return ERROR_BAD_FD;
+    if ((size_t) src >= file_table->file_capacity || file_table->files[src] == NULL) return -EBADF;
 
     fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file dup");
 
@@ -114,7 +114,7 @@ fs_file_t * file_table_get(file_table_t * file_table, fd_t fd) {
 }
 
 int file_table_close(file_table_t * file_table, fd_t fd) {
-    if ((size_t) fd >= file_table->file_capacity || file_table->files[fd] == NULL) return ERROR_BAD_FD;
+    if ((size_t) fd >= file_table->file_capacity || file_table->files[fd] == NULL) return -EBADFD;
 
     file_close(file_table->files[fd]);
     heap_free(file_table->files[fd]);

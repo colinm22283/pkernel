@@ -8,7 +8,7 @@
 
 int syscall_kill(pid_t pid) {
     process_t * target_proc = process_lookup(pid);
-    if (target_proc == NULL) return ERROR_PROC_NOT_FOUND;
+    if (target_proc == NULL) return -ESRCH;
 
     process_kill(target_proc);
 

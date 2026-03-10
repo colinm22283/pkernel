@@ -75,7 +75,7 @@ void unix_socket_listen(unix_socket_t * socket, size_t listen_queue_capacity) {
 int unix_socket_connect(unix_socket_t * socket, unix_socket_t * target) {
     kprintf("unix_socket_connect(): %p, %p", socket, target);
 
-    if (target->listen_queue_size == target->listen_queue_capacity) return ERROR_CON_REFUSED;
+    if (target->listen_queue_size == target->listen_queue_capacity) return -ECONNREFUSED;
 
     unix_socket_listen_req_t * req = heap_alloc_debug(sizeof(unix_socket_listen_req_t), "unix_socket listener");
 
@@ -95,7 +95,7 @@ int unix_socket_connect(unix_socket_t * socket, unix_socket_t * target) {
 int unix_socket_accept(unix_socket_t * socket, unix_socket_t ** _new_socket) {
     kprintf("unix_socket_accept(): %p", socket);
 
-    if (socket->listen_queue_capacity == 0) return ERROR_NOT_LISTENER;
+    if (socket->listen_queue_capacity == 0) return -EINVAL;
 
     while (socket->listen_queue_head.next == &socket->listen_queue_tail) {
         scheduler_await(socket->listener_arrived);
