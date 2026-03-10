@@ -55,8 +55,6 @@
 
 DEFINE_KERNEL_PRINTF("init");
 
-#define VIDEO_MEMORY ((uint8_t *) 0xA0000)
-
 void gpf() {
     panic0("GPF ENCOUNTERED");
 }
