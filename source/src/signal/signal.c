@@ -55,7 +55,7 @@ int signal_table_invoke(process_t * process, signal_number_t sig) {
 }
 
 int signal_table_set(signal_table_t * st, signal_number_t sig, signal_handler_t * handler) {
-    if (sig >= _SIG_COUNT) return ERROR_NO_SIG;
+    if (sig >= _SIG_COUNT) return -EINVAL;
 
     signal_t * signal = &st->handlers[sig];
 

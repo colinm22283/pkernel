@@ -12,18 +12,18 @@ int syscall_mount(const char * _src, const char * _dst, const char * _fs, unsign
     process_t * current_process = scheduler_current_process();
 
     const char * dst = process_user_to_kernel(current_process, _dst);
-    if (dst == NULL) return -EINVAL;
+    if (dst == NULL) return -EFAULT;
 
     const char * fs = process_user_to_kernel(current_process, _fs);
-    if (fs == NULL) return -EINVAL;
+    if (fs == NULL) return -EFAULT;
 
     const char * data = process_user_to_kernel(current_process, _data);
-    if (data == NULL) return -EINVAL;
+    if (data == NULL) return -EFAULT;
 
     device_t * dev = NULL;
     if (_src != NULL) {
         const char * src = process_user_to_kernel(current_process, _src);
-        if (src == NULL) return -EINVAL;
+        if (src == NULL) return -EFAULT;
 
         fs_directory_entry_t * dirent = process_open_path(current_process, src);
         if (dirent == NULL) return -ENOENT;

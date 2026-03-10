@@ -33,9 +33,9 @@ int file_clone(fs_file_t * dst, fs_file_t * src) {
 }
 
 int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
-    if (!(file->options & O_RD)) return ERROR_BAD_PERM;
+    if (!(file->options & O_RD)) return -EINVAL;
 
-    if (file->dirent->type == FS_DIRECTORY) return ERROR_IS_DIR;
+    if (file->dirent->type == FS_DIRECTORY) return -EISDIR;
 
     uint64_t amount_read;
 
@@ -60,7 +60,7 @@ int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
 }
 
 int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
-    if (!(file->options & O_WR)) return ERROR_BAD_PERM;
+    if (!(file->options & O_WR)) return -EINVAL;
 
     switch (file->dirent->type) {
         case FS_REGULAR:
@@ -100,7 +100,7 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
         } break;
     }
 
-    return ERROR_UNKNOWN;
+    return -ENOTSUP;
 }
 
 void * file_map(fs_file_t * file, pman_context_t * context, void * map_addr, uint64_t size, uint64_t offset) {
@@ -128,11 +128,11 @@ void file_close(fs_file_t * file) {
 }
 
 int64_t file_readdir(fs_file_t * file, directory_entry_t * entries, uint64_t buffer_size) {
-    if (!(file->options & O_RD)) return ERROR_BAD_PERM;
+    if (!(file->options & O_RD)) return -EINVAL;
 
-    if (file->dirent->type != FS_DIRECTORY) return ERROR_NOT_DIR;
+    if (file->dirent->type != FS_DIRECTORY) return -ENOTDIR;
 
-    if (file->current_node == &file->dirent->tail) return ERROR_OK;
+    if (file->current_node == &file->dirent->tail) return 0;
 
     uint64_t buffer_pos = 0;
     char * buffer = (char *) entries;

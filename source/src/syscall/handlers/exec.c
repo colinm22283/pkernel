@@ -34,7 +34,7 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
         _path
     );
 
-    if (path == NULL) return -EBADF;
+    if (path == NULL) return -EFAULT;
 
     syscall_debug_print("SYSCALL exec(");
     syscall_debug_print(path);

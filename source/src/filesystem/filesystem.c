@@ -128,7 +128,7 @@ int fs_mount_root(const char * name, device_t * device) {
 }
 
 int fs_mount(const char * name, fs_directory_entry_t * mount_point, device_t * device) {
-    if (mount_point->type != FS_DIRECTORY) return ERROR_NOT_DIR;
+    if (mount_point->type != FS_DIRECTORY) return -ENOTDIR;
 
     for (
         fs_filesystem_node_t * node = fs_filesystem_head.next;
@@ -160,7 +160,7 @@ int fs_mount(const char * name, fs_directory_entry_t * mount_point, device_t * d
 
             node->mount_count++;
 
-            return ERROR_OK;
+            return 0;
         }
     }
 

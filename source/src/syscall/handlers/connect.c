@@ -10,6 +10,7 @@ int syscall_connect(fd_t sock_fd, const sockaddr_t * _sockaddr, size_t sockaddr_
     process_t * current_process = scheduler_current_process();
 
     const sockaddr_t * sockaddr = process_user_to_kernel(current_process, _sockaddr);
+    if (sockaddr == NULL) return -EFAULT;
 
     fs_file_t * file = file_table_get(&current_process->file_table, sock_fd);
 

@@ -11,7 +11,7 @@ fd_t syscall_socket(socket_domain_t domain, socket_type_t type, uint64_t protoco
     process_t * current_process = scheduler_current_process();
 
     fs_directory_entry_t * dirent = fs_make_anon_socket(domain, type, protocol);
-    if (dirent == NULL) return ERROR_UNKNOWN;
+    if (dirent == NULL) return -ENOTSUP;
 
     fd_t fd = file_table_open(&current_process->file_table, dirent, O_RDWR);
 
