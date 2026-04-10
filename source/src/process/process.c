@@ -27,7 +27,6 @@ void processes_init(void) {
 
 process_t * process_create(void) {
     heap_check();
-    // heap_overview();
 
     process_t * process = heap_alloc_debug(sizeof(process_t), "process");
 
@@ -64,7 +63,7 @@ process_t * process_create_fork(process_t * parent) {
     process->parent_id = parent->id;
 
     size_t mapping_count = 0, mapping_capacity = 1;
-    pman_mapping_t ** mappings = heap_alloc(mapping_capacity * sizeof(pman_mapping_t *));
+    pman_mapping_t ** mappings = heap_alloc_debug(mapping_capacity * sizeof(pman_mapping_t *), "process fork mappings");
 
     for (
         pman_mapping_t * mapping = parent->paging_context->head.next;
@@ -143,6 +142,8 @@ void process_free(process_t * process) {
     }
 
     for (size_t i = 0; i < process->thread_count; i++) {
+        process->threads[i]->process = NULL;
+
         process->threads[i]->state = TS_DEAD;
     }
 
@@ -153,6 +154,8 @@ void process_free(process_t * process) {
     file_table_free(&process->file_table);
 
     if (process->argc != 0) heap_free(process->argv);
+
+    fs_directory_entry_release(process->working_dir);
 
     pman_free_context(process->paging_context);
 

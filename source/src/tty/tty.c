@@ -78,7 +78,7 @@ tty_t * tty_init(tty_write_handler_t * write_handler, void * cookie) {
         }
     }
 
-    tty_t * tty = heap_alloc(sizeof(tty_t));
+    tty_t * tty = heap_alloc_debug(sizeof(tty_t), "tty");
 
     tty->cookie = cookie;
 

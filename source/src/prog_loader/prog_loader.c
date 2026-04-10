@@ -1,5 +1,7 @@
 #include <prog_loader/prog_loader.h>
 
+#include <util/heap/heap.h>
+
 #include <elf/elf.h>
 
 #include <config/prog_loader.h>
@@ -19,6 +21,17 @@ size_t prog_read_handler(void * cookie, char * buffer, size_t size, size_t offse
     dirent->superblock->superblock_ops->read(dirent, buffer, size, offset, &read_bytes);
 
     return read_bytes;
+}
+
+void * prog_loader_alloc(size_t size) {
+    return heap_alloc_debug(size, "elf alloc");
+}
+void prog_loader_free(void * ptr) {
+    heap_free(ptr);
+}
+
+void prog_loader_init(void) {
+    elf_init(prog_loader_alloc, prog_loader_free);
 }
 
 int load_program(process_t * process, fs_directory_entry_t * dirent) {

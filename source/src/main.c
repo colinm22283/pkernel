@@ -98,8 +98,8 @@ __NORETURN void kernel_main(void) {
     kprintf("Init ttys");
     ttys_init();
 
-    kprintf("Init ELF loader");
-    elf_init(heap_alloc, heap_free);
+    kprintf("Init program loader");
+    prog_loader_init();
 
     kprintf("Init devices");
     if (!device_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_DEVICE_INIT_ERROR);
@@ -163,7 +163,7 @@ __NORETURN void kernel_main(void) {
 
     process_t * init_process = process_create();
 
-    pman_context_add_shared(init_process->paging_context, PMAN_PROT_EXECUTE | PMAN_PROT_SHARED, kernel_trampoline_mapping, PROCESS_TRAMPOLINE_USER_VADDR);
+    // pman_context_add_shared(init_process->paging_context, PMAN_PROT_EXECUTE | PMAN_PROT_SHARED, kernel_trampoline_mapping, PROCESS_TRAMPOLINE_USER_VADDR);
 
     process_add_thread(init_process, thread_create_user(init_process->paging_context, init_process));
 

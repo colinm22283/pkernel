@@ -131,8 +131,6 @@ void thread_free(thread_t * thread) {
         pman_context_unmap(thread->stack_mapping);
     }
 
-    heap_overview();
-
     heap_free(thread);
 }
 

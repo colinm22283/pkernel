@@ -1,5 +1,7 @@
 #include <util/heap/heap.h>
 #include <util/heap/internal.h>
+#include <util/string/strlen.h>
+#include <util/string/strcpy.h>
 
 #include <entry_error.h>
 
@@ -13,7 +15,18 @@ void heap_free(void * alloc) {
     heap_tag_t * tag = ((heap_tag_t *) alloc) - 1;
 
 #ifdef HEAP_DEBUG
-    const char * name = tag->name;
+    char * name = (char *) tag->name;
+
+    // size_t len = strlen(name);
+    //
+    // char * new_name = heap_alloc_debug(len + 7, "heap debug name");
+    //
+    // strcpy(new_name, name);
+    // strcpy(new_name + len, " FREED");
+    //
+    // tag->name = new_name;
+    //
+    // return
 #endif
 
     alloc_size -= tag->next_size;
