@@ -11,6 +11,6 @@ void syscall_exit(__MAYBE_UNUSED uint64_t exit_code) {
 
     process_kill(current_process);
 
-    heap_overview();
-    printf("%i/%i\n", heap_usage(), HEAP_INITIAL_SIZE);
+    /* heap_overview(); */
+    /* printf("%i/%i\n", heap_usage(), HEAP_INITIAL_SIZE); */
 }
