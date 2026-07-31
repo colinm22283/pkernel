@@ -2,8 +2,9 @@
 
 #include <stdint.h>
 
-#define TIMER_TICK_NS (54925)
-#define TIMER_NS_TO_TICKS(ns) ((ns) / TIMER_TICK_NS)
+#define TIMER_TICK_US (54925)
+#define TIMER_NS_TO_TICKS(ns) (TIMER_US_TO_TICKS((ns) / 1000))
+#define TIMER_US_TO_TICKS(us) ((us) / TIMER_TICK_US)
 #define TIMER_MS_TO_TICKS(ms) (TIMER_NS_TO_TICKS(1000 * (ms)))
 #define TIMER_S_TO_TICKS(s) (TIMER_MS_TO_TICKS(1000 * (s)))
 

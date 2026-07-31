@@ -6,7 +6,7 @@
 #include <pkfs.h>
 #include <disc_operations.h>
 
-#include "../../../../../fsroot/usr/include/errno.h"
+#include <errno.h>
 
 fs_node_t * alloc_node(fs_superblock_t * superblock) {
     pkfs_fs_node_t * new_node = heap_alloc_debug(sizeof(pkfs_fs_node_t), "pkfs fsnode");

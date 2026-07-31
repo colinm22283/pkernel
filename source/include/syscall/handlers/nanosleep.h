@@ -6,5 +6,5 @@
 
 #include <defs.h>
 
-int syscall_alarm(size_t seconds);
+int syscall_nanosleep(size_t nanos);
 
