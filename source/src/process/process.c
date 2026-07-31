@@ -5,6 +5,8 @@
 
 #include <util/memory/memcpy.h>
 
+#include <debug/printf.h>
+
 #include <sys/function/push_args.h>
 
 #include <scheduler/scheduler.h>

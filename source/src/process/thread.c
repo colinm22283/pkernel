@@ -104,6 +104,8 @@ thread_t * thread_create_kernel(void) {
 
     tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * PAGE_SIZE);
 
+    kprintf("THREAD STACK MAPPING: %p", thread->stack_mapping);
+
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
 
     thread->waiter = NULL;

@@ -117,7 +117,7 @@ void * valloc_reserve(valloc_t * valloc, void * vaddr, uint64_t size) {
     }
 
     if (int_vaddr > start) {
-        valloc_node_t * new_node = heap_alloc_debug(sizeof(valloc_node_t), "valloc_node_t reserve");
+        valloc_node_t * new_node = heap_alloc_debug(sizeof(valloc_node_t), "valloc_node_t reserve 1");
 
         new_node->is_free = true;
         new_node->start_addr = node->start_addr;
@@ -132,7 +132,7 @@ void * valloc_reserve(valloc_t * valloc, void * vaddr, uint64_t size) {
     }
 
     if (req_end < end) {
-        valloc_node_t * new_node = heap_alloc_debug(sizeof(valloc_node_t), "valloc_node_t reserve");
+        valloc_node_t * new_node = heap_alloc_debug(sizeof(valloc_node_t), "valloc_node_t reserve 2");
 
         new_node->is_free = true;
         new_node->start_addr = node->start_addr + VALLOC_PAGE_SIZE * size_pages;

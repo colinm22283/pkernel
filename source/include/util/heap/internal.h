@@ -11,6 +11,8 @@ typedef struct {
 
 #ifdef HEAP_DEBUG
     const char * name;
+
+    uint8_t flags;
 #endif
 
     uint64_t next_size;
@@ -26,6 +28,9 @@ extern uint64_t heap_pdpt_paddr;
 void heap_check(void);
 
 void heap_overview(void);
+
+void heap_take_snapshot(void);
+void heap_diff_snapshot(void);
 
 #define FANCY_HEAP_CHECK() \
     do { \

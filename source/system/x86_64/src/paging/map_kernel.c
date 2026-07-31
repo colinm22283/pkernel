@@ -69,5 +69,5 @@ void sys_paging_map_kernel_regions(pman_context_t * context) {
 }
 
 pman_mapping_t * sys_paging_map_kernel_executable(pman_context_t * context) {
-    return pman_context_add_shared(context, PMAN_PROT_EXECUTE, kernel_executable_mapping, KERNEL_START);
+    return pman_context_add_shared(context, PMAN_PROT_EXECUTE | PMAN_PROT_SHARED, kernel_executable_mapping, KERNEL_START);
 }

@@ -44,9 +44,9 @@ int module_register_static(const char * module_name, const char ** deps, size_t 
 
     size_t module_name_len = strlen(module_name);
 
-    module_t * module = heap_alloc(sizeof(module_t));
+    module_t * module = heap_alloc_debug(sizeof(module_t), "module_t");
 
-    module->name = heap_alloc(module_name_len + 1);
+    module->name = heap_alloc_debug(module_name_len + 1, "module_t name");
     strcpy(module->name, module_name);
 
     module->dep_count = dep_count;
@@ -54,9 +54,9 @@ int module_register_static(const char * module_name, const char ** deps, size_t 
         module->deps = NULL;
     }
     else {
-        module->deps = heap_alloc(module->dep_count * sizeof(char *));
+        module->deps = heap_alloc_debug(module->dep_count * sizeof(char *), "module_t deps");
         for (size_t i = 0; i < module->dep_count; i++) {
-            module->deps[i] = heap_alloc(strlen(deps[i]) + 1);
+            module->deps[i] = heap_alloc_debug(strlen(deps[i]) + 1, "module_t deps name");
             strcpy(module->deps[i], deps[i]);
         }
     }

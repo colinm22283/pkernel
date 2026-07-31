@@ -15,7 +15,7 @@ void heap_free(void * alloc) {
     heap_tag_t * tag = ((heap_tag_t *) alloc) - 1;
 
 #ifdef HEAP_DEBUG
-    char * name = (char *) tag->name;
+    /* char * name = (char *) tag->name; */
 
     // size_t len = strlen(name);
     //
@@ -66,11 +66,11 @@ void heap_free(void * alloc) {
     tag->next_reserved = false;
 
 #ifdef HEAP_DEBUG
-    debug_print("FREE: ");
-    debug_print(name);
-    debug_print(", 0x");
-    debug_print_hex((intptr_t) alloc);
-    debug_print("\n");
+    /* debug_print("FREE: "); */
+    /* debug_print(name); */
+    /* debug_print(", 0x"); */
+    /* debug_print_hex((intptr_t) alloc); */
+    /* debug_print("\n"); */
 
     heap_check();
 #endif

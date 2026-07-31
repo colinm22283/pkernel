@@ -72,6 +72,7 @@ void * heap_alloc(uint64_t size_bytes) {
         mid_tag->next_reserved = false;
 #ifdef HEAP_DEBUG
         mid_tag->name = "UNKNOWN";
+        mid_tag->flags = 0;
 #endif
 
         next_tag->prev_size = remaining_bytes;
@@ -85,6 +86,7 @@ void * heap_alloc(uint64_t size_bytes) {
 
 #ifdef HEAP_DEBUG
     current_tag->name = "UNKNOWN";
+    current_tag->flags = 0;
 
     heap_check();
 #endif

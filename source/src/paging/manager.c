@@ -38,6 +38,11 @@
 #endif
 #include <debug/debug_logger.h>
 
+size_t alive_alloc = 0;
+size_t alive_map = 0;
+size_t alive_share = 0;
+size_t alive_borrow = 0;
+
 DEFINE_KERNEL_PRINTF("paging manager");
 
 pman_context_t kernel_context;
@@ -82,8 +87,6 @@ pman_context_t * pman_new_context(void) {
 
     valloc_init(&context->valloc);
 
-    sys_paging_map_kernel_executable(context);
-
     context->head.next = &context->tail;
     context->head.prev = NULL;
     context->tail.next = NULL;
@@ -115,11 +118,12 @@ void pman_context_load_table(pman_context_t * context) {
 }
 
 pman_mapping_t * pman_context_add_alloc(pman_context_t * context, pman_protection_flags_t prot, void * vaddr, uint64_t size) {
-    kprintf("Add allocation");
-
     uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
     pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "alloc mapping");
+
+    kprintf("Add allocation %p", mapping);
+    alive_alloc++;
 
     mapping->context = context;
     mapping->type = PMAN_MAPPING_ALLOC;
@@ -163,11 +167,12 @@ pman_mapping_t * pman_context_add_alloc(pman_context_t * context, pman_protectio
 }
 
 pman_mapping_t * pman_context_add_map(pman_context_t * context, pman_protection_flags_t prot, void * vaddr, uint64_t paddr, uint64_t size) {
-    kprintf("Add map");
-
     uint64_t size_pages = DIV_UP(size, PAGE_SIZE);
 
     pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "map mapping");
+
+    kprintf("Add map %p", mapping);
+    alive_map++;
 
     mapping->context = context;
     mapping->type = PMAN_MAPPING_MAP;
@@ -202,11 +207,12 @@ pman_mapping_t * pman_context_add_map(pman_context_t * context, pman_protection_
 }
 
 pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protection_flags_t prot, pman_mapping_t * lender, void * vaddr) {
-    kprintf("Add borrow");
-
     pman_mapping_t * root_lender = get_root_mapping(lender);
 
     pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "borrow mapping");
+
+    kprintf("Add borrow %p", mapping);
+    alive_borrow++;
 
     mapping->context = context;
     mapping->type = PMAN_MAPPING_BORROWED;
@@ -273,11 +279,12 @@ pman_mapping_t * pman_context_add_borrowed(pman_context_t * context, pman_protec
 }
 
 pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protection_flags_t prot, pman_mapping_t * lender, void * vaddr) {
-    kprintf("Add share");
-
     pman_mapping_t * root_lender = get_root_mapping(lender);
 
     pman_mapping_t * mapping = heap_alloc_debug(sizeof(pman_mapping_t), "shared mapping");
+
+    kprintf("Add shared %p", mapping);
+    alive_share++;
 
     mapping->context = context;
     mapping->type = PMAN_MAPPING_SHARED;
@@ -340,13 +347,14 @@ pman_mapping_t * pman_context_add_shared(pman_context_t * context, pman_protecti
 }
 
 int pman_context_unmap(pman_mapping_t * mapping) {
-    kprintf("Unmap");
-
     switch (mapping->type) {
         case PMAN_MAPPING_ALLOC: {
             mapping->alloc.references--;
 
             if (mapping->alloc.references == 0) {
+                kprintf("Unmap %p", mapping);
+                alive_alloc--;
+
                 mapping->next->prev = mapping->prev;
                 mapping->prev->next = mapping->next;
 
@@ -366,6 +374,9 @@ int pman_context_unmap(pman_mapping_t * mapping) {
             mapping->map.references--;
 
             if (mapping->map.references == 0) {
+                kprintf("Unmap %p", mapping);
+                alive_map--;
+
                 mapping->next->prev = mapping->prev;
                 mapping->prev->next = mapping->next;
 
@@ -380,6 +391,9 @@ int pman_context_unmap(pman_mapping_t * mapping) {
         } break;
 
         case PMAN_MAPPING_BORROWED: {
+            kprintf("Unmap %p", mapping);
+            alive_borrow--;
+
             mapping->next->prev = mapping->prev;
             mapping->prev->next = mapping->next;
 
@@ -395,6 +409,9 @@ int pman_context_unmap(pman_mapping_t * mapping) {
         } break;
 
         case PMAN_MAPPING_SHARED: {
+            kprintf("Unmap %p", mapping);
+            alive_share--;
+
             mapping->next->prev = mapping->prev;
             mapping->prev->next = mapping->next;
 
@@ -410,6 +427,11 @@ int pman_context_unmap(pman_mapping_t * mapping) {
 
         default: break;
     }
+
+    /* kprintf("ALIVE ALLOCS: %i", alive_alloc); */
+    /* kprintf("ALIVE MAPS: %i", alive_map); */
+    /* kprintf("ALIVE BORROWS: %i", alive_borrow); */
+    /* kprintf("ALIVE SHARES: %i", alive_share); */
 
     return 0;
 }
@@ -486,9 +508,9 @@ pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr) 
 }
 
 pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t * mapping) {
-    kprintf("Prepare write");
-
     if (mapping->type == PMAN_MAPPING_BORROWED) {
+        kprintf("Prepare borrow write");
+
         pman_protection_flags_t mapping_protection = mapping->protection;
         void * mapping_vaddr = mapping->vaddr;
         pman_context_t * context = mapping->context;
@@ -496,6 +518,7 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
         pman_mapping_t * root_mapping = get_root_mapping(mapping);
 
         if (root_mapping->alloc.references == 1) {
+            kprintf("Single Ref");
             pman_add_reference(root_mapping);
 
             pman_context_unmap(mapping);
@@ -514,6 +537,8 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
             return user_mapping;
         }
         else {
+            kprintf("Multi Ref");
+
             pman_mapping_t * kernel_alloc = pman_context_add_alloc(
                 pman_kernel_context(),
                 PMAN_PROT_WRITE,
@@ -539,7 +564,11 @@ pman_mapping_t * pman_context_prepare_write(process_t * process, pman_mapping_t 
             return user_mapping;
         }
     }
-    else return mapping;
+    else {
+        kprintf("Prepare non-borrow write");
+
+        return mapping;
+    }
 }
 
 bool looping = false;

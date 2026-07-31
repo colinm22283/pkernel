@@ -22,6 +22,7 @@ KN_OBJS+=$(KN_OD_64)/util/heap/free.o
 KN_OBJS+=$(KN_OD_64)/util/heap/realloc.o
 KN_OBJS+=$(KN_OD_64)/util/heap/usage.o
 KN_OBJS+=$(KN_OD_64)/util/heap/internal.o
+KN_OBJS+=$(KN_OD_64)/util/heap/snapshot.o
 
 KN_OBJS+=$(KN_OD_64)/paging/tables.o
 KN_OBJS+=$(KN_OD_64)/paging/init.o

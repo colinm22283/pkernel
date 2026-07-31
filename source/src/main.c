@@ -43,6 +43,7 @@
 #include <sys/setup.h>
 #include <sys/interrupt/interrupt_code.h>
 #include <sys/process/trampoline.h>
+#include <sys/paging/map_kernel.h>
 
 #include <sys/panic.h>
 
@@ -162,6 +163,8 @@ __NORETURN void kernel_main(void) {
     kprintf("Load init process");
 
     process_t * init_process = process_create();
+
+    sys_paging_map_kernel_executable(init_process->paging_context);
 
     // pman_context_add_shared(init_process->paging_context, PMAN_PROT_EXECUTE | PMAN_PROT_SHARED, kernel_trampoline_mapping, PROCESS_TRAMPOLINE_USER_VADDR);
 
