@@ -247,6 +247,7 @@ fs_directory_entry_t * fs_open_path(fs_directory_entry_t * root, const char * pa
             }
             else if (strcmp(segment, "..") == 0) {
                 if (cur_node->parent != NULL) {
+                    fs_directory_entry_add_reference(cur_node->parent);
                     new_node = cur_node->parent;
                     fs_directory_entry_release(cur_node);
                 }

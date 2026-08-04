@@ -128,7 +128,7 @@ pman_mapping_t * pman_context_add_handler(pman_context_t * context, pman_protect
 
 int pman_context_unmap(pman_mapping_t * mapping);
 
-pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size);
+pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, void * new_vaddr, uint64_t size);
 
 pman_mapping_t * pman_context_get_vaddr(pman_context_t * context, void * vaddr);
 

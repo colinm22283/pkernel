@@ -7,6 +7,8 @@
 
 #include <timer/timer.h>
 
+#include <debug/printf.h>
+
 #include <syscall/handlers/nanosleep.h>
 
 void nanosleep_timer_handler(timer_t * timer) {

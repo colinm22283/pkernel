@@ -63,7 +63,7 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
             kprintf("  ELF_PH_TYPE_LOAD: vaddr = %p, memsz = %i", (void *) header->vaddr, header->memsz);
 
             void * aligned_vaddr = (void *) (((intptr_t) header->vaddr / PAGE_SIZE) * PAGE_SIZE);
-            size_t extra_size = (header->vaddr - (intptr_t) aligned_vaddr);
+            size_t extra_size = ((intptr_t) header->vaddr - (intptr_t) aligned_vaddr);
             kprintf("  aligned_vaddr = %p, extra = %i", aligned_vaddr, extra_size);
 
             pman_mapping_t * mapping = pman_context_get_vaddr(process->paging_context, (void *) header->vaddr);
@@ -108,7 +108,7 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                 else {
                     kprintf("    Remapping old segment to size %i", header->memsz + extra_size);
 
-                    mapping = pman_context_resize(mapping, header->memsz + extra_size);
+                    mapping = pman_context_resize(mapping, aligned_vaddr, header->memsz + extra_size);
 
                     process_mapping = get_root_mapping(mapping)->vaddr + extra_size;
                 }

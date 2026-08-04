@@ -436,8 +436,8 @@ int pman_context_unmap(pman_mapping_t * mapping) {
     return 0;
 }
 
-pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
-    kprintf("Resize mapping");
+pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, void * new_vaddr, uint64_t size) {
+    kprintf("Resize mapping %p to %i", mapping, size);
 
     switch (mapping->type) {
         case PMAN_MAPPING_ALLOC: {
@@ -458,7 +458,9 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
         case PMAN_MAPPING_BORROWED: {
             pman_context_t * context = mapping->context;
             pman_protection_flags_t prot = mapping->protection;
-            void * vaddr = mapping->vaddr;
+            void * vaddr;
+            if (new_vaddr == NULL) vaddr = mapping->vaddr;
+            else vaddr = new_vaddr;
 
             pman_mapping_t * new_lender = pman_context_add_alloc(
                 pman_kernel_context(),
@@ -485,7 +487,7 @@ pman_mapping_t * pman_context_resize(pman_mapping_t * mapping, uint64_t size) {
 
         // TODO: add cases
         default: {
-            debug_print("bad\n");
+            panic0("Resize of non borrowed or alloc memory unimplemented");
         } break;
     }
 
