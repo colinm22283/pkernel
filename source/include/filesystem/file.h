@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <dirent.h>
 
 #include <filesystem/node.h>
 #include <filesystem/filesystem.h>
@@ -33,5 +34,5 @@ void * file_map(fs_file_t * file, pman_context_t * context, void * map_addr, uin
 
 void file_close(fs_file_t * file);
 
-int64_t file_readdir(fs_file_t * file, directory_entry_t * entries, uint64_t buffer_size);
+int file_readdir(fs_file_t * file, struct dirent * entries, size_t buffer_size);
 

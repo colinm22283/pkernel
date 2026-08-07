@@ -127,39 +127,29 @@ void file_close(fs_file_t * file) {
     fs_directory_entry_release(file->dirent);
 }
 
-int64_t file_readdir(fs_file_t * file, directory_entry_t * entries, uint64_t buffer_size) {
+int file_readdir(fs_file_t * file, struct dirent * entry, size_t buffer_size) {
     if (!(file->options & O_RD)) return -EINVAL;
 
     if (file->dirent->type != FS_DIRECTORY) return -ENOTDIR;
 
     if (file->current_node == &file->dirent->tail) return 0;
 
-    uint64_t buffer_pos = 0;
-    char * buffer = (char *) entries;
+    size_t name_length = strlen(file->current_node->name);
+    size_t entry_length = sizeof(directory_entry_t) + name_length + 1;
 
-    while (true) {
-        uint64_t name_length = strlen(file->current_node->name);
-        uint64_t entry_length = sizeof(directory_entry_t) + name_length + 1;
+    if (entry_length > buffer_size) return -ERANGE;
 
-        if (buffer_pos + entry_length > buffer_size) break;
+    fs_directory_entry_t * dirent = fs_directory_node_enter(file->dirent, file->current_node);
 
-        directory_entry_t * entry = (directory_entry_t *) (buffer + buffer_pos);
+    entry->d_type = dirent->type;
+    entry->d_size = entry_length;
+    entry->d_ino  = 0; // TODO: implement inode numbers
 
-        fs_directory_entry_t * dirent = fs_directory_node_enter(file->dirent, file->current_node);
+    fs_directory_entry_release(dirent);
 
-        entry->file_type = dirent->type;
-        entry->struct_size = entry_length;
+    strcpy(entry->d_name, file->current_node->name);
 
-        fs_directory_entry_release(dirent);
+    file->current_node = file->current_node->next;
 
-        strcpy(entry->name, file->current_node->name);
-
-        buffer_pos += entry_length;
-
-        file->current_node = file->current_node->next;
-
-        if (file->current_node == &file->dirent->tail) break;
-    }
-
-    return (int64_t) buffer_pos;
+    return 1;
 }

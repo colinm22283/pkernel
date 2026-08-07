@@ -79,7 +79,7 @@ uint64_t syscall_handler(
 
         case SYSCALL_EXIT: syscall_exit(arg0); return 0;
 
-        case SYSCALL_READDIR: return syscall_readdir((fd_t) arg0, (directory_entry_t *) arg1, arg2);
+        case SYSCALL_READDIR: return syscall_readdir((int) arg0, (struct dirent *) arg1, arg2);
 
         case SYSCALL_CHDIR: return syscall_chdir((const char *) arg0);
 

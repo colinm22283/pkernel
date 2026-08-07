@@ -3,7 +3,8 @@
 #include <stdint.h>
 
 #include <sys/types.h>
+#include <dirent.h>
 
 #include <defs.h>
 
-int64_t syscall_readdir(fd_t fd, directory_entry_t * _entries, uint64_t size);
+int syscall_readdir(fd_t fd, struct dirent * _entries, size_t size);
