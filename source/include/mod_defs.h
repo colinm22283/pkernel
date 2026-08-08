@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 
+#include <debug/printf.h>
+
 #include <defs.h>
 
 #include <sys/debug/print.h>
@@ -24,11 +26,23 @@ extern const char module_name[];
 #define MODULE_PRINT(msg) debug_print(msg)
 #define MODULE_PRINT_HEX(num) debug_print_hex(num)
 
+static inline void kprintf(const char * format, ...) {
+    printf("[MODULE %s] ", module_name);
+
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+    printf("\n");
+}
+
 #else
 
 #define MODULE_DEBUG(...)
 
 #define MODULE_PRINT(msg)
 #define MODULE_PRINT_HEX(num)
+
+static inline void kprintf(const char * format, ...) { }
 
 #endif

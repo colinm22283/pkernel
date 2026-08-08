@@ -31,3 +31,5 @@ extern interrupt_entry_t pic1_timer_handler_entry;
 extern interrupt_entry_t pic1_keyboard_handler_entry;
 extern interrupt_entry_t pic1_com2_handler_entry;
 extern interrupt_entry_t pic1_com1_handler_entry;
+
+extern interrupt_entry_t pic2_mouse_handler_entry;

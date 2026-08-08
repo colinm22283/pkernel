@@ -75,7 +75,7 @@ uint64_t syscall_handler(
 
         case SYSCALL_READ: return syscall_read((fd_t) arg0, (char *) arg1, arg2);
 
-        // case SYSCALL_SEEK: return syscall_seek((fd_t) arg0, (int64_t) arg1, arg2);
+        case SYSCALL_SEEK: return syscall_seek((fd_t) arg0, (off_t) arg1, arg2);
 
         case SYSCALL_EXIT: syscall_exit(arg0); return 0;
 

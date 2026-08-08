@@ -151,3 +151,4 @@ PIC1_INTERRUPT pic1_com1_handler_entry, pic1_com1_handler
 PIC1_INTERRUPT pic1_timer_handler_entry, pic1_timer_handler
 
 PIC2_INTERRUPT null_pic2_handler_entry, null_handler
+PIC2_INTERRUPT pic2_mouse_handler_entry, pic2_mouse_handler
