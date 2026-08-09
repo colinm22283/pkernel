@@ -88,7 +88,8 @@ int init(void) {
     com1_data.port = *(uint16_t *) 0x400;
 #pragma GCC diagnostic pop
 
-    if (com1_data.port == 0) com1_data.port = 0x3F8;
+    /* if (com1_data.port == 0) com1_data.port = 0x3F8; */
+    com1_data.port = 0x3F8;
 
     MODULE_DEBUG(
         MODULE_PRINT("Com1 port: ");
