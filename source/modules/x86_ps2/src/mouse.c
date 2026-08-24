@@ -2,6 +2,8 @@
 
 #include <device/device.h>
 
+#include <scheduler/scheduler.h>
+
 #include <devfs/devfs.h>
 
 #include <util/memory/memcpy.h>
@@ -102,6 +104,8 @@ void mouse_handler(interrupt_code_t channel, task_state_record_t * tsr, void * i
     mouse_packet[mouse_packet_loc] = inb(PS2_DATA);
 
     mouse_packet_loc++;
+
+    if (packet_full()) event_invoke(device->read_ready);
 }
 
 void keyboard_handler(interrupt_code_t channel, task_state_record_t * tsr, void * interrupt_code) {
@@ -110,7 +114,9 @@ void keyboard_handler(interrupt_code_t channel, task_state_record_t * tsr, void 
 }
 
 uint64_t mouse_read(device_t * dev, char * buffer, uint64_t size) {
-    if (!packet_full()) return 0;
+    while (!packet_full()) {
+        scheduler_await(dev->read_ready);
+    }
     
     if (mouse_type == MOUSE_BASIC) {
         if (size != 3) return 0;
@@ -146,6 +152,11 @@ int init() {
     device_char_data_t data = { };
     device = device_create_char("mouse0", NULL, &mouse_ops, &data);
     devfs_register(device);
+
+    read_data_timeout();
+    read_data_timeout();
+    read_data_timeout();
+    read_data_timeout();
 
     send_command(0xAD);
     send_command(0xA7);
@@ -190,9 +201,23 @@ int init() {
     read_data_timeout();
 
     switch (type_data) {
-        case 0x00: mouse_type = MOUSE_BASIC; break;
-        case 0x03: mouse_type = MOUSE_SCROLLING; break;
-        default: mouse_type = MOUSE_NONE; break;
+        case 0x00: {
+            mouse_type = MOUSE_BASIC;
+
+            kprintf("Mouse type: BASIC");
+        } break;
+
+        case 0x03: {
+            mouse_type = MOUSE_SCROLLING;
+
+            kprintf("Mouse type: SCROLLING");
+        } break;
+
+        default: {
+            mouse_type = MOUSE_NONE;
+
+            kprintf("Mouse type: UNKNOWN");
+        } break;
     }
 
     if (mouse_write(0xF4)) kprintf("Couldn't enable data reporting on mouse\n");

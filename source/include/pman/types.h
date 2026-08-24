@@ -21,10 +21,12 @@ typedef enum {
 typedef struct {
     size_t references;
 
+    size_t file_offset;
     file_t * file;
+    bool dirty;
 
-    palloc_t palloc;
-    paging_mapping_t mapping;
+    palloc_t * palloc;
+    paging_mapping_t * mapping;
 } pman_source_t;
 
 typedef struct {
