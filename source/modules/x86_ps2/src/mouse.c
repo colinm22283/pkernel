@@ -6,6 +6,9 @@
 
 #include <devfs/devfs.h>
 
+#include <input/input.h>
+#include <input/buttons.h>
+
 #include <util/memory/memcpy.h>
 
 #include <sys/interrupt/interrupt_code.h>
@@ -17,11 +20,13 @@
 
 #include <mod_defs.h>
 
+#include <keycode_lut.h>
+
 #define PS2_DATA    (0x60)
 #define PS2_STATUS  (0x64)
 #define PS2_COMMAND (0x64)
 
-device_t * device;
+input_device_t * device;
 
 static inline void wait_data(void) {
     while (!(inb(PS2_STATUS) & 0b1));
@@ -35,6 +40,11 @@ static inline uint8_t read_data(void) {
     wait_data();
 
     return inb(PS2_DATA);
+}
+
+static inline void write_data(uint8_t data) {
+    wait_write();
+    outb(PS2_DATA, data);
 }
 
 static inline uint16_t read_data_timeout(void) {
@@ -86,6 +96,8 @@ enum {
 size_t mouse_packet_loc = 0;
 char mouse_packet[4];
 
+bool mouse_buttons[3] = { false, false, false, };
+
 static inline bool packet_full(void) {
     if (mouse_type == MOUSE_BASIC && mouse_packet_loc == 3) return true;
     if (mouse_type == MOUSE_SCROLLING && mouse_packet_loc == 4) return true;
@@ -94,50 +106,119 @@ static inline bool packet_full(void) {
 }
 
 void mouse_handler(interrupt_code_t channel, task_state_record_t * tsr, void * interrupt_code) {
-    if (mouse_type == MOUSE_NONE || packet_full()) {
+    if (mouse_type == MOUSE_NONE) {
         do inb(PS2_DATA);
         while (inb(PS2_STATUS) & 0b1);
         
         return;
     }
 
-    mouse_packet[mouse_packet_loc] = inb(PS2_DATA);
+    char data = inb(PS2_DATA);
+    if (mouse_packet_loc == 0 && !(data & (1 << 3))) return;
+
+    mouse_packet[mouse_packet_loc] = data;
 
     mouse_packet_loc++;
 
-    if (packet_full()) event_invoke(device->read_ready);
+    if (packet_full()) {
+        bool buttons[3] = {
+            !!(mouse_packet[0] & (1 << 0)),
+            !!(mouse_packet[0] & (1 << 1)),
+            !!(mouse_packet[0] & (1 << 2)),
+        };
+
+        for (int i = 0; i < 3; i++) {
+            if (buttons[i] ^ mouse_buttons[i]) {
+                char buffer[sizeof(input_packet_header_t) + sizeof(input_packet_key_t)];
+                input_packet_t * packet = (input_packet_t *) &buffer;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+                packet->header.type = IT_KEY;
+                packet->header.size = sizeof(input_packet_header_t) + sizeof(input_packet_key_t);
+                packet->data.key.action = buttons[i] ? IT_ACTION_PRESS : IT_ACTION_RELEASE;
+                packet->data.key.code   = BTN_LEFT + i;
+
+                input_provide_packet(device, packet);
+#pragma GCC diagnostic pop
+            }
+        }
+
+        if (mouse_packet[1] != 0) {
+            char buffer[sizeof(input_packet_header_t) + sizeof(input_packet_rel_t)];
+            input_packet_t * packet = (input_packet_t *) &buffer;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+            packet->header.type = IT_REL;
+            packet->header.size = sizeof(input_packet_header_t) + sizeof(input_packet_rel_t);
+            packet->data.rel.axis  = IT_REL_X;
+            packet->data.rel.value = mouse_packet[1];
+
+            input_provide_packet(device, packet);
+#pragma GCC diagnostic pop
+        }
+
+        if (mouse_packet[2] != 0) {
+            char buffer[sizeof(input_packet_header_t) + sizeof(input_packet_rel_t)];
+            input_packet_t * packet = (input_packet_t *) &buffer;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+            packet->header.type = IT_REL;
+            packet->header.size = sizeof(input_packet_header_t) + sizeof(input_packet_rel_t);
+            packet->data.rel.axis  = IT_REL_Y;
+            packet->data.rel.value = mouse_packet[2];
+
+            input_provide_packet(device, packet);
+#pragma GCC diagnostic pop
+        }
+
+        mouse_packet_loc = 0;
+
+        for (int i = 0; i < 3; i++) {
+            mouse_buttons[i] = buttons[i];
+        }
+    }
 }
+
+bool awaiting_extra_keycode = false;
+bool key_release = false;
 
 void keyboard_handler(interrupt_code_t channel, task_state_record_t * tsr, void * interrupt_code) {
-    do inb(PS2_DATA);
-    while (inb(PS2_STATUS) & 0b1);
-}
+    uint8_t data = inb(PS2_DATA);
 
-uint64_t mouse_read(device_t * dev, char * buffer, uint64_t size) {
-    while (!packet_full()) {
-        scheduler_await(dev->read_ready);
+    if (data == 0xE0) {
+        awaiting_extra_keycode = true;
     }
-    
-    if (mouse_type == MOUSE_BASIC) {
-        if (size != 3) return 0;
-        
-        memcpy(buffer, mouse_packet, 3);
-
-        mouse_packet_loc = 0;
-
-        return 3;
-    }
-    else if (mouse_type == MOUSE_SCROLLING) {
-        if (size != 4) return 0;
-        
-        memcpy(buffer, mouse_packet, 4);
-
-        mouse_packet_loc = 0;
-
-        return 4;
+    else if (data == 0xF0) {
+        key_release = true;
     }
     else {
-        return 0;
+        uint16_t keycode;
+
+        if (awaiting_extra_keycode) {
+            keycode = keycode_lut[data + 256];
+        }
+        else {
+            keycode = keycode_lut[data];
+        }
+
+        char buffer[sizeof(input_packet_header_t) + sizeof(input_packet_key_t)];
+        input_packet_t * packet = (input_packet_t *) &buffer;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+        packet->header.type = IT_KEY;
+        packet->header.size = sizeof(input_packet_header_t) + sizeof(input_packet_key_t);
+        packet->data.key.action = key_release ? IT_ACTION_RELEASE : IT_ACTION_PRESS;
+        packet->data.key.code   = keycode;
+
+        input_provide_packet(device, packet);
+#pragma GCC diagnostic pop
+
+        awaiting_extra_keycode = false;
+        key_release = false;
     }
 }
 
@@ -145,18 +226,7 @@ int init() {
     if (!interrupt_registry_register((interrupt_code_t) IC_MOUSE, mouse_handler)) return ERROR_INT_UNAVAIL;
     if (!interrupt_registry_register((interrupt_code_t) IC_KEYBOARD, keyboard_handler)) return ERROR_INT_UNAVAIL;
 
-    device_char_operations_t mouse_ops = {
-        .write = NULL,
-        .read  = mouse_read,
-    };
-    device_char_data_t data = { };
-    device = device_create_char("mouse0", NULL, &mouse_ops, &data);
-    devfs_register(device);
-
-    read_data_timeout();
-    read_data_timeout();
-    read_data_timeout();
-    read_data_timeout();
+    device = input_add_device(NULL, NULL);
 
     send_command(0xAD);
     send_command(0xA7);
@@ -187,8 +257,8 @@ int init() {
     send_command(0xAE);
     send_command(0xA8);
 
-    config |=  0b1000011;
-    config &= ~0b0110000;
+    config |=  0b0000011;
+    config &= ~0b1110000;
 
     write_config(config);
 
@@ -219,6 +289,11 @@ int init() {
             kprintf("Mouse type: UNKNOWN");
         } break;
     }
+
+    read_data_timeout();
+    read_data_timeout();
+    read_data_timeout();
+    mouse_packet_loc = 0;
 
     if (mouse_write(0xF4)) kprintf("Couldn't enable data reporting on mouse\n");
 

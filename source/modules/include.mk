@@ -20,11 +20,10 @@ $(STATIC_MODULE_OUT)/modules/$(MODULE_NAME)/module.o: $(MODULE_OD_OUT)/$(MODULE_
 		--redefine-sym module_deps=module_$(MODULE_NAME)_deps \
 		--redefine-sym module_dep_count=module_$(MODULE_NAME)_dep_count \
 		$$( \
-			$(NM64) $(MODULE_OD_OUT)/$(MODULE_NAME).o --format=sysv --extern-only -U | tail -n +7 | while IFS= read -r s; do \
-				IFS="|" set -- $$s; \
-				if [ "$$7" != ".module_export" ]; then \
-				  	if [ "$$1" != "init" ] && [ "$$1" != "free" ]; then \
-						echo --localize-symbol=$$1; \
+			$(NM64) $(MODULE_OD_OUT)/$(MODULE_NAME).o --format=sysv --extern-only -U | tail -n +7 | while IFS="|" read -r name _1 _2 _3 _4 _5 section; do \
+				if [ "$$section" != ".module_export" ]; then \
+				  	if [ "$$name" != "init" ] && [ "$$name" != "free" ]; then \
+						echo --localize-symbol=$$name; \
 					fi; \
 				fi; \
 			done \

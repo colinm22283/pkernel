@@ -106,6 +106,8 @@ KN_OBJS+=$(KN_OD_64)/interrupt/interrupt_registry.o
 
 KN_OBJS+=$(KN_OD_64)/tty/tty.o
 
+KN_OBJS+=$(KN_OD_64)/input/input.o
+
 KN_OBJS+=$(KN_OD_64)/prog_loader/prog_loader.o
 
 KN_OBJS+=$(KN_OD_64)/debug/printf.o
@@ -119,6 +121,7 @@ CONFIG_TARGETS+=$(KN_CD)/module.h
 CONFIG_TARGETS+=$(KN_CD)/init.h
 CONFIG_TARGETS+=$(KN_CD)/pman.h
 CONFIG_TARGETS+=$(KN_CD)/tty.h
+CONFIG_TARGETS+=$(KN_CD)/input.h
 CONFIG_TARGETS+=$(KN_CD)/scheduler.h
 CONFIG_TARGETS+=$(KN_CD)/event.h
 CONFIG_TARGETS+=$(KN_CD)/thread.h

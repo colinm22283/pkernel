@@ -33,6 +33,11 @@ void vprintf(const char * format, va_list args) {
                 case 'i': {
                     int i = va_arg(args, int);
 
+                    if (i < 0) {
+                        debug_print("-");
+                        i *= -1;
+                    }
+
                     debug_print_dec(i);
 
                     in_insert = false;

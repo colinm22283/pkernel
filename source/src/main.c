@@ -34,6 +34,8 @@
 
 #include <tty/tty.h>
 
+#include <input/input.h>
+
 #include <elf/elf.h>
 
 #include <debug/printf.h>
@@ -98,6 +100,9 @@ __NORETURN void kernel_main(void) {
 
     kprintf("Init ttys");
     ttys_init();
+
+    kprintf("Init input");
+    input_init();
 
     kprintf("Init program loader");
     prog_loader_init();
