@@ -11,5 +11,7 @@ int syscall_remove(const char * _path) {
     fs_directory_entry_t * dirent = process_open_path(current_process, path);
     if (dirent == NULL) return -ENOENT;
 
+    if (dirent->type == FS_DIRECTORY) return -EISDIR;
+
     return fs_remove(dirent);
 }
