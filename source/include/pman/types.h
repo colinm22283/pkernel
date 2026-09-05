@@ -7,6 +7,8 @@
 #include <paging/bitmap.h>
 #include <paging/physical_allocator.h>
 
+#include <filesystem/file.h>
+
 #include <sys/paging/pml4t.h>
 
 #include <defs.h>
@@ -21,12 +23,15 @@ typedef enum {
 typedef struct {
     size_t references;
 
+    fs_file_t * file;
     size_t file_offset;
-    file_t * file;
-    bool dirty;
 
-    palloc_t * palloc;
-    paging_mapping_t * mapping;
+    palloc_t palloc;
+    paging_mapping_t mapping;
+
+    bool initialized;
+    bool dirty;
+    bool evicted;
 } pman_source_t;
 
 typedef struct {
