@@ -1,6 +1,4 @@
 KN_OD_64=$(OBJ_DIR)/64/src
-
-    source->type = SOURCE_FILE;
 KN_CD=$(CONFIG_DIR)/kernel/config
 
 export INCLUDE_DIRS+=$(CURDIR)/include
@@ -37,6 +35,7 @@ KN_OBJS+=$(KN_OD_64)/paging/physical_allocator.o
 KN_OBJS+=$(KN_OD_64)/paging/manager.o
 
 KN_OBJS+=$(KN_OD_64)/pman/source.o
+KN_OBJS+=$(KN_OD_64)/pman/mapping.o
 
 KN_OBJS+=$(KN_OD_64)/memory/memory_map.o
 KN_OBJS+=$(KN_OD_64)/memory/primary_region.o

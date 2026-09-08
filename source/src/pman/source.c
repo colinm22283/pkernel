@@ -39,8 +39,6 @@ pman_source_t * pman_source_init_file(file_t * file, size_t offset) {
 pman_source_t * pman_source_init_anon(void) {
     pman_source_t * source = pman_source_init();
 
-    source->file        = NULL;
-    
     source->initialized = false;
     source->dirty       = false;
     source->evicted     = false;

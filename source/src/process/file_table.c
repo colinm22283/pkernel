@@ -14,7 +14,6 @@ void file_table_set(file_table_t * file_table, fd_t fd, fs_file_t * file) {
 
     if (file_table->files[fd] != NULL) {
         file_close(file_table->files[fd]);
-        heap_free(file_table->files[fd]);
     }
 
     file_table->files[fd] = file;
@@ -53,7 +52,6 @@ void file_table_free(file_table_t * file_table) {
     for (size_t i = 0; i < file_table->file_capacity; i++) {
         if (file_table->files[i] != NULL) {
             file_close(file_table->files[i]);
-            heap_free(file_table->files[i]);
         }
     }
 
@@ -66,7 +64,7 @@ void file_table_clone(file_table_t * dst, file_table_t * src) {
 
     for (size_t i = 0; i < src->file_capacity; i++) {
         if (src->files[i] != NULL) {
-            dst->files[i] = heap_alloc_debug(sizeof(fs_file_t), "file clone");
+            dst->files[i] = file_alloc();
 
             file_clone(dst->files[i], src->files[i]);
         }
@@ -77,7 +75,7 @@ void file_table_clone(file_table_t * dst, file_table_t * src) {
 int file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
     if ((size_t) src >= file_table->file_capacity || file_table->files[src] == NULL) return -EBADF;
 
-    fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file dup");
+    fs_file_t * file = file_alloc();
 
     fs_directory_entry_add_reference(file_table->files[src]->dirent);
     file_init(file, file_table->files[src]->dirent, file_table->files[src]->options);
@@ -88,7 +86,7 @@ int file_table_dup(file_table_t * file_table, fd_t dst, fd_t src) {
 }
 
 fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, int options) {
-    fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file open");
+    fs_file_t * file = file_alloc();
 
     int init_result = file_init(file, node, options);
     if (init_result != 0) return init_result;
@@ -97,7 +95,7 @@ fd_t file_table_open(file_table_t * file_table, fs_directory_entry_t * node, int
 }
 
 fd_t file_table_openat(file_table_t * file_table, fd_t fd, fs_directory_entry_t * node, int options) {
-    fs_file_t * file = heap_alloc_debug(sizeof(fs_file_t), "file openat");
+    fs_file_t * file = file_alloc();
 
     int init_result = file_init(file, node, options);
     if (init_result != 0) return init_result;
@@ -117,7 +115,6 @@ int file_table_close(file_table_t * file_table, fd_t fd) {
     if ((size_t) fd >= file_table->file_capacity || file_table->files[fd] == NULL) return -EBADFD;
 
     file_close(file_table->files[fd]);
-    heap_free(file_table->files[fd]);
 
     file_table->files[fd] = NULL;
 

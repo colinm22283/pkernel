@@ -1,10 +1,19 @@
 #include <fcntl.h>
 
 #include <filesystem/file.h>
+
+#include <util/heap/heap.h>
+
 #include <sys/debug/print.h>
+
+fs_file_t * file_alloc(void) {
+    return heap_alloc(sizeof(fs_file_t));
+}
 
 int file_init(fs_file_t * file, fs_directory_entry_t * dirent, int options) {
     if (dirent->type == FS_DIRECTORY && (options & O_WR)) return ERROR_IS_DIR;
+
+    file->references = 1;
 
     file->dirent = dirent;
     file->options = options;
@@ -30,6 +39,10 @@ int file_clone(fs_file_t * dst, fs_file_t * src) {
     }
 
     return 0;
+}
+
+void file_add_ref(fs_file_t * file) {
+    file->references++;
 }
 
 int64_t file_read(fs_file_t * file, char * buffer, uint64_t size) {
@@ -124,7 +137,13 @@ void * file_map(fs_file_t * file, pman_context_t * context, void * map_addr, uin
 }
 
 void file_close(fs_file_t * file) {
-    fs_directory_entry_release(file->dirent);
+    file->references--;
+
+    if (file->references == 0) {
+        fs_directory_entry_release(file->dirent);
+
+        heap_free(file);
+    }
 }
 
 int file_readdir(fs_file_t * file, struct dirent * entry, size_t buffer_size) {
