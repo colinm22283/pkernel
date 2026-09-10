@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 
-#include <paging/manager.h>
+#include <pman/types.h>
 
 #include <sys/tsr/tsr.h>
 #include <sys/function/arg.h>

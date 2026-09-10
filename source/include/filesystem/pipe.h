@@ -1,7 +1,5 @@
 #pragma once
 
-#include <paging/manager.h>
-
 #include <filesystem/types.h>
 
 #define PIPE_BUFFER_SIZE (1024)
@@ -11,8 +9,6 @@ typedef struct {
 
     uint64_t start, size;
     char * buffer;
-
-    pman_mapping_t * buffer_alloc;
 } pipe_t;
 
 pipe_t * pipe_init(void);

@@ -5,7 +5,7 @@
 #include <process/thread.h>
 #include <process/file_table.h>
 
-#include <paging/manager.h>
+#include <pman/types.h>
 
 #include <signal/signal.h>
 

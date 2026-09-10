@@ -3,6 +3,7 @@
 #include <sysfs/sysfs.h>
 #include <sysfs/internal.h>
 
+#include <filesystem/filesystem.h>
 #include <filesystem/node.h>
 #include <filesystem/file.h>
 

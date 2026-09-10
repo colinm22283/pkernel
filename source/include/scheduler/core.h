@@ -4,8 +4,6 @@
 
 #include <process/process.h>
 
-#include <paging/manager.h>
-
 typedef struct {
     thread_t * current_thread;
 } scheduler_core_t;

@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 
-#include <paging/manager.h>
+#include <pman/types.h>
 
 struct device_s;
 

@@ -23,7 +23,7 @@ static inline void pman_source_free(pman_source_t * source) {
     heap_free(source);
 }
 
-pman_source_t * pman_source_init_file(file_t * file, size_t offset) {
+pman_source_t * pman_source_init_file(fs_file_t * file, size_t offset) {
     pman_source_t * source = pman_source_init();
 
     source->file        = file;

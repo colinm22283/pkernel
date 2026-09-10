@@ -1,29 +1,31 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include <paging/mapper.h>
 #include <paging/virtual_allocator.h>
 #include <paging/bitmap.h>
 #include <paging/physical_allocator.h>
 
-#include <filesystem/file.h>
-
-#include <sys/paging/pml4t.h>
+#include <sys/paging/tlt.h>
 
 #include <defs.h>
 
 struct pman_context_s;
+struct fs_file_s;
 
-typedef enum {
-    MAPPING_BORROW,
-    MAPPING_SHARED,
-} pman_mapping_type_t;
+#define MAPPING_BORROW  (1UL << 0)
+typedef int pman_mapping_flags_t;
+
+#define MAPPING_EXECUTE (1UL << 0)
+#define MAPPING_WRITE   (1UL << 1)
+typedef int pman_protection_flags_t;
 
 typedef struct {
     size_t references;
 
-    fs_file_t * file;
+    struct fs_file_s * file;
     size_t file_offset;
 
     palloc_t palloc;
@@ -35,17 +37,42 @@ typedef struct {
 } pman_source_t;
 
 typedef struct {
+    size_t references;
+
+    void * vaddr;
+} pman_virtual_range_t;
+
+typedef struct pman_mapping_s {
+    struct pman_context_s * context;
+
+    pman_mapping_flags_t flags;
+    pman_protection_flags_t prot;
     pman_source_t * source;
 
+    void * vaddr;
+    pman_virtual_range_t * vrange;
+
     paging_mapping_t mapping;
+
+    bool active;
+
+    struct pman_mapping_s * next;
+    struct pman_mapping_s * prev;
 } pman_mapping_t;
 
 typedef struct pman_context_s {
     paging_table_allocation_t tlt_alloc;
-    pml4t64_t tlt;
+    pml4t64_t * tlt;
 
     valloc_t valloc;
 
     pman_mapping_t head, tail;
 } pman_context_t;
+
+typedef struct {
+    size_t size;
+    pman_mapping_t ** mappings;
+
+
+} pman_range_t;
 

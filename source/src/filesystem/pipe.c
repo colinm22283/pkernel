@@ -28,23 +28,15 @@ static inline bool pipe_pop(pipe_t * pipe, char * c) {
 pipe_t * pipe_init(void) {
     pipe_t * pipe = heap_alloc_debug(sizeof(pipe_t), "pipe");
 
-    pipe->buffer_alloc = pman_context_add_alloc(
-        pman_kernel_context(),
-        0,
-        NULL,
-        PIPE_BUFFER_SIZE
-    );
-
     pipe->start  = 0;
     pipe->size   = 0;
-    pipe->buffer = pipe->buffer_alloc->vaddr;
+    pipe->buffer = heap_alloc_debug(PIPE_BUFFER_SIZE, "pipe buffer");
 
     return pipe;
 }
 
 int pipe_free(pipe_t * pipe) {
-    pman_context_unmap(pipe->buffer_alloc);
-
+    heap_free(pipe->buffer);
     heap_free(pipe);
 
     return 0;

@@ -3,15 +3,14 @@
 #include <stddef.h>
 #include <dirent.h>
 
-#include <filesystem/node.h>
-#include <filesystem/filesystem.h>
+#include <filesystem/directory_entry.h>
 
 #include <util/string/strlen.h>
 #include <util/string/strcpy.h>
 
 #include <sys/types.h>
 
-typedef struct {
+typedef struct fs_file_s {
     size_t references;
 
     fs_directory_entry_t * dirent;

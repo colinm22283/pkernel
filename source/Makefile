@@ -32,7 +32,7 @@ KN_OBJS+=$(KN_OD_64)/paging/translation_map.o
 KN_OBJS+=$(KN_OD_64)/paging/table_allocator.o
 KN_OBJS+=$(KN_OD_64)/paging/virtual_allocator.o
 KN_OBJS+=$(KN_OD_64)/paging/physical_allocator.o
-KN_OBJS+=$(KN_OD_64)/paging/manager.o
+# KN_OBJS+=$(KN_OD_64)/paging/manager.o
 
 KN_OBJS+=$(KN_OD_64)/pman/source.o
 KN_OBJS+=$(KN_OD_64)/pman/mapping.o
