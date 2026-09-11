@@ -9,17 +9,20 @@
 #include <paging/physical_allocator.h>
 
 #include <sys/paging/tlt.h>
+#include <sys/paging/paddr.h>
 
 #include <defs.h>
 
 struct pman_context_s;
 struct fs_file_s;
 
-#define MAPPING_BORROW  (1UL << 0)
+#define PMAN_BORROW   (1UL << 0)
+#define PMAN_SHARED   (1UL << 1)
+#define PMAN_VRESERVE (1UL << 2)
 typedef int pman_mapping_flags_t;
 
-#define MAPPING_EXECUTE (1UL << 0)
-#define MAPPING_WRITE   (1UL << 1)
+#define PMAN_EXECUTE (1UL << 0)
+#define PMAN_WRITE   (1UL << 1)
 typedef int pman_protection_flags_t;
 
 typedef struct {
@@ -62,6 +65,7 @@ typedef struct pman_mapping_s {
 
 typedef struct pman_context_s {
     paging_table_allocation_t tlt_alloc;
+    paddr_t tlt_paddr;
     pml4t64_t * tlt;
 
     valloc_t valloc;
