@@ -4,6 +4,8 @@
 
 #include <process/process.h>
 
+#include <filesystem/filesystem.h>
+
 #include <syscall/handlers/mount.h>
 
 #include <util/string/strcmp.h>

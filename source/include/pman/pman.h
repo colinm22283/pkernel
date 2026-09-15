@@ -10,10 +10,11 @@ static inline pman_context_t * pman_kernel_context(void) {
     return &kernel_context;
 }
 
-pman_context_t * pman_next_context(void);
+pman_context_t * pman_new_context(void);
 int pman_free_context(pman_context_t * context);
 
 void pman_context_load_table(pman_context_t * context);
+void pman_fork_context(pman_context_t * dst, pman_context_t * src);
 
 pman_range_t * pman_add_anon_map(
     pman_context_t * context,

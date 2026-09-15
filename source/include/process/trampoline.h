@@ -1,5 +1,5 @@
 #pragma once
 
-#include <paging/manager.h>
+#include <pman/types.h>
 
-extern pman_mapping_t * kernel_trampoline_mapping;
+// extern pman_mapping_t * kernel_trampoline_mapping;

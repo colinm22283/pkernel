@@ -88,11 +88,11 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
 
     tsr_set_stack(
         &current_process->threads[0]->tsr,
-        current_process->threads[0]->stack_mapping->vaddr,
-        current_process->threads[0]->stack_mapping->size_pages * PAGE_SIZE
+        current_process->threads[0]->stack_vaddr,
+        current_process->threads[0]->stack_size
     );
 
-    push_main_args(current_process, &current_process->threads[0]->tsr, current_process->threads[0]->stack_mapping, current_process->argc, current_process->argv);
+    push_main_args(current_process, &current_process->threads[0]->tsr, current_process->argc, current_process->argv);
 
     return 0;
 }

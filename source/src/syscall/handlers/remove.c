@@ -1,5 +1,7 @@
 #include <scheduler/scheduler.h>
 
+#include <filesystem/filesystem.h>
+
 #include <syscall/handlers/remove.h>
 
 int syscall_remove(const char * _path) {

@@ -42,7 +42,8 @@ typedef struct thread_s {
     thread_state_t state;
     thread_priority_t priority;
 
-    pman_mapping_t * stack_mapping;
+    void * stack_vaddr;
+    size_t stack_size;
 
     task_state_record_t tsr;
 

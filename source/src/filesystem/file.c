@@ -2,6 +2,8 @@
 
 #include <filesystem/file.h>
 
+#include <filesystem/superblock.h>
+
 #include <util/heap/heap.h>
 
 #include <sys/debug/print.h>
@@ -117,23 +119,26 @@ int64_t file_write(fs_file_t * file, const char * buffer, uint64_t size) {
 }
 
 void * file_map(fs_file_t * file, pman_context_t * context, void * map_addr, uint64_t size, uint64_t offset) {
-    switch (file->dirent->type) {
-        case FS_DEVICE: {
-            device_t * device = file->dirent->device;
+    return NULL;
 
-            switch (device->type) {
-                case DT_CHARACTER: {
-                    return device->char_ops.map(device, context, file->options & O_WR ? PMAN_PROT_WRITE : 0, map_addr, size, offset);
-                } break;
-
-                default: return NULL;
-            }
-        } break;
-
-        default: {
-            return NULL;
-        } break;
-    }
+    // TODO
+//     switch (file->dirent->type) {
+//         case FS_DEVICE: {
+//             device_t * device = file->dirent->device;
+//
+//             switch (device->type) {
+//                 case DT_CHARACTER: {
+//                     return device->char_ops.map(device, context, file->options & O_WR ? PMAN_PROT_WRITE : 0, map_addr, size, offset);
+//                 } break;
+//
+//                 default: return NULL;
+//             }
+//         } break;
+//
+//         default: {
+//             return NULL;
+//         } break;
+//     }
 }
 
 void file_close(fs_file_t * file) {

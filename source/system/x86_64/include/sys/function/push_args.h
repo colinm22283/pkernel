@@ -7,7 +7,7 @@
 #include <sys/tsr/tsr.h>
 #include <sys/function/arg.h>
 
-static inline void push_main_args(process_t * process, task_state_record_t * tsr, pman_mapping_t * stack_mapping, uint64_t argc, char ** argv) {
+static inline void push_main_args(process_t * process, task_state_record_t * tsr, uint64_t argc, char ** argv) {
     uint64_t * kern_rsp = process_user_to_kernel(
         process,
         (void *) tsr->rsp

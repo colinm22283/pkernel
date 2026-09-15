@@ -3,6 +3,10 @@
 
 #include <scheduler/scheduler.h>
 
+#include <filesystem/filesystem.h>
+
+#include <filesystem/socket.h>
+
 #include <process/process.h>
 
 #include <syscall/handlers/accept.h>

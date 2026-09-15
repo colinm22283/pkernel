@@ -1,5 +1,7 @@
 #include <scheduler/scheduler.h>
 
+#include <filesystem/filesystem.h>
+
 #include <syscall/handlers/unmount.h>
 
 int syscall_unmount(const char * _path) {

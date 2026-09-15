@@ -1,6 +1,8 @@
 #include <process/process.h>
 #include <process/trampoline.h>
 
+#include <filesystem/filesystem.h>
+
 #include <util/heap/heap.h>
 
 #include <util/memory/memcpy.h>
@@ -23,8 +25,8 @@ void processes_init(void) {
     process_tail.global_next = NULL;
     process_tail.global_prev = &process_head;
 
-    kernel_trampoline_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, process_trampoline_size);
-    memcpy(kernel_trampoline_mapping->vaddr, process_trampoline, process_trampoline_size);
+    /* kernel_trampoline_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, process_trampoline_size); */
+    /* memcpy(kernel_trampoline_mapping->vaddr, process_trampoline, process_trampoline_size); */
 }
 
 process_t * process_create(void) {
@@ -64,60 +66,62 @@ process_t * process_create_fork(process_t * parent) {
 
     process->parent_id = parent->id;
 
-    size_t mapping_count = 0, mapping_capacity = 1;
-    pman_mapping_t ** mappings = heap_alloc_debug(mapping_capacity * sizeof(pman_mapping_t *), "process fork mappings");
+    pman_fork_context(process->paging_context, parent->paging_context);
 
-    for (
-        pman_mapping_t * mapping = parent->paging_context->head.next;
-        mapping != &parent->paging_context->tail;
-        mapping = mapping->next
-    ) {
-        mappings[mapping_count++] = mapping;
-
-        if (mapping_count == mapping_capacity) {
-            mapping_capacity *= 2;
-
-            mappings = heap_realloc(mappings, mapping_capacity * sizeof(pman_mapping_t *));
-        }
-    }
-
-    for (size_t i = 0; i < mapping_count; i++) {
-        pman_mapping_t * mapping = mappings[i];
-
-        if (mapping->protection & PMAN_PROT_SHARED) {
-            switch (mapping->type) {
-                case PMAN_MAPPING_BORROWED: {
-                    debug_print("oh dear\n");
-                } break;
-
-                case PMAN_MAPPING_SHARED: {
-                    pman_mapping_t * root_mapping = get_root_mapping(mapping);
-
-                    pman_context_add_shared(process->paging_context, mapping->protection, root_mapping, mapping->vaddr);
-                } break;
-
-                default: break;
-            }
-        }
-        else {
-            void * vaddr = mapping->vaddr;
-            pman_protection_flags_t prot = mapping->protection;
-            pman_mapping_t * root_mapping = get_root_mapping(mapping);
-
-            pman_context_add_borrowed(process->paging_context, mapping->protection, root_mapping, mapping->vaddr);
-
-            pman_context_unmap(mapping);
-
-            pman_mapping_t * new_mapping = pman_context_add_borrowed(parent->paging_context, prot, root_mapping, vaddr);
-            if (new_mapping == NULL) {
-                debug_print("OOHHH DEARRR\n");
-            }
-
-            process_remap(parent, mapping, new_mapping);
-        }
-    }
-
-    heap_free(mappings);
+    // size_t mapping_count = 0, mapping_capacity = 1;
+    // pman_mapping_t ** mappings = heap_alloc_debug(mapping_capacity * sizeof(pman_mapping_t *), "process fork mappings");
+    //
+    // for (
+    //     pman_mapping_t * mapping = parent->paging_context->head.next;
+    //     mapping != &parent->paging_context->tail;
+    //     mapping = mapping->next
+    // ) {
+    //     mappings[mapping_count++] = mapping;
+    //
+    //     if (mapping_count == mapping_capacity) {
+    //         mapping_capacity *= 2;
+    //
+    //         mappings = heap_realloc(mappings, mapping_capacity * sizeof(pman_mapping_t *));
+    //     }
+    // }
+    //
+    // for (size_t i = 0; i < mapping_count; i++) {
+    //     pman_mapping_t * mapping = mappings[i];
+    //
+    //     if (mapping->protection & PMAN_PROT_SHARED) {
+    //         switch (mapping->type) {
+    //             case PMAN_MAPPING_BORROWED: {
+    //                 debug_print("oh dear\n");
+    //             } break;
+    //
+    //             case PMAN_MAPPING_SHARED: {
+    //                 pman_mapping_t * root_mapping = get_root_mapping(mapping);
+    //
+    //                 pman_context_add_shared(process->paging_context, mapping->protection, root_mapping, mapping->vaddr);
+    //             } break;
+    //
+    //             default: break;
+    //         }
+    //     }
+    //     else {
+    //         void * vaddr = mapping->vaddr;
+    //         pman_protection_flags_t prot = mapping->protection;
+    //         pman_mapping_t * root_mapping = get_root_mapping(mapping);
+    //
+    //         pman_context_add_borrowed(process->paging_context, mapping->protection, root_mapping, mapping->vaddr);
+    //
+    //         pman_context_unmap(mapping);
+    //
+    //         pman_mapping_t * new_mapping = pman_context_add_borrowed(parent->paging_context, prot, root_mapping, vaddr);
+    //         if (new_mapping == NULL) {
+    //             debug_print("OOHHH DEARRR\n");
+    //         }
+    //
+    //         process_remap(parent, mapping, new_mapping);
+    //     }
+    // }
+    //
+    // heap_free(mappings);
 
     thread_t * new_thread = thread_create_fork(process->paging_context, process, parent->threads[0]);
 
@@ -184,31 +188,14 @@ void process_add_thread(process_t * process, thread_t * thread) {
     }
 }
 
-void * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot) {
-    pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, size);
-    __MAYBE_UNUSED pman_mapping_t * user_mapping = pman_context_add_shared(process->paging_context, prot, kernel_mapping, vaddr);
-    pman_context_unmap(kernel_mapping);
-
-    return kernel_mapping->vaddr;
-}
-
-void * process_user_to_kernel(process_t * process, const void * user_vaddr) {
-    pman_mapping_t * mapping = process->paging_context->head.next;
-
-    while (mapping != &process->paging_context->tail) {
-        if (
-            user_vaddr >= mapping->vaddr &&
-            user_vaddr < (void *) ((char *) mapping->vaddr + mapping->size_pages * PAGE_SIZE)
-        ) {
-            pman_mapping_t * root_mapping = get_root_mapping(mapping);
-
-            return user_vaddr - mapping->vaddr + root_mapping->vaddr;
-        }
-
-        mapping = mapping->next;
-    }
-
-    return NULL;
+pman_range_t * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot) {
+    return pman_add_anon_map(
+        process->paging_context,
+        vaddr,
+        size,
+        0,
+        prot
+    );
 }
 
 void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping) {

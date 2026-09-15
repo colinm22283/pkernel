@@ -50,9 +50,7 @@ process_t * process_lookup(pid_t pid);
 
 void process_add_thread(process_t * process, thread_t * thread);
 
-void * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot);
-
-void * process_user_to_kernel(process_t * process, const void * user_vaddr);
+pman_range_t * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot);
 
 void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping);
 

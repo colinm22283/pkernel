@@ -5,6 +5,8 @@
 
 #include <process/process.h>
 
+#include <filesystem/filesystem.h>
+
 #include <syscall/handlers/pipe.h>
 
 int64_t syscall_pipe(fd_t * _fds, int options) {
