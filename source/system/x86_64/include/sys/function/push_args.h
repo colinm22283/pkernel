@@ -2,7 +2,7 @@
 
 #include <process/process.h>
 
-#include <paging/manager.h>
+#include <pman/pman.h>
 
 #include <sys/tsr/tsr.h>
 #include <sys/function/arg.h>

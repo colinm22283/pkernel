@@ -2,6 +2,8 @@
 
 #include <pman/types.h>
 
+#include <filesystem/file.h>
+
 #include <util/heap/heap.h>
 
 static inline pman_source_t * pman_source_init(void) {

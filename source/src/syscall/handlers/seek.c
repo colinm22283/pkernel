@@ -6,6 +6,9 @@
 
 #include <scheduler/scheduler.h>
 
+#include <filesystem/file.h>
+#include <filesystem/node.h>
+
 #include <debug/printf.h>
 
 int64_t syscall_seek(fd_t fd, int64_t offset, seek_origin_t origin) {

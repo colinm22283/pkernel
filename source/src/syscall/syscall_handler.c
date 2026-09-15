@@ -62,7 +62,7 @@ uint64_t syscall_handler(
     syscall_debug_print_hex(arg4);
     syscall_debug_print(" -> ");
 
-    syscall_debug_print_hex(get_root_mapping(scheduler_current_thread()->stack_mapping)->alloc.palloc.paddrs[0]);
+    /* syscall_debug_print_hex(get_root_mapping(scheduler_current_thread()->stack_mapping)->alloc.palloc.paddrs[0]); */
     syscall_debug_print("\n");
 
 

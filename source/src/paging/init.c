@@ -7,7 +7,7 @@
 #include <paging/table_allocator.h>
 #include <paging/virtual_allocator.h>
 #include <paging/mapper.h>
-#include <paging/manager.h>
+#include <pman/pman.h>
 
 #include <memory/kernel.h>
 #include <memory/data.h>

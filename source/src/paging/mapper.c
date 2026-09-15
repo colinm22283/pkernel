@@ -3,7 +3,7 @@
 #include <paging/bitmap.h>
 #include <paging/translation_map.h>
 #include <paging/temp_page.h>
-#include <paging/manager.h>
+#include <pman/types.h>
 
 #include <util/heap/heap.h>
 #include <sys/paging/page_size.h>
