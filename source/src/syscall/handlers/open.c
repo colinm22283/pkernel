@@ -8,6 +8,14 @@
 int64_t syscall_open(const char * _path, int options) {
     process_t * current_process = scheduler_current_process();
 
+    pman_range_t * path_range = process_map_string_to_kern(
+        current_process,
+        get_kernel_context(),
+        _path,
+        0,
+        PMAN_WRITE
+    );
+
     const char * path = process_user_to_kernel(current_process, (char *) _path);
     if (path == NULL) return -EFAULT;
 

@@ -30,6 +30,13 @@ pman_range_t * pman_copy_range(
     pman_mapping_flags_t flags,
     pman_protection_flags_t prot
 );
+pman_range_t * pman_map_region(
+    pman_context_t * context,
+    void * vaddr,
+    size_t size_bytes,
+    pman_mapping_flags_t flags,
+    pman_protection_flags_t prot
+);
 
 int pman_unmap(pman_context_t * context, void * vaddr, size_t size_bytes);
 

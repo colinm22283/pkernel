@@ -37,7 +37,6 @@ typedef struct {
     bool initialized;
     bool dirty;
     bool evicted;
-    bool held; // is currently in use by the kernel
 } pman_source_t;
 
 typedef struct {
@@ -74,8 +73,10 @@ typedef struct pman_context_s {
     pman_mapping_t head, tail;
 } pman_context_t;
 
-// A view into the mappings of a context
+// A view into the mappings of a context (contiguous)
 typedef struct {
+    void * vaddr;
+
     size_t size;
     pman_mapping_t ** mappings;
 } pman_range_t;
