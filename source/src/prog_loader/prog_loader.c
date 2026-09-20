@@ -1,5 +1,9 @@
 #include <prog_loader/prog_loader.h>
 
+#include <filesystem/superblock.h>
+
+#include <pman/pman.h>
+
 #include <util/heap/heap.h>
 
 #include <elf/elf.h>
@@ -66,59 +70,53 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
             size_t extra_size = ((intptr_t) header->vaddr - (intptr_t) aligned_vaddr);
             kprintf("  aligned_vaddr = %p, extra = %i", aligned_vaddr, extra_size);
 
-            pman_mapping_t * mapping = pman_context_get_vaddr(process->paging_context, (void *) header->vaddr);
+            pman_range_t * range = pman_get_range(process->paging_context, (void *) header->vaddr, header->memsz);
 
-            void * process_mapping = NULL;
+            void * user_vaddr = NULL;
 
-            if (mapping == NULL) {
+            if (range->size == 0 || !range->complete) {
+                kprintf("    Unmapping possible old segments");
+                pman_range_unmap(range);
+
                 if (header->memsz != 0) {
                     kprintf("    Mapping as new segment");
 
                     pman_protection_flags_t prot = 0;
 
-                    if (header->flags & ELF_PH_FLAGS_W) prot |= PMAN_PROT_WRITE;
-                    if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_PROT_EXECUTE;
+                    if (header->flags & ELF_PH_FLAGS_W) prot |= PMAN_WRITE;
+                    if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_EXECUTE;
 
                     kprintf("    Mapping new kernel segment of size %i", header->memsz + extra_size);
-                    pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, header->memsz + extra_size);
+                    pman_range_t * range = pman_add_anon_map(process->paging_context, aligned_vaddr, header->memsz + extra_size, 0, prot);
 
-                    if (kernel_mapping == NULL) {
+                    if (range == NULL) {
                         return -ENOMEM;
                     }
 
-                    kprintf("    Mapping new user segment");
-                    mapping = pman_context_add_shared(process->paging_context, prot, kernel_mapping, aligned_vaddr);
-
-                    if (mapping == NULL) {
-                        return -ENOMEM;
-                    }
-
-                    process_mapping = kernel_mapping->vaddr + extra_size;
-                    pman_context_unmap(kernel_mapping);
+                    user_vaddr = range->vaddr + extra_size;
+                    pman_range_free(range);
                 }
             }
             else {
                 if (header->memsz == 0) {
-                    kprintf("    Unmapping old segment");
+                    kprintf("    Unmapping possible old segments");
+                    pman_range_unmap(range);
 
-                    pman_context_unmap(mapping);
-
-                    process_mapping = NULL;
-                }
-                else {
-                    kprintf("    Remapping old segment to size %i", header->memsz + extra_size);
-
-                    mapping = pman_context_resize(mapping, aligned_vaddr, header->memsz + extra_size);
-
-                    process_mapping = get_root_mapping(mapping)->vaddr + extra_size;
+                    user_vaddr = NULL;
                 }
             }
 
-            if (process_mapping != NULL) {
-                elf_load_segment(&elf, header, process_mapping);
+            if (user_vaddr != NULL) {
+                char * segment_buffer = heap_alloc(header->memsz);
+
+                elf_load_segment(&elf, header, segment_buffer);
 
                 kprintf("    First 10 bytes:");
-                for (size_t j = 0; j < 10; j++) kprintf("      %i", ((unsigned char *) process_mapping)[j]);
+                for (size_t j = 0; j < 10; j++) kprintf("      %i", ((unsigned char *) segment_buffer)[j]);
+
+                process_copy_to_user(process, user_vaddr, segment_buffer, header->memsz);
+
+                heap_free(segment_buffer);
             }
         }
     }

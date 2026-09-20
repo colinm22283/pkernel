@@ -201,8 +201,8 @@ void scheduler_start_twin(void (*task_handler)(task_state_record_t * tsr)) {
     tsr_load_task(&twin->tsr, &user_thread->tsr, task_handler);
     tsr_set_stack(
         &twin->tsr,
-        twin->stack_mapping->vaddr,
-        twin->stack_mapping->size_pages * PAGE_SIZE
+        twin->stack_vaddr,
+        twin->stack_size * PAGE_SIZE
     );
 
     thread_run(twin);

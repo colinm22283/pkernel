@@ -2,7 +2,8 @@
 
 #include <paging/tables.h>
 #include <paging/kernel_translation.h>
-#include <paging/manager.h>
+
+#include <pman/pman.h>
 
 #include <sys/gdt/gdt.h>
 
@@ -17,12 +18,12 @@ __NORETURN static inline void resume_tsr_kernel(task_state_record_t * tsr) {
     static task_state_record_t static_tsr;
     static_tsr = *tsr;
 
-    _resume_tsr_kernel(GDT_KERNEL_CODE, GDT_KERNEL_DATA, pman_kernel_context()->top_level_table_paddr, &static_tsr);
+    _resume_tsr_kernel(GDT_KERNEL_CODE, GDT_KERNEL_DATA, pman_kernel_context()->tlt_paddr, &static_tsr);
 }
 
 __NORETURN static inline void resume_tsr_user(task_state_record_t * tsr, pman_context_t * paging_context) {
     static task_state_record_t static_tsr;
     static_tsr = *tsr;
 
-    _resume_tsr_user(GDT_USER_CODE, GDT_USER_DATA, paging_context->top_level_table_paddr, &static_tsr);
+    _resume_tsr_user(GDT_USER_CODE, GDT_USER_DATA, paging_context->tlt_paddr, &static_tsr);
 }

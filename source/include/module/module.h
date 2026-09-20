@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include <paging/manager.h>
+#include <pman/pman.h>
 
 #include <sysfs/sysfs.h>
 

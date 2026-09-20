@@ -43,13 +43,14 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
     thread->twin_thread->twin_thread = thread;
     thread->twin_thread->process = parent;
 
-    pman_mapping_t * kernel_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, DEFAULT_THREAD_STACK_SIZE);
-    thread->stack_mapping = pman_context_add_shared(user_context, PMAN_PROT_WRITE, kernel_mapping, NULL);
-    pman_context_unmap(kernel_mapping);
+    pman_range_t * stack_range = pman_add_anon_map(user_context, NULL, DEFAULT_THREAD_STACK_SIZE, 0, PMAN_WRITE);
+    thread->stack_vaddr = stack_range->vaddr;
+    thread->stack_size  = DEFAULT_THREAD_STACK_SIZE;
+    pman_range_free(stack_range);
 
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
 
-    tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * PAGE_SIZE);
+    tsr_set_stack(&thread->tsr, thread->stack_vaddr, thread->stack_size * PAGE_SIZE);
 
     thread->waiter = NULL;
     thread->event = NULL;
@@ -75,7 +76,8 @@ thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent,
     thread->twin_thread->twin_thread = thread;
     thread->twin_thread->process = parent;
 
-    thread->stack_mapping = pman_context_get_vaddr(user_context, target->stack_mapping->vaddr);
+    thread->stack_vaddr = target->stack_vaddr;
+    thread->stack_size  = target->stack_size;
 
     memcpy(&thread->tsr, &target->tsr, sizeof(task_state_record_t));
 
@@ -100,11 +102,14 @@ thread_t * thread_create_kernel(void) {
 
     thread->twin_thread = NULL;
 
-    thread->stack_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, DEFAULT_THREAD_STACK_SIZE);
+    pman_range_t * stack_range = pman_add_anon_map(pman_kernel_context(), NULL, DEFAULT_THREAD_STACK_SIZE, 0, PMAN_WRITE);
+    thread->stack_vaddr = stack_range->vaddr;
+    thread->stack_size  = DEFAULT_THREAD_STACK_SIZE;
+    pman_range_free(stack_range);
 
-    tsr_set_stack(&thread->tsr, thread->stack_mapping->vaddr, thread->stack_mapping->size_pages * PAGE_SIZE);
+    tsr_set_stack(&thread->tsr, thread->stack_vaddr, thread->stack_size);
 
-    kprintf("THREAD STACK MAPPING: %p", thread->stack_mapping);
+    kprintf("THREAD STACK MAPPING: %p", thread->stack_vaddr);
 
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
 
@@ -130,7 +135,10 @@ void thread_free(thread_t * thread) {
     }
 
     if (thread->level == TL_KERNEL) {
-        pman_context_unmap(thread->stack_mapping);
+        pman_range_unmap(pman_get_range(pman_kernel_context(), thread->stack_vaddr, thread->stack_size));
+    }
+    else if (thread->level == TL_USER) {
+        pman_range_unmap(pman_get_range(thread->process->paging_context, thread->stack_vaddr, thread->stack_size));
     }
 
     heap_free(thread);

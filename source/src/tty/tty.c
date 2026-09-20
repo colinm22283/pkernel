@@ -4,6 +4,8 @@
 
 #include <scheduler/scheduler.h>
 
+#include <pman/pman.h>
+
 #include <util/heap/heap.h>
 #include <util/string/writestr.h>
 #include <util/memory/memcpy.h>
@@ -38,7 +40,7 @@ uint64_t tty_read(device_t * dev, char * buffer, uint64_t size) {
 
     size_t amnt = size > tty->buffer_size ? tty->buffer_size : size;
 
-    memcpy(buffer, tty->buffer_mapping->vaddr + tty->buffer_offset, amnt);
+    memcpy(buffer, tty->buffer_range->vaddr + tty->buffer_offset, amnt);
 
     tty->buffer_offset += amnt;
 
@@ -95,7 +97,7 @@ tty_t * tty_init(tty_write_handler_t * write_handler, void * cookie) {
     tty->buffer_ready = false;
     tty->buffer_size = 0;
     tty->buffer_capacity = TTY_BUFFER_SIZE;
-    tty->buffer_mapping = pman_context_add_alloc(pman_kernel_context(), PMAN_PROT_WRITE, NULL, TTY_BUFFER_SIZE);
+    tty->buffer_range = pman_add_anon_map(pman_kernel_context(), NULL, TTY_BUFFER_SIZE, 0, PMAN_WRITE);
 
     tty->last_char = '\0';
 
@@ -121,7 +123,7 @@ void tty_free(tty_t * tty) {
 
     event_free(tty->read_ready);
 
-    pman_context_unmap(tty->buffer_mapping);
+    pman_range_unmap(tty->buffer_range);
 }
 
 size_t tty_provide_char(tty_t * tty, char buffer) {
@@ -145,7 +147,7 @@ size_t tty_provide_char(tty_t * tty, char buffer) {
         case '\r': {
             if (tty->last_char != '\n') {
                 tty->buffer_ready = true;
-                ((char *) tty->buffer_mapping->vaddr)[tty->buffer_size++] = '\n';
+                ((char *) tty->buffer_range->vaddr)[tty->buffer_size++] = '\n';
 
                 event_invoke(tty->read_ready);
             }
@@ -154,7 +156,7 @@ size_t tty_provide_char(tty_t * tty, char buffer) {
         case '\n': {
             if (tty->last_char != '\r') {
                 tty->buffer_ready = true;
-                ((char *) tty->buffer_mapping->vaddr)[tty->buffer_size++] = '\n';
+                ((char *) tty->buffer_range->vaddr)[tty->buffer_size++] = '\n';
 
                 event_invoke(tty->read_ready);
             }
@@ -162,7 +164,7 @@ size_t tty_provide_char(tty_t * tty, char buffer) {
 
         default: {
             if (tty->buffer_size < tty->buffer_capacity) {
-                ((char *) tty->buffer_mapping->vaddr)[tty->buffer_size++] = buffer;
+                ((char *) tty->buffer_range->vaddr)[tty->buffer_size++] = buffer;
             }
         } break;
     }

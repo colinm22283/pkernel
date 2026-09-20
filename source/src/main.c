@@ -3,7 +3,8 @@
 #include <memory/primary_region.h>
 
 #include <paging/init.h>
-#include <paging/manager.h>
+
+#include <pman/pman.h>
 
 #include <util/heap/heap.h>
 

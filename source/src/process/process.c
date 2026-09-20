@@ -188,6 +188,18 @@ void process_add_thread(process_t * process, thread_t * thread) {
     }
 }
 
+long process_copy_from_user(process_t * process, void * dst, const void * src, long size) {
+    return 0;
+}
+
+long process_strncpy_from_user(process_t * process, void * dst, const void * src, long size) {
+    return 0;
+}
+
+long process_copy_to_user(process_t * process, void * dst, const void * src, long size) {
+    return 0;
+}
+
 pman_range_t * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot) {
     return pman_add_anon_map(
         process->paging_context,
@@ -224,37 +236,37 @@ void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
             required_size += strlen(argv[i]) + 1;
         }
 
-        pman_mapping_t * kern_mapping = pman_context_add_alloc(
-            pman_kernel_context(),
-            0,
-            NULL,
-            required_size
-        );
+        /* pman_mapping_t * kern_mapping = pman_context_add_alloc( */
+            /* pman_kernel_context(), */
+            /* 0, */
+            /* NULL, */
+            /* required_size */
+        /* ); */
 
-        pman_mapping_t * user_mapping = pman_context_add_shared(
-            process->paging_context,
-            0,
-            kern_mapping,
-            NULL
-        );
+        /* pman_mapping_t * user_mapping = pman_context_add_shared( */
+            /* process->paging_context, */
+            /* 0, */
+            /* kern_mapping, */
+            /* NULL */
+        /* ); */
 
-        char * kern_buf = kern_mapping->vaddr;
-        char * user_buf = user_mapping->vaddr;
+        /* char * kern_buf = kern_mapping->vaddr; */
+        /* char * user_buf = user_mapping->vaddr; */
 
-        uint64_t pos = 0;
-        for (uint64_t i = 0; i < argc; i++) {
-            uint64_t len = strlen(argv[i]);
+        /* uint64_t pos = 0; */
+        /* for (uint64_t i = 0; i < argc; i++) { */
+            /* uint64_t len = strlen(argv[i]); */
 
-            process->argv[i] = &user_buf[pos];
+            /* process->argv[i] = &user_buf[pos]; */
 
-            memcpy(&kern_buf[pos], argv[i], len + 1);
-            pos += len + 1;
-        }
+            /* memcpy(&kern_buf[pos], argv[i], len + 1); */
+            /* pos += len + 1; */
+        /* } */
 
-        pman_context_unmap(kern_mapping);
+        /* pman_context_unmap(kern_mapping); */
     }
 
-    push_main_args(process, &process->threads[0]->tsr, process->threads[0]->stack_mapping, process->argc, process->argv);
+    push_main_args(process, &process->threads[0]->tsr, process->argc, process->argv);
 }
 
 void process_set_working_dir(process_t * process, fs_directory_entry_t * dirent) {

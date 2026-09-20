@@ -39,12 +39,6 @@ typedef struct {
     bool evicted;
 } pman_source_t;
 
-typedef struct {
-    size_t references;
-
-    void * vaddr;
-} pman_virtual_range_t;
-
 typedef struct pman_mapping_s {
     struct pman_context_s * context;
 
@@ -55,7 +49,6 @@ typedef struct pman_mapping_s {
     pman_source_t * source;
 
     void * vaddr;
-    pman_virtual_range_t * vrange;
 
     paging_mapping_t mapping;
 
@@ -75,9 +68,11 @@ typedef struct pman_context_s {
     pman_mapping_t head, tail;
 } pman_context_t;
 
-// A view into the mappings of a context (contiguous)
+// A view into the mappings of a context
 typedef struct {
     void * vaddr;
+
+    bool complete;
 
     size_t size;
     pman_mapping_t ** mappings;

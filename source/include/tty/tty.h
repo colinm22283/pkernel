@@ -23,7 +23,7 @@ typedef struct tty_s {
     bool buffer_ready;
     size_t buffer_size, buffer_capacity;
     size_t buffer_offset;
-    pman_mapping_t * buffer_mapping;
+    pman_range_t * buffer_range;
 
     char last_char;
 
