@@ -9,18 +9,19 @@
 #include <syscall/handlers/bind.h>
 
 int syscall_bind(fd_t sock_fd, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
-    process_t * current_process = scheduler_current_process();
+    return 0; // TODO
+    /* process_t * current_process = scheduler_current_process(); */
 
-    const sockaddr_t * sockaddr = process_user_to_kernel(current_process, _sockaddr);
+    /* const sockaddr_t * sockaddr = process_user_to_kernel(current_process, _sockaddr); */
 
-    fs_file_t * file = file_table_get(&current_process->file_table, sock_fd);
+    /* fs_file_t * file = file_table_get(&current_process->file_table, sock_fd); */
 
-    if (file == NULL) return -EBADF;
+    /* if (file == NULL) return -EBADF; */
 
-    if (file->dirent->type != FS_SOCKET) {
-        return -ENOTSOCK;
-    }
+    /* if (file->dirent->type != FS_SOCKET) { */
+        /* return -ENOTSOCK; */
+    /* } */
 
-    return socket_bind(file->dirent->socket, sockaddr, sockaddr_len);
+    /* return socket_bind(file->dirent->socket, sockaddr, sockaddr_len); */
 }
 

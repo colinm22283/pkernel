@@ -10,16 +10,17 @@
 #include <syscall/handlers/pipe.h>
 
 int64_t syscall_pipe(fd_t * _fds, int options) {
-    process_t * current_process = scheduler_current_process();
+    // TODO
+    /* process_t * current_process = scheduler_current_process(); */
 
-    fd_t * fds = process_user_to_kernel(current_process, _fds);
-    if (fds == NULL) return -EFAULT;
+    /* fd_t * fds = process_user_to_kernel(current_process, _fds); */
+    /* if (fds == NULL) return -EFAULT; */
 
-    fs_directory_entry_t * dirent = fs_make_anon_pipe();
-    if (dirent == NULL) return -ENOTSUP;
+    /* fs_directory_entry_t * dirent = fs_make_anon_pipe(); */
+    /* if (dirent == NULL) return -ENOTSUP; */
 
-    fds[0] = file_table_open(&current_process->file_table, dirent, O_WRONLY);
-    fds[1] = file_table_open(&current_process->file_table, dirent, O_RDONLY);
+    /* fds[0] = file_table_open(&current_process->file_table, dirent, O_WRONLY); */
+    /* fds[1] = file_table_open(&current_process->file_table, dirent, O_RDONLY); */
 
     return 0;
 }

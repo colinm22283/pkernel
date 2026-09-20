@@ -52,21 +52,9 @@ void process_add_thread(process_t * process, thread_t * thread);
 
 pman_range_t * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot);
 
-pman_range_t * process_map_region_to_kern(
-    process_t * process,
-    pman_context_t * context,
-    void * vaddr,
-    size_t size,
-    pman_mapping_flags_t flags,
-    pman_protection_flags_t prot
-);
-pman_range_t * process_map_string_to_kern(
-    process_t * process,
-    pman_context_t * context,
-    void * vaddr,
-    pman_mapping_flags_t flags,
-    pman_protection_flags_t prot
-);
+long process_copy_from_user(process_t * process, void * dst, const void * src, long size);
+long process_strncpy_from_user(process_t * process, void * dst, const void * src, long size);
+long process_copy_to_user(process_t * process, void * dst, const void * src, long size);
 
 void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping);
 

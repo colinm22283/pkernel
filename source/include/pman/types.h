@@ -48,6 +48,8 @@ typedef struct {
 typedef struct pman_mapping_s {
     struct pman_context_s * context;
 
+    struct pman_mapping_s * kernel_mapping;
+
     pman_mapping_flags_t flags;
     pman_protection_flags_t prot;
     pman_source_t * source;

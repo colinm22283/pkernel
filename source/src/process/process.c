@@ -198,13 +198,13 @@ pman_range_t * process_create_segment(process_t * process, void * vaddr, size_t 
     );
 }
 
-void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping) {
-    for (size_t i = 0; i < process->thread_count; i++) {
-        if (process->threads[i]->stack_mapping == old_mapping) {
-            process->threads[i]->stack_mapping = new_mapping;
-        }
-    }
-}
+/* void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping) { */
+    /* for (size_t i = 0; i < process->thread_count; i++) { */
+        /* if (process->threads[i]->stack_mapping == old_mapping) { */
+            /* process->threads[i]->stack_mapping = new_mapping; */
+        /* } */
+    /* } */
+/* } */
 
 void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
     if (process->argc != 0) {

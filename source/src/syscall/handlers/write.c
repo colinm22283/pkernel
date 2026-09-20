@@ -6,14 +6,34 @@
 
 #include <scheduler/scheduler.h>
 
+#include <util/heap/heap.h>
+
 int64_t syscall_write(fd_t fd, const char * _buffer, uint64_t size) {
     process_t * current_process = scheduler_current_process();
 
-    const char * buffer = process_user_to_kernel(current_process, _buffer);
+    char * buffer = heap_alloc(size);
     if (buffer == NULL) return -EFAULT;
 
-    fs_file_t * file = file_table_get(&current_process->file_table, fd);
-    if (file == NULL) return -EBADF;
+    long copy_result = process_copy_from_user(
+        current_process,
+        buffer,
+        _buffer,
+        size
+    );
+    if (copy_result < 0) {
+        heap_free(buffer);
+        return -EFAULT;
+    }
 
-    return file_write(file, buffer, size);
+    fs_file_t * file = file_table_get(&current_process->file_table, fd);
+    if (file == NULL) {
+        heap_free(buffer);
+        return -EBADF;
+    }
+
+    int64_t result = file_write(file, buffer, size);
+
+    heap_free(buffer);
+
+    return result;
 }

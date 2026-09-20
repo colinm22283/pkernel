@@ -7,23 +7,25 @@
 #include <syscall/handlers/connect.h>
 
 int syscall_connect(fd_t sock_fd, const sockaddr_t * _sockaddr, size_t sockaddr_len) {
-    process_t * current_process = scheduler_current_process();
+    return 0; // TODO
 
-    const sockaddr_t * sockaddr = process_user_to_kernel(current_process, _sockaddr);
-    if (sockaddr == NULL) return -EFAULT;
+    /* process_t * current_process = scheduler_current_process(); */
 
-    fs_file_t * file = file_table_get(&current_process->file_table, sock_fd);
+    /* const sockaddr_t * sockaddr = process_user_to_kernel(current_process, _sockaddr); */
+    /* if (sockaddr == NULL) return -EFAULT; */
 
-    if (file == NULL) {
-        return -EBADF;
-    }
+    /* fs_file_t * file = file_table_get(&current_process->file_table, sock_fd); */
 
-    if (file->dirent->type != FS_SOCKET) {
-        return -ENOTSOCK;
-    }
+    /* if (file == NULL) { */
+        /* return -EBADF; */
+    /* } */
 
-    socket_t * socket = file->dirent->socket;
+    /* if (file->dirent->type != FS_SOCKET) { */
+        /* return -ENOTSOCK; */
+    /* } */
 
-    return socket_connect(socket, sockaddr, sockaddr_len);
+    /* socket_t * socket = file->dirent->socket; */
+
+    /* return socket_connect(socket, sockaddr, sockaddr_len); */
 }
 
