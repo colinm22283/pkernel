@@ -59,7 +59,7 @@ pman_source_t * pman_source_init_anon_kernel(size_t paddr) {
     source->evicted     = false;
     source->anchored    = true;
 
-    palloc_alloc(&source->palloc, PAGE_SIZE);
+    palloc_alloc_contiguous(&source->palloc, PAGE_SIZE, paddr);
 
     return source;
 }

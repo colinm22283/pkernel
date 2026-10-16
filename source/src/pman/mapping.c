@@ -1,5 +1,7 @@
 #include <pman/pman.h>
 #include <pman/mapping.h>
+#include <pman/logger.h>
+#include <pman/util.h>
 
 pman_mapping_t * pman_mapping_init(
     pman_context_t * context,
@@ -18,8 +20,25 @@ pman_mapping_t * pman_mapping_init(
     if (context == pman_kernel_context()) {
         mapping->active = true;
 
+        for (size_t i = 0; i < 512; i++) {
+            if ((*context->tlt)[i].address != 0) {
+                kprintf("%i: %i", i, (*context->tlt)[i].address);
+            }
+        }
+
+        kprintf("Mapping a kernel pman mapping %p -> %p", vaddr, source->palloc.paddrs[0]);
+
         // TODO: temporary, wont work for mapped files
-        paging_map(context->tlt, &mapping->mapping, source->palloc.paddrs[0], vaddr
+        paging_map_ex(
+            context->tlt,
+            &mapping->mapping,
+            source->palloc.paddrs[0],
+            vaddr,
+            1,
+            pman_prot_flags_read_write(prot),
+            pman_prot_flags_execute(prot),
+            false
+        );
     }
     else {
         mapping->active = false;

@@ -1,6 +1,7 @@
 #include <pman/pman.h>
 #include <pman/source.h>
 #include <pman/mapping.h>
+#include <pman/logger.h>
 
 #include <filesystem/file.h>
 
@@ -15,15 +16,6 @@
 #include <sys/paging/load_page_table.h>
 #include <sys/paging/page_type.h>
 #include <sys/interrupt/interrupt_code.h>
-
-#include <config/pman.h>
-
-#ifdef PMAN_DEBUG
-#define DEBUG_LOGGER_ENABLED
-#endif
-#include <debug/debug_logger.h>
-
-DEFINE_KERNEL_PRINTF("paging manager");
 
 pman_context_t kernel_context;
 
@@ -43,6 +35,7 @@ void pman_init(void) {
 
     valloc_init(&kernel_context.valloc);
 
+    kprintf("Mapping kernel region");
     sys_paging_map_kernel_regions(&kernel_context);
 
     kernel_context.head.next = &kernel_context.tail;
@@ -113,6 +106,8 @@ pman_range_t * pman_add_anon_map_paddr(
 ) {
     size_t size_pages = DIV_UP(size_bytes, PAGE_SIZE);
 
+    kprintf("Mapping region of %i bytes (%i pages)", size_bytes, size_pages);
+
     pman_source_t ** sources = heap_alloc_debug(size_pages * sizeof(pman_source_t *), "pman_add_anon_map sources");
     pman_mapping_t ** mappings = heap_alloc_debug(size_pages * sizeof(pman_mapping_t *), "pman_add_anon_map mappings");
 
@@ -120,6 +115,8 @@ pman_range_t * pman_add_anon_map_paddr(
     page_data_t * current_vaddr;
     if (vaddr == NULL) current_vaddr = valloc_alloc(&context->valloc, size_bytes);
     else current_vaddr = valloc_reserve(&context->valloc, vaddr, size_bytes);
+
+    kprintf("Allocating at %p", current_vaddr);
 
     for (size_t i = 0; i < size_pages; i++) {
         sources[i] = pman_source_init_anon_kernel(current_paddr);
