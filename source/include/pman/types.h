@@ -32,11 +32,11 @@ typedef struct {
     size_t file_offset;
 
     palloc_t palloc;
-    paging_mapping_t mapping;
 
     bool initialized;
     bool dirty;
     bool evicted;
+    bool anchored; // This page is not able to be evicted
 } pman_source_t;
 
 typedef struct pman_mapping_s {

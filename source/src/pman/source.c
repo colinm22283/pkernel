@@ -17,6 +17,7 @@ static inline pman_source_t * pman_source_init(void) {
     source->initialized = false;
     source->dirty       = false;
     source->evicted     = false;
+    source->anchored    = false;
 
     return source;
 }
@@ -34,6 +35,7 @@ pman_source_t * pman_source_init_file(fs_file_t * file, size_t offset) {
     source->initialized = true;
     source->dirty       = false;
     source->evicted     = true;
+    source->anchored    = false;
 
     return source;
 }
@@ -44,6 +46,20 @@ pman_source_t * pman_source_init_anon(void) {
     source->initialized = false;
     source->dirty       = false;
     source->evicted     = false;
+    source->anchored    = false;
+
+    return source;
+}
+
+pman_source_t * pman_source_init_anon_kernel(size_t paddr) {
+    pman_source_t * source = pman_source_init();
+
+    source->initialized = true;
+    source->dirty       = false;
+    source->evicted     = false;
+    source->anchored    = true;
+
+    palloc_alloc(&source->palloc, PAGE_SIZE);
 
     return source;
 }

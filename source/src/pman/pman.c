@@ -12,6 +12,11 @@
 
 #include <sys/panic.h>
 #include <sys/paging/map_kernel.h>
+#include <sys/paging/load_page_table.h>
+#include <sys/paging/page_type.h>
+#include <sys/interrupt/interrupt_code.h>
+
+#include <config/pman.h>
 
 #ifdef PMAN_DEBUG
 #define DEBUG_LOGGER_ENABLED
@@ -23,6 +28,10 @@ DEFINE_KERNEL_PRINTF("paging manager");
 pman_context_t kernel_context;
 
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr, void * _error_code);
+void oh_dear(interrupt_code_t channel, task_state_record_t * isr, void * _error_code) {
+    kprintf("AAHAHAHAHAHAAHHA");
+}
+
 
 void pman_init(void) {
     if (!paging_talloc_alloc(&kernel_context.tlt_alloc)) panic0("Unable to allocate pman kern table");
@@ -42,6 +51,7 @@ void pman_init(void) {
     kernel_context.tail.prev = &kernel_context.head;
 
     interrupt_registry_register(IC_PAGE_FAULT, pman_page_fault_handler);
+    interrupt_registry_register((interrupt_code_t) IC_GENERAL_PROTECTION_FAULT, oh_dear);
 
     pman_context_load_table(&kernel_context);
 }
@@ -55,6 +65,11 @@ int pman_free_context(pman_context_t * context) {
 }
 
 void pman_context_load_table(pman_context_t * context) {
+    kprintf("Load TLT: %p", (void *) context->tlt_paddr);
+
+    load_page_table((void *) context->tlt_paddr);
+
+    kprintf("Smello");
 }
 
 void pman_fork_context(pman_context_t * dst, pman_context_t * src) {
@@ -74,7 +89,44 @@ pman_range_t * pman_add_anon_map(
 
     for (size_t i = 0; i < size_pages; i++) {
         sources[i] = pman_source_init_anon();
-        mappings[i] = pman_mapping_init(context, sources[i], flags, prot);
+        /* mappings[i] = pman_mapping_init(context, sources[i], flags, prot); */
+    }
+
+    pman_range_t * range = heap_alloc_debug(sizeof(pman_range_t), "pman_add_anon_map range");
+    range->vaddr = vaddr;
+    range->complete = true;
+    range->size = size_pages;
+    range->mappings = mappings;
+
+    heap_free(sources);
+
+    return range;
+}
+
+pman_range_t * pman_add_anon_map_paddr(
+    pman_context_t * context,
+    size_t paddr,
+    void * vaddr,
+    size_t size_bytes,
+    pman_mapping_flags_t flags,
+    pman_protection_flags_t prot
+) {
+    size_t size_pages = DIV_UP(size_bytes, PAGE_SIZE);
+
+    pman_source_t ** sources = heap_alloc_debug(size_pages * sizeof(pman_source_t *), "pman_add_anon_map sources");
+    pman_mapping_t ** mappings = heap_alloc_debug(size_pages * sizeof(pman_mapping_t *), "pman_add_anon_map mappings");
+
+    size_t current_paddr = paddr;
+    page_data_t * current_vaddr;
+    if (vaddr == NULL) current_vaddr = valloc_alloc(&context->valloc, size_bytes);
+    else current_vaddr = valloc_reserve(&context->valloc, vaddr, size_bytes);
+
+    for (size_t i = 0; i < size_pages; i++) {
+        sources[i] = pman_source_init_anon_kernel(current_paddr);
+        mappings[i] = pman_mapping_init(context, sources[i], current_vaddr, flags, prot);
+
+        current_paddr += PAGE_SIZE;
+        current_vaddr++;
     }
 
     pman_range_t * range = heap_alloc_debug(sizeof(pman_range_t), "pman_add_anon_map range");

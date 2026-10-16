@@ -189,3 +189,4 @@ __NORETURN void kernel_main(void) {
     kprintf("Start init process");
     scheduler_yield();
 }
+

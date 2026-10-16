@@ -7,6 +7,7 @@
 pman_mapping_t * pman_mapping_init(
     pman_context_t * context,
     pman_source_t * source,
+    void * vaddr,
     pman_mapping_flags_t flags,
     pman_protection_flags_t prot
 );
