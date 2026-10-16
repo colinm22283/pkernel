@@ -1,8 +1,14 @@
 #include <pman/pman.h>
+#include <pman/source.h>
+#include <pman/mapping.h>
+
+#include <filesystem/file.h>
 
 #include <interrupt/interrupt_registry.h>
 
 #include <util/memory/memset.h>
+#include <util/heap/heap.h>
+#include <util/math/div_up.h>
 
 #include <sys/panic.h>
 #include <sys/paging/map_kernel.h>
