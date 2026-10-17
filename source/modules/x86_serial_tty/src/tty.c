@@ -85,7 +85,8 @@ int init(void) {
     
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    com1_data.port = *(uint16_t *) 0x400;
+    // com1_data.port = *(uint16_t *) 0x400;
+    com1_data.port = 0;
 #pragma GCC diagnostic pop
 
     /* if (com1_data.port == 0) com1_data.port = 0x3F8; */
@@ -125,7 +126,8 @@ int init(void) {
     
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    com2_data.port = *(uint16_t *) 0x402;
+    /* com2_data.port = *(uint16_t *) 0x402; */
+    com2_data.port = 0;
 #pragma GCC diagnostic pop
 
     if (com2_data.port == 0) com2_data.port = 0x2F8;
@@ -176,4 +178,4 @@ int free(void) {
 }
 
 MODULE_NAME("x86_serial_tty");
-MODULE_DEPS("devfs", "sysfs");
+MODULE_DEPS("devfs");

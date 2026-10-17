@@ -170,7 +170,7 @@ __NORETURN void kernel_main(void) {
     fs_mount("sysfs", dev_dirent, NULL);
     fs_directory_entry_release(dev_dirent);
 
-    kprintf("Load init process");
+    kprintf("Creating init process");
 
     process_t * init_process = process_create();
 
@@ -178,8 +178,10 @@ __NORETURN void kernel_main(void) {
 
     // pman_context_add_shared(init_process->paging_context, PMAN_PROT_EXECUTE | PMAN_PROT_SHARED, kernel_trampoline_mapping, PROCESS_TRAMPOLINE_USER_VADDR);
 
+    kprintf("Creating init thread");
     process_add_thread(init_process, thread_create_user(init_process->paging_context, init_process));
 
+    kprintf("Loading init ELF");
     fs_directory_entry_t * elf_dirent = fs_open_path(&fs_root, "bin/init");
 
     if (load_program(init_process, elf_dirent) != 0) {
