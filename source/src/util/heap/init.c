@@ -7,7 +7,7 @@
 #include <paging/bitmap.h>
 #include <paging/temp_page.h>
 
-#include <sysfs/sysfs.h>
+#include <filesystem/sysfs/sysfs.h>
 
 #include <util/math/div_up.h>
 #include <util/memory/memset.h>
@@ -120,6 +120,6 @@ void heap_init(void) {
 }
 
 void heap_init_sysfs(void) {
-    sysfs_add_entry("heap/usage", SYSFS_USAGE, heap_sysfs_read, heap_sysfs_write);
-    sysfs_add_entry("heap/capacity", SYSFS_CAPACITY, heap_sysfs_read, heap_sysfs_write);
+    fs_sysfs_add_entry("heap/usage", SYSFS_USAGE, heap_sysfs_read, heap_sysfs_write);
+    fs_sysfs_add_entry("heap/capacity", SYSFS_CAPACITY, heap_sysfs_read, heap_sysfs_write);
 }

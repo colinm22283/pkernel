@@ -85,6 +85,9 @@ KN_OBJS+=$(KN_OD_64)/filesystem/pipe.o
 KN_OBJS+=$(KN_OD_64)/filesystem/socket.o
 KN_OBJS+=$(KN_OD_64)/filesystem/file.o
 KN_OBJS+=$(KN_OD_64)/filesystem/ramfs/ramfs.o
+KN_OBJS+=$(KN_OD_64)/filesystem/sysfs/mount.o
+KN_OBJS+=$(KN_OD_64)/filesystem/sysfs/ops.o
+KN_OBJS+=$(KN_OD_64)/filesystem/sysfs/sysfs.o
 
 KN_OBJS+=$(KN_OD_64)/io/arbitrator.o
 

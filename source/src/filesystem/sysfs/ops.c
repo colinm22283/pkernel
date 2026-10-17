@@ -1,0 +1,98 @@
+#include <stddef.h>
+
+#include <filesystem/sysfs/internal.h>
+
+#include <filesystem/directory_entry.h>
+#include <filesystem/superblock.h>
+
+#include <util/heap/heap.h>
+
+int fs_sysfs_read(fs_directory_entry_t * dirent, char * data, fs_size_t size, fs_size_t offset, fs_size_t * read) {
+    fs_sysfs_fs_node_t * node = (fs_sysfs_fs_node_t *) dirent->node;
+
+    int64_t result = node->read(node->id, data, size, offset);
+
+    if (result < 0) {
+        *read = 0;
+
+        return result;
+    }
+    else {
+        *read = result;
+
+        return 0;
+    }
+}
+
+int fs_sysfs_write(fs_directory_entry_t * dirent, const char * data, fs_size_t size, fs_size_t offset, fs_size_t * wrote) {
+    fs_sysfs_fs_node_t * node = (fs_sysfs_fs_node_t *) dirent->node;
+
+    int64_t result = node->write(node->id, data, size, offset);
+
+    if (result < 0) {
+        *wrote = 0;
+
+        return result;
+    }
+    else {
+        *wrote = result;
+
+        return 0;
+    }
+}
+
+fs_node_t * fs_sysfs_alloc_node(fs_superblock_t * superblock) {
+    fs_sysfs_fs_node_t * new_node = heap_alloc_debug(sizeof(fs_sysfs_fs_node_t), "sysfs fsnode");
+
+    fs_node_init(&new_node->base);
+
+    new_node->id = 0;
+    new_node->read = NULL;
+    new_node->write = NULL;
+
+    return (fs_node_t *) new_node;
+}
+
+int fs_sysfs_free_node(fs_superblock_t * superblock, fs_node_t * node) {
+    heap_free(node);
+
+    return 0;
+}
+
+int fs_sysfs_list(fs_directory_entry_t * dirent) {
+    fs_directory_entry_add_reference(dirent);
+
+    return 0;
+}
+
+fs_directory_entry_node_t * fs_sysfs_create(struct fs_directory_entry_s * parent, struct fs_node_s * _node, const char * name, fs_file_type_t type) {
+    fs_directory_entry_node_t * dirent_node = fs_directory_entry_add_entry(parent, name);
+
+    fs_directory_entry_t * new_dirent = fs_directory_entry_create(type, parent, dirent_node);
+    fs_directory_entry_add_reference(new_dirent);
+
+    new_dirent->node = _node;
+
+    dirent_node->dirent = new_dirent;
+
+    return dirent_node;
+}
+
+int fs_sysfs_delete(struct fs_directory_entry_s * dirent) {
+    fs_directory_entry_release(dirent);
+
+    return ERROR_OK;
+}
+
+const fs_superblock_ops_t sysfs_superblock_ops = {
+    .alloc_node = fs_sysfs_alloc_node,
+    .free_node  = fs_sysfs_free_node,
+
+    .list = fs_sysfs_list,
+    .create = fs_sysfs_create,
+    .delete = fs_sysfs_delete,
+
+    .read = fs_sysfs_read,
+    .write = fs_sysfs_write,
+};
+

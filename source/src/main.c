@@ -115,6 +115,9 @@ __NORETURN void kernel_main(void) {
     kprintf("Init fs");
     if (!fs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_INIT_ERROR);
 
+    kprintf("Init sysfs");
+    if (fs_sysfs_init()) panic0("Unable to initialize sysfs");
+
     kprintf("Init ramfs");
     if (!fs_ramfs_init()) kernel_entry_error(KERNEL_ENTRY_ERROR_FILESYSTEM_RAMFS_INIT_ERROR);
 

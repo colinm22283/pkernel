@@ -3,7 +3,7 @@
 
 #include <timer/timer.h>
 
-#include <sysfs/sysfs.h>
+#include <filesystem/sysfs/sysfs.h>
 
 #include <sys/interrupt/wait_for_interrupt.h>
 
@@ -84,8 +84,8 @@ void scheduler_init(void) {
 }
 
 void scheduler_init_sysfs(void) {
-    sysfs_add_entry("sched/processes", SYSFS_PROCESS_COUNT, scheduler_sysfs_read, scheduler_sysfs_write);
-    sysfs_add_entry("sched/threads", SYSFS_THREADS_COUNT, scheduler_sysfs_read, scheduler_sysfs_write);
+    fs_sysfs_add_entry("sched/processes", SYSFS_PROCESS_COUNT, scheduler_sysfs_read, scheduler_sysfs_write);
+    fs_sysfs_add_entry("sched/threads", SYSFS_THREADS_COUNT, scheduler_sysfs_read, scheduler_sysfs_write);
 }
 
 void scheduler_queue(thread_t * thread) {

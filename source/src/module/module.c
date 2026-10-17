@@ -31,11 +31,11 @@ void modules_init(void) {
     loaded_tail.prev = &loaded_head;
 }
 
-int64_t sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offset) {
+int64_t module_sysfs_read(uint64_t id, char * data, uint64_t size, uint64_t offset) {
     return 0;
 }
 
-int64_t sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offset) {
+int64_t module_sysfs_write(uint64_t id, const char * data, uint64_t size, uint64_t offset) {
     return 0;
 }
 
@@ -113,17 +113,12 @@ int module_load(const char * name) {
             strcpy(path, "module/");
             strcpy(path + 7, module->name);
 
-            kprintf("yep");
-
-            result = sysfs_add_entry(path, 0, sysfs_read, sysfs_write);
-            kprintf("yep");
+            result = fs_sysfs_add_entry(path, 0, module_sysfs_read, module_sysfs_write);
             if (result != ERROR_OK) {
                 module->free();
 
                 return result;
             }
-
-            kprintf("yep");
 
             module->loaded = true;
 
@@ -134,8 +129,6 @@ int module_load(const char * name) {
             module->prev = &loaded_head;
             loaded_head.next->prev = module;
             loaded_head.next = module;
-
-            kprintf("yep");
 
             return ERROR_OK;
         }

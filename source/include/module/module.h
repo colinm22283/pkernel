@@ -5,7 +5,7 @@
 
 #include <pman/pman.h>
 
-#include <sysfs/sysfs.h>
+#include <filesystem/sysfs/sysfs.h>
 
 typedef int module_init_t(void);
 typedef int module_free_t(void);

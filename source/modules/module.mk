@@ -1,7 +1,7 @@
 STATIC_MODULES=
 STATIC_MODULES+=x86_pci
 STATIC_MODULES+=devfs
-STATIC_MODULES+=sysfs
+# STATIC_MODULES+=sysfs
 
 # STATIC_MODULES+=vga_frame_buffer
 
