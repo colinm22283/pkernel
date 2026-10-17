@@ -61,7 +61,7 @@ static inline paging_tmap_page_t * add_tmap_page(void) {
         }
     }
 
-    load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+    load_page_table(paging_kernel_virtual_to_physical(paging_kernel_pml4t));
 
     (next_page_ptr - 1)->paddr = tmap_page_paddr;
     (next_page_ptr - 1)->entry_count = 0;
@@ -111,7 +111,7 @@ void paging_tmap_init(void) {
         entry->read_write = true;
     }
 
-    load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+    load_page_table(paging_kernel_virtual_to_physical(paging_kernel_pml4t));
 
     // flash(4);
 

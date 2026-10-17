@@ -19,7 +19,7 @@ __NORETURN void pic1_keyboard_handler(task_state_record_t * tsr) {
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = pman_kernel_context()->tlt_paddr;
 
-    load_page_table((void *) new_pml4t_paddr);
+    load_page_table(new_pml4t_paddr);
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
@@ -32,7 +32,7 @@ __NORETURN void pic1_com2_handler(task_state_record_t * tsr) {
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = pman_kernel_context()->tlt_paddr;
 
-    load_page_table((void *) new_pml4t_paddr);
+    load_page_table(new_pml4t_paddr);
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
@@ -45,7 +45,7 @@ __NORETURN void pic1_com1_handler(task_state_record_t * tsr) {
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = pman_kernel_context()->tlt_paddr;
 
-    load_page_table((void *) new_pml4t_paddr);
+    load_page_table(new_pml4t_paddr);
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
@@ -58,7 +58,7 @@ __NORETURN void pic1_timer_handler(task_state_record_t * tsr) {
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = pman_kernel_context()->tlt_paddr;
 
-    load_page_table((void *) new_pml4t_paddr);
+    load_page_table(new_pml4t_paddr);
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
@@ -71,7 +71,7 @@ __NORETURN void pic2_mouse_handler(task_state_record_t * tsr) {
     uint64_t old_pml4t_paddr = read_page_table();
     uint64_t new_pml4t_paddr = pman_kernel_context()->tlt_paddr;
 
-    load_page_table((void *) new_pml4t_paddr);
+    load_page_table(new_pml4t_paddr);
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 

@@ -64,15 +64,15 @@ void sys_paging_map_kernel_regions(pman_context_t * context) {
         valloc_reserve(&context->valloc, PAGING_HEAP_VADDR, PDPT_SIZE);
     }
 
-    pman_range_t * id_range = pman_add_anon_map_paddr(
-        context,
-        0,
-        (void *) 0,
-        0x100000,
-        PMAN_VRESERVE,
-        PMAN_EXECUTE | PMAN_WRITE
-    );
-    if (id_range == NULL) panic0("Unable to map BIOS area");
+    /* pman_range_t * id_range = pman_add_anon_map_paddr( */
+        /* context, */
+        /* 0, */
+        /* (void *) 0, */
+        /* 0x100000, */
+        /* PMAN_VRESERVE, */
+        /* PMAN_EXECUTE | PMAN_WRITE */
+    /* ); */
+    /* if (id_range == NULL) panic0("Unable to map BIOS area"); */
 
     kernel_executable_range = pman_add_anon_map_paddr(
         context,
@@ -82,6 +82,7 @@ void sys_paging_map_kernel_regions(pman_context_t * context) {
         0,
         PMAN_EXECUTE | PMAN_WRITE
     );
+    if (kernel_executable_range == NULL) panic0("Unable to map kernel executable range");
 }
 
 pman_range_t * sys_paging_map_kernel_executable(pman_context_t * context) {

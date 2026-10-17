@@ -126,19 +126,19 @@ void paging_init() {
     temp_pdt_entry->present = true;
     temp_pdt_entry->read_write = true;
 
-    load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+    load_page_table(paging_kernel_virtual_to_physical(paging_kernel_pml4t));
 
     paging_bitmap_init();
 
-    load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+    load_page_table(paging_kernel_virtual_to_physical(paging_kernel_pml4t));
 
     paging_tmap_init();
 
-    load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+    load_page_table(paging_kernel_virtual_to_physical(paging_kernel_pml4t));
 
     paging_talloc_init();
 
-    load_page_table((void *) paging_kernel_virtual_to_physical(paging_kernel_pml4t));
+    load_page_table(paging_kernel_virtual_to_physical(paging_kernel_pml4t));
 
     paging_tmap_map(paging_kernel_virtual_to_physical(paging_kernel_pml4t), paging_kernel_pml4t);
     paging_tmap_map(paging_kernel_virtual_to_physical(paging_kernel_pdpt), paging_kernel_pdpt);

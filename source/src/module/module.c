@@ -87,6 +87,8 @@ int module_load(const char * name) {
         if (strcmp(module->name, name) == 0) {
             int result;
 
+            kprintf("Found '%s', init: %p, free: %p", name, module->init, module->free);
+
             for (size_t i = 0; i < module->dep_count; i++) {
                 result = module_load(module->deps[i]);
 
@@ -111,12 +113,17 @@ int module_load(const char * name) {
             strcpy(path, "module/");
             strcpy(path + 7, module->name);
 
+            kprintf("yep");
+
             result = sysfs_add_entry(path, 0, sysfs_read, sysfs_write);
+            kprintf("yep");
             if (result != ERROR_OK) {
                 module->free();
 
                 return result;
             }
+
+            kprintf("yep");
 
             module->loaded = true;
 
@@ -127,6 +134,8 @@ int module_load(const char * name) {
             module->prev = &loaded_head;
             loaded_head.next->prev = module;
             loaded_head.next = module;
+
+            kprintf("yep");
 
             return ERROR_OK;
         }

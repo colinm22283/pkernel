@@ -15,6 +15,7 @@ pci_device_t ** pci_devices;
 pci_watcher_t pci_watcher_head, pci_watcher_tail;
 
 static inline void add_pci_device(pci_address_t address) {
+    kprintf("Adding pci device at %i:%i.%i", address.bus, address.slot, address.func);
     pci_devices[pci_device_count] = heap_alloc_debug(sizeof(pci_device_t), "x86_pci device");
     pci_device_t * pci_device = pci_devices[pci_device_count];
 
@@ -86,6 +87,7 @@ __MOD_EXPORT void pci_unwatch(pci_watcher_t * watcher) {
 }
 
 int init(void) {
+    kprintf("test");
     pci_device_count = 0;
     pci_devices = heap_alloc_debug(sizeof(pci_device_t), "x86_pci pci_devices");
 

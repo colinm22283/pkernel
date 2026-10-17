@@ -7,6 +7,6 @@
 
 #include <debug/printf.h>
 
-static inline void load_page_table(void * page_table) {
+static inline void load_page_table(uint64_t page_table) {
     asm volatile ("mov %0, %%cr3" : : "r" (page_table) : "memory");
 }

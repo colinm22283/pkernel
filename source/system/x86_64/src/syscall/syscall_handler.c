@@ -18,7 +18,7 @@ void syscall_handler_task(task_state_record_t * tsr) {
 __NORETURN void syscall_handler_wrapper(task_state_record_t * tsr) {
     uint64_t new_pml4t_paddr = pman_kernel_context()->tlt_paddr;
 
-    load_page_table((void *) new_pml4t_paddr);
+    load_page_table(new_pml4t_paddr);
 
     scheduler_load_tsr(tsr);
 

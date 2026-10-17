@@ -18,7 +18,6 @@ struct fs_file_s;
 
 #define PMAN_BORROW   (1UL << 0)
 #define PMAN_SHARED   (1UL << 1)
-#define PMAN_VRESERVE (1UL << 2)
 typedef int pman_mapping_flags_t;
 
 #define PMAN_EXECUTE (1UL << 0)

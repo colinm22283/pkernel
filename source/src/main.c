@@ -47,6 +47,7 @@
 #include <sys/interrupt/interrupt_code.h>
 #include <sys/process/trampoline.h>
 #include <sys/paging/map_kernel.h>
+#include <sys/asm/cli.h>
 
 #include <sys/panic.h>
 

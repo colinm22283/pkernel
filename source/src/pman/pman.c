@@ -20,10 +20,6 @@
 pman_context_t kernel_context;
 
 void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * isr, void * _error_code);
-void oh_dear(interrupt_code_t channel, task_state_record_t * isr, void * _error_code) {
-    kprintf("AAHAHAHAHAHAAHHA");
-}
-
 
 void pman_init(void) {
     if (!paging_talloc_alloc(&kernel_context.tlt_alloc)) panic0("Unable to allocate pman kern table");
@@ -43,8 +39,7 @@ void pman_init(void) {
     kernel_context.tail.next = NULL;
     kernel_context.tail.prev = &kernel_context.head;
 
-    interrupt_registry_register(IC_PAGE_FAULT, pman_page_fault_handler);
-    interrupt_registry_register((interrupt_code_t) IC_GENERAL_PROTECTION_FAULT, oh_dear);
+    /* interrupt_registry_register(IC_PAGE_FAULT, pman_page_fault_handler); */
 
     pman_context_load_table(&kernel_context);
 }
@@ -60,9 +55,7 @@ int pman_free_context(pman_context_t * context) {
 void pman_context_load_table(pman_context_t * context) {
     kprintf("Load TLT: %p", (void *) context->tlt_paddr);
 
-    load_page_table((void *) context->tlt_paddr);
-
-    kprintf("Smello");
+    load_page_table(context->tlt_paddr);
 }
 
 void pman_fork_context(pman_context_t * dst, pman_context_t * src) {
