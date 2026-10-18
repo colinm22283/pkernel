@@ -65,6 +65,8 @@ void gpf() {
 }
 
 __NORETURN void kernel_main(void) {
+    cli();
+
     kprintf("Init primary region");
     primary_region_init();
 

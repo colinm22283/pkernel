@@ -74,7 +74,7 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
 
             void * user_vaddr = NULL;
 
-            if (range->size == 0 || !range->complete) {
+            if (range == NULL || !range->complete) {
                 kprintf("    Unmapping possible old segments");
                 pman_range_unmap(range);
 
@@ -87,7 +87,7 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                     if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_EXECUTE;
 
                     kprintf("    Mapping new kernel segment of size %i", header->memsz + extra_size);
-                    pman_range_t * range = pman_add_anon_map(process->paging_context, aligned_vaddr, header->memsz + extra_size, 0, prot);
+                    range = pman_add_anon_map(process->paging_context, aligned_vaddr, header->memsz + extra_size, 0, prot);
 
                     if (range == NULL) {
                         return -ENOMEM;
@@ -105,6 +105,8 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                     user_vaddr = NULL;
                 }
             }
+            
+            kprintf("user_vaddr = %p", user_vaddr);
 
             if (user_vaddr != NULL) {
                 char * segment_buffer = heap_alloc(header->memsz);

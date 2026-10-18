@@ -97,7 +97,7 @@ tty_t * tty_init(tty_write_handler_t * write_handler, void * cookie) {
     tty->buffer_ready = false;
     tty->buffer_size = 0;
     tty->buffer_capacity = TTY_BUFFER_SIZE;
-    tty->buffer_range = pman_add_anon_map(pman_kernel_context(), NULL, TTY_BUFFER_SIZE, 0, PMAN_WRITE);
+    tty->buffer_range = pman_add_anon_map(pman_kernel_context(), NULL, TTY_BUFFER_SIZE, PMAN_ANCHOR, PMAN_WRITE);
 
     tty->last_char = '\0';
 

@@ -13,7 +13,8 @@ void * heap_realloc(void * alloc, uint64_t size_bytes) {
     new_buffer = heap_alloc(size_bytes);
 #endif
 
-    memcpy(new_buffer, alloc, tag->next_size);
+    if (size_bytes >= tag->next_size) memcpy(new_buffer, alloc, tag->next_size);
+    else memcpy(new_buffer, alloc, size_bytes);
 
     heap_free(alloc);
 

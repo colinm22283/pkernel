@@ -65,20 +65,20 @@ __NORETURN void panic(
 
     fg_color = COLOR_RED;
     bg_color = COLOR_WHITE;
-    draw_string("KERNEL PANIC", 0, 0);
+    /* draw_string("KERNEL PANIC", 0, 0); */
     debug_print("KERNEL PANIC\n");
 
     fg_color = COLOR_WHITE;
     bg_color = COLOR_BLUE;
-    draw_string(message, 1, 0);
+    /* draw_string(message, 1, 0); */
     debug_print(message);
     debug_print("\n");
 
     if (label1 != NULL) {
-        clear_row(2);
-        draw_string(label1, 2, 0);
-        draw_string("0x", 2, 18);
-        draw_hex(value1, 2, 20);
+        /* clear_row(2); */
+        /* draw_string(label1, 2, 0); */
+        /* draw_string("0x", 2, 18); */
+        /* draw_hex(value1, 2, 20); */
 
         debug_print(label1);
         debug_print(": 0x");
@@ -87,10 +87,10 @@ __NORETURN void panic(
     }
 
     if (label2 != NULL) {
-        clear_row(3);
-        draw_string(label2, 3, 0);
-        draw_string("0x", 3, 18);
-        draw_hex(value2, 3, 20);
+        /* clear_row(3); */
+        /* draw_string(label2, 3, 0); */
+        /* draw_string("0x", 3, 18); */
+        /* draw_hex(value2, 3, 20); */
 
         debug_print(label2);
         debug_print(": 0x");
@@ -99,10 +99,10 @@ __NORETURN void panic(
     }
 
     if (label3 != NULL) {
-        clear_row(4);
-        draw_string(label3, 4, 0);
-        draw_string("0x", 4, 18);
-        draw_hex(value3, 4, 20);
+        /* clear_row(4); */
+        /* draw_string(label3, 4, 0); */
+        /* draw_string("0x", 4, 18); */
+        /* draw_hex(value3, 4, 20); */
 
         debug_print(label3);
         debug_print(": 0x");

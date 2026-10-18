@@ -35,7 +35,6 @@ pman_range_t * pman_add_anon_map_paddr(
 pman_range_t * pman_copy_range(
     pman_context_t * context,
     pman_range_t * range,
-    void * vaddr,
     pman_mapping_flags_t flags,
     pman_protection_flags_t prot
 );

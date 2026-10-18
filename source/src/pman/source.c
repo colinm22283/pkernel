@@ -1,10 +1,13 @@
 #include <stddef.h>
 
 #include <pman/types.h>
+#include <pman/pman.h>
 
 #include <filesystem/file.h>
 
 #include <util/heap/heap.h>
+
+#include <sys/panic.h>
 
 static inline pman_source_t * pman_source_init(void) {
     pman_source_t * source = heap_alloc(sizeof(pman_source_t));
@@ -18,6 +21,7 @@ static inline pman_source_t * pman_source_init(void) {
     source->dirty       = false;
     source->evicted     = false;
     source->anchored    = false;
+    source->mapped      = false;
 
     return source;
 }
@@ -36,6 +40,7 @@ pman_source_t * pman_source_init_file(fs_file_t * file, size_t offset) {
     source->dirty       = false;
     source->evicted     = true;
     source->anchored    = false;
+    source->mapped      = false;
 
     return source;
 }
@@ -45,8 +50,9 @@ pman_source_t * pman_source_init_anon(void) {
 
     source->initialized = false;
     source->dirty       = false;
-    source->evicted     = false;
+    source->evicted     = true;
     source->anchored    = false;
+    source->mapped      = false;
 
     return source;
 }
@@ -58,6 +64,7 @@ pman_source_t * pman_source_init_anon_kernel(size_t paddr) {
     source->dirty       = false;
     source->evicted     = false;
     source->anchored    = true;
+    source->mapped      = false;
 
     palloc_alloc_contiguous(&source->palloc, PAGE_SIZE, paddr);
 
@@ -74,5 +81,39 @@ void pman_source_sub_ref(pman_source_t * source) {
     if (source->references == 0) {
         pman_source_free(source);
     }
+}
+
+void pman_source_page_in(pman_source_t * source) {
+    if (!source->evicted) return;
+
+    if (source->file == NULL) {
+        palloc_alloc(&source->palloc, PAGE_SIZE);
+    }
+    else {
+        // TODO
+        panic0("pman_source_page_in unimp");
+    }
+
+    source->initialized = true;
+    source->evicted = false;
+}
+
+void * pman_source_map_to_kernel(pman_source_t * source) {
+    pman_source_page_in(source);
+
+    void * vaddr = valloc_alloc(&pman_kernel_context()->valloc, PAGE_SIZE);
+
+    paging_map_ex(
+        pman_kernel_context()->tlt,
+        &source->mapping,
+        source->palloc.paddrs[0],
+        vaddr,
+        1,
+        true,
+        false,
+        false
+    );
+
+    return vaddr;
 }
 

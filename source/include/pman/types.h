@@ -18,6 +18,7 @@ struct fs_file_s;
 
 #define PMAN_BORROW   (1UL << 0)
 #define PMAN_SHARED   (1UL << 1)
+#define PMAN_ANCHOR   (1UL << 2)
 typedef int pman_mapping_flags_t;
 
 #define PMAN_EXECUTE (1UL << 0)
@@ -31,11 +32,13 @@ typedef struct {
     size_t file_offset;
 
     palloc_t palloc;
+    paging_mapping_t mapping;
 
     bool initialized;
     bool dirty;
     bool evicted;
     bool anchored; // This page is not able to be evicted
+    bool mapped; // This page is mapped to the kernel (mapping is valid)
 } pman_source_t;
 
 typedef struct pman_mapping_s {

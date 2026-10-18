@@ -17,7 +17,9 @@ pman_mapping_t * pman_mapping_init(
     mapping->flags = flags;
     mapping->source = source;
 
-    if (context == pman_kernel_context()) {
+    mapping->vaddr = vaddr;
+
+    if (flags | PMAN_ANCHOR) {
         mapping->active = true;
 
         // TODO: temporary, wont work for mapped files
@@ -29,13 +31,22 @@ pman_mapping_t * pman_mapping_init(
             1,
             pman_prot_flags_read_write(prot),
             pman_prot_flags_execute_disable(prot),
-            false
+            true // TODO
         );
     }
     else {
         mapping->active = false;
         
-        // TODO
+        paging_map_ex(
+            context->tlt,
+            &mapping->mapping,
+            source->palloc.paddrs[0],
+            vaddr,
+            1,
+            pman_prot_flags_read_write(prot),
+            pman_prot_flags_execute_disable(prot),
+            true // TODO
+        );
     }
 
     mapping->next = context->head.next;

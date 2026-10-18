@@ -39,13 +39,29 @@ void pman_init(void) {
     kernel_context.tail.next = NULL;
     kernel_context.tail.prev = &kernel_context.head;
 
-    /* interrupt_registry_register(IC_PAGE_FAULT, pman_page_fault_handler); */
-
     pman_context_load_table(&kernel_context);
 }
 
 pman_context_t * pman_new_context(void) {
-    return NULL;
+    kprintf("New user context");
+
+    pman_context_t * context = heap_alloc_debug(sizeof(pman_context_t), "pman_context_t");
+
+    if (!paging_talloc_alloc(&context->tlt_alloc)) panic0("Unable to allocate pman kern table");
+
+    context->tlt = context->tlt_alloc.vaddr;
+    context->tlt_paddr = context->tlt_alloc.paddr;
+
+    memset(context->tlt, 0, sizeof(pml4t64_t));
+
+    valloc_init(&context->valloc);
+
+    context->head.next = &context->tail;
+    context->head.prev = NULL;
+    context->tail.next = NULL;
+    context->tail.prev = &context->head;
+
+    return context;
 }
 
 int pman_free_context(pman_context_t * context) {
@@ -70,12 +86,21 @@ pman_range_t * pman_add_anon_map(
 ) {
     size_t size_pages = DIV_UP(size_bytes, PAGE_SIZE);
 
+    kprintf("pman_add_anon_map, size_bytes = %i, size_pages = %i", size_bytes, size_pages);
+
     pman_source_t ** sources = heap_alloc_debug(size_pages * sizeof(pman_source_t *), "pman_add_anon_map sources");
     pman_mapping_t ** mappings = heap_alloc_debug(size_pages * sizeof(pman_mapping_t *), "pman_add_anon_map mappings");
 
+    page_data_t * current_vaddr;
+    if (vaddr == NULL) current_vaddr = valloc_alloc(&context->valloc, size_bytes);
+    else current_vaddr = valloc_reserve(&context->valloc, vaddr, size_bytes);
+
     for (size_t i = 0; i < size_pages; i++) {
-        sources[i] = pman_source_init_anon();
-        /* mappings[i] = pman_mapping_init(context, sources[i], flags, prot); */
+        if (flags | PMAN_ANCHOR) sources[i] = pman_source_init_anon_kernel(0);
+        else sources[i] = pman_source_init_anon();
+        mappings[i] = pman_mapping_init(context, sources[i], current_vaddr, flags, prot);
+
+        current_vaddr++;
     }
 
     pman_range_t * range = heap_alloc_debug(sizeof(pman_range_t), "pman_add_anon_map range");
@@ -112,7 +137,8 @@ pman_range_t * pman_add_anon_map_paddr(
     kprintf("Allocating at %p", current_vaddr);
 
     for (size_t i = 0; i < size_pages; i++) {
-        sources[i] = pman_source_init_anon_kernel(current_paddr);
+        if (flags | PMAN_ANCHOR) sources[i] = pman_source_init_anon_kernel(current_paddr);
+        else sources[i] = pman_source_init_anon();
         mappings[i] = pman_mapping_init(context, sources[i], current_vaddr, flags, prot);
 
         current_paddr += PAGE_SIZE;
@@ -133,11 +159,48 @@ pman_range_t * pman_add_anon_map_paddr(
 pman_range_t * pman_copy_range(
     pman_context_t * context,
     pman_range_t * range,
-    void * vaddr,
     pman_mapping_flags_t flags,
     pman_protection_flags_t prot
 ) {
-    return NULL;
+    size_t mapping_count = 0;
+    size_t mapping_capacity = 1;
+    pman_mapping_t ** mappings = heap_alloc_debug(mapping_capacity * sizeof(pman_mapping_t *), "copy_range range mappings");
+
+    pman_range_t * new_range = heap_alloc_debug(sizeof(pman_range_t), "copy_range range");
+
+    for (size_t i = 0; i < range->size; i++) {
+        pman_source_add_ref(range->mappings[i]->source);
+
+        pman_mapping_t * new_mapping = pman_mapping_init(
+            context,
+            range->mappings[i]->source,
+            range->mappings[i]->vaddr,
+            flags,
+            prot
+        );
+
+        if (new_mapping == NULL) {
+            // TODO: deref all the mappings that you made
+            heap_free(mappings);
+            heap_free(new_range);
+
+            return NULL;
+        }
+
+        mappings[mapping_count++] = new_mapping;
+
+        if (mapping_count == mapping_capacity) {
+            mapping_capacity *= 2;
+            mappings = heap_realloc(mappings, mapping_capacity * sizeof(pman_mapping_t *));
+        }
+    }
+
+    new_range->vaddr    = range->vaddr;
+    new_range->complete = range->complete;
+    new_range->size     = mapping_count;
+    new_range->mappings = heap_realloc(mappings, mapping_count * sizeof(pman_mapping_t *));
+
+    return new_range;
 }
 
 pman_range_t * pman_get_range(
@@ -145,7 +208,50 @@ pman_range_t * pman_get_range(
     void * vaddr,
     size_t size_bytes
 ) {
-    return NULL;
+    size_t mapping_count    = 0;
+    size_t mapping_capacity = 1;
+    pman_mapping_t ** mappings = heap_alloc_debug(mapping_capacity * sizeof(pman_mapping_t *), "range pman_mapping_t *");
+
+    intptr_t rounded_vaddr = ((intptr_t) vaddr / PAGE_SIZE) * PAGE_SIZE;
+    size_t   page_count    = DIV_UP(size_bytes + (size_t) vaddr - rounded_vaddr, PAGE_SIZE);
+
+    bool complete = true;
+
+    for (size_t i = 0; i < page_count; i++) {
+        bool found = false;
+
+        for (
+            pman_mapping_t * m = context->head.next;
+            m != &context->tail;
+            m = m->next
+        ) {
+            if ((size_t) m->vaddr == rounded_vaddr + i * PAGE_SIZE) {
+                mappings[mapping_count++] = m;
+                if (mapping_count == mapping_capacity) {
+                    mapping_capacity *= 2;
+                    mappings = heap_realloc(mappings, mapping_capacity * sizeof(pman_mapping_t *));
+                }
+
+                found = true;
+
+                break;
+            }
+        }
+
+        if (!found) complete = false;
+    }
+
+    if (mapping_count == 0) return NULL;
+
+    pman_range_t * range = heap_alloc_debug(sizeof(pman_range_t), "pman_get_range range");
+
+    range->vaddr = vaddr;
+    range->complete = complete;
+
+    range->size = mapping_count;
+    range->mappings = heap_realloc(mappings, mapping_count * sizeof(pman_mapping_t));
+
+    return range;
 }
 
 int pman_unmap(pman_context_t * context, void * vaddr, size_t size_bytes) {
