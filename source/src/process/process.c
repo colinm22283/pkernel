@@ -3,6 +3,9 @@
 
 #include <filesystem/filesystem.h>
 
+#include <pman/pman.h>
+#include <pman/source.h>
+
 #include <util/heap/heap.h>
 
 #include <util/memory/memcpy.h>
@@ -197,7 +200,39 @@ long process_strncpy_from_user(process_t * process, void * dst, const void * src
 }
 
 long process_copy_to_user(process_t * process, void * dst, const void * src, long size) {
-    return 0;
+    pman_range_t * range = pman_get_range(process->paging_context, dst, size);
+
+    if (range == NULL) {
+        return 0;
+    }
+
+    if (!range->complete) {
+        pman_range_free(range);
+        return 0;
+    }
+
+    size_t offset = ((intptr_t) dst) % PAGE_SIZE;
+
+    pman_mapping_t ** mapping = &range->mappings[0];
+    char * kvaddr = pman_source_map_to_kernel((*mapping)->source);
+
+    for (long i = 0; i < size; i++) {
+        if (kvaddr == NULL) {
+            return i;
+        }
+
+        kvaddr[offset++] = ((char *) src)[i];
+
+        /* printf("sent %i\n", ((char *) src)[i]); */
+
+        if (offset == PAGE_SIZE) {
+            mapping++;
+            kvaddr = pman_source_map_to_kernel((*mapping)->source);
+            offset = 0;
+        }
+    }
+
+    return size;
 }
 
 pman_range_t * process_create_segment(process_t * process, void * vaddr, size_t size, pman_protection_flags_t prot) {

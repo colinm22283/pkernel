@@ -50,7 +50,7 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
 
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
 
-    tsr_set_stack(&thread->tsr, thread->stack_vaddr, thread->stack_size * PAGE_SIZE);
+    tsr_set_stack(&thread->tsr, thread->stack_vaddr, thread->stack_size);
 
     thread->waiter = NULL;
     thread->event = NULL;

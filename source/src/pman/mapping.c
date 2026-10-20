@@ -1,5 +1,6 @@
 #include <pman/pman.h>
 #include <pman/mapping.h>
+#include <pman/source.h>
 #include <pman/logger.h>
 #include <pman/util.h>
 
@@ -19,8 +20,10 @@ pman_mapping_t * pman_mapping_init(
 
     mapping->vaddr = vaddr;
 
-    if (flags | PMAN_ANCHOR) {
+    if (flags & PMAN_ANCHOR) {
         mapping->active = true;
+
+        kprintf("whar");
 
         // TODO: temporary, wont work for mapped files
         paging_map_ex(
@@ -36,17 +39,6 @@ pman_mapping_t * pman_mapping_init(
     }
     else {
         mapping->active = false;
-        
-        paging_map_ex(
-            context->tlt,
-            &mapping->mapping,
-            source->palloc.paddrs[0],
-            vaddr,
-            1,
-            pman_prot_flags_read_write(prot),
-            pman_prot_flags_execute_disable(prot),
-            true // TODO
-        );
     }
 
     mapping->next = context->head.next;
@@ -65,5 +57,20 @@ void pman_mapping_free(pman_mapping_t * mapping) {
     mapping->prev->next = mapping->next;
     mapping->next->prev = mapping->prev;
     heap_free(mapping);
+}
+
+void pman_mapping_map_in(pman_mapping_t * mapping) {
+    pman_source_page_in(mapping->source);
+
+    paging_map_ex(
+        mapping->context->tlt,
+        &mapping->mapping,
+        mapping->source->palloc.paddrs[0],
+        mapping->vaddr,
+        1,
+        pman_prot_flags_read_write(mapping->prot),
+        pman_prot_flags_execute_disable(mapping->prot),
+        true // TODO
+    );
 }
 

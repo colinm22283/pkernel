@@ -116,9 +116,13 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                 kprintf("    First 10 bytes:");
                 for (size_t j = 0; j < 10; j++) kprintf("      %i", ((unsigned char *) segment_buffer)[j]);
 
-                process_copy_to_user(process, user_vaddr, segment_buffer, header->memsz);
+                long result = process_copy_to_user(process, user_vaddr, segment_buffer, header->memsz);
 
                 heap_free(segment_buffer);
+
+                if ((uint64_t) result != header->memsz) {
+                    return -ENOMEM;
+                }
             }
         }
     }

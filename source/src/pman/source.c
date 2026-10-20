@@ -99,6 +99,8 @@ void pman_source_page_in(pman_source_t * source) {
 }
 
 void * pman_source_map_to_kernel(pman_source_t * source) {
+    if (source->mapped) return source->mapping.vaddr;
+
     pman_source_page_in(source);
 
     void * vaddr = valloc_alloc(&pman_kernel_context()->valloc, PAGE_SIZE);
@@ -114,6 +116,8 @@ void * pman_source_map_to_kernel(pman_source_t * source) {
         false
     );
 
-    return vaddr;
+    source->mapped = true;
+
+    return source->mapping.vaddr;
 }
 

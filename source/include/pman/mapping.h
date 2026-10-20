@@ -14,3 +14,5 @@ pman_mapping_t * pman_mapping_init(
 
 void pman_mapping_free(pman_mapping_t * mapping);
 
+void pman_mapping_map_in(pman_mapping_t * mapping);
+

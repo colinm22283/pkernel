@@ -43,6 +43,10 @@ pman_range_t * pman_get_range(
     void * vaddr,
     size_t size_bytes
 );
+pman_mapping_t * pman_get_mapping(
+    pman_context_t * context,
+    void * vaddr
+);
 
 int pman_unmap(pman_context_t * context, void * vaddr, size_t size_bytes);
 
