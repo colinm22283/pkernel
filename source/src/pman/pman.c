@@ -180,6 +180,8 @@ pman_range_t * pman_copy_range(
     for (size_t i = 0; i < range->size; i++) {
         pman_source_add_ref(range->mappings[i]->source);
 
+        kprintf("ADDING MAPPING vaddr = %p", range->mappings[i]->vaddr);
+
         pman_mapping_t * new_mapping = pman_mapping_init(
             context,
             range->mappings[i]->source,
@@ -321,7 +323,6 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
     }
 
     if (!mapping->active) {
-
         pman_mapping_map_in(mapping);
     }
     else {

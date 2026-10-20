@@ -93,7 +93,7 @@ pman_range_t * sys_paging_map_kernel_executable(pman_context_t * context) {
     return pman_copy_range(
         context,
         kernel_executable_range,
-        PMAN_SHARED,
+        PMAN_ANCHOR | PMAN_SHARED,
         PMAN_EXECUTE
     );
 }

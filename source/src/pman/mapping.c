@@ -23,8 +23,6 @@ pman_mapping_t * pman_mapping_init(
     if (flags & PMAN_ANCHOR) {
         mapping->active = true;
 
-        kprintf("whar");
-
         // TODO: temporary, wont work for mapped files
         paging_map_ex(
             context->tlt,
@@ -60,7 +58,11 @@ void pman_mapping_free(pman_mapping_t * mapping) {
 }
 
 void pman_mapping_map_in(pman_mapping_t * mapping) {
+    if (mapping->active) return;
+
     pman_source_page_in(mapping->source);
+
+    kprintf("pman_mapping_map_in() vaddr = %p, paddr = %p", mapping->vaddr, mapping->source->palloc.paddrs[0]);
 
     paging_map_ex(
         mapping->context->tlt,
@@ -72,5 +74,7 @@ void pman_mapping_map_in(pman_mapping_t * mapping) {
         pman_prot_flags_execute_disable(mapping->prot),
         true // TODO
     );
+
+    mapping->active = true;
 }
 

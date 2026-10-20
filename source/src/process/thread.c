@@ -43,7 +43,13 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
     thread->twin_thread->twin_thread = thread;
     thread->twin_thread->process = parent;
 
-    pman_range_t * stack_range = pman_add_anon_map(user_context, NULL, DEFAULT_THREAD_STACK_SIZE, 0, PMAN_WRITE);
+    pman_range_t * stack_range = pman_add_anon_map(
+        user_context,
+        NULL,
+        DEFAULT_THREAD_STACK_SIZE,
+        PMAN_ANCHOR,
+        PMAN_WRITE
+    );
     thread->stack_vaddr = stack_range->vaddr;
     thread->stack_size  = DEFAULT_THREAD_STACK_SIZE;
     pman_range_free(stack_range);
