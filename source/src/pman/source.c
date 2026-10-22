@@ -2,6 +2,7 @@
 
 #include <pman/types.h>
 #include <pman/pman.h>
+#include <pman/logger.h>
 
 #include <filesystem/file.h>
 
@@ -84,7 +85,10 @@ void pman_source_sub_ref(pman_source_t * source) {
 }
 
 void pman_source_page_in(pman_source_t * source) {
-    if (!source->evicted) return;
+    if (!source->evicted) {
+        kprintf("Source already mapped in");
+        return;
+    }
 
     if (source->file == NULL) {
         palloc_alloc(&source->palloc, PAGE_SIZE);
@@ -112,7 +116,7 @@ void * pman_source_map_to_kernel(pman_source_t * source) {
         vaddr,
         1,
         true,
-        false,
+        true,
         false
     );
 

@@ -15,7 +15,8 @@ pman_mapping_t * pman_mapping_init(
 
     mapping->context = context;
 
-    mapping->flags = flags;
+    mapping->flags  = flags;
+    mapping->prot   = prot;
     mapping->source = source;
 
     mapping->vaddr = vaddr;
@@ -62,7 +63,9 @@ void pman_mapping_map_in(pman_mapping_t * mapping) {
 
     pman_source_page_in(mapping->source);
 
-    kprintf("pman_mapping_map_in() vaddr = %p, paddr = %p", mapping->vaddr, mapping->source->palloc.paddrs[0]);
+    kprintf("pman_mapping_map_in() vaddr = %p, paddr = %p, tlt_paddr = %p", mapping->vaddr, mapping->source->palloc.paddrs[0], mapping->context->tlt_paddr);
+
+    kprintf("Setting ex disable to %i", pman_prot_flags_execute_disable(mapping->prot));
 
     paging_map_ex(
         mapping->context->tlt,

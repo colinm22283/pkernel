@@ -108,7 +108,13 @@ pman_range_t * pman_add_anon_map(
     for (size_t i = 0; i < size_pages; i++) {
         if (flags & PMAN_ANCHOR) sources[i] = pman_source_init_anon_kernel(0);
         else sources[i] = pman_source_init_anon();
-        mappings[i] = pman_mapping_init(context, sources[i], current_vaddr, flags, prot);
+        mappings[i] = pman_mapping_init(
+            context,
+            sources[i],
+            current_vaddr,
+            flags,
+            prot
+        );
 
         current_vaddr++;
     }
@@ -302,6 +308,7 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
     /* kprintf("rsp = %p, rbp = %p", tsr->rsp, tsr->rbp); */
 
     if (error_code->user) kprintf("USER");
+    if (error_code->instruction_fetch) kprintf("INSTRUCTION FETCH");
 
     void * fault_vaddr = read_fault_vaddr();
 
@@ -319,7 +326,7 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
     pman_mapping_t * mapping = pman_get_mapping(context, fault_vaddr);
 
     if (mapping == NULL) {
-        panic0("Oh dear");
+        panic0("User attempted to access unmapped page");
     }
 
     if (!mapping->active) {

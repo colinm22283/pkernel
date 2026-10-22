@@ -70,7 +70,11 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
             size_t extra_size = ((intptr_t) header->vaddr - (intptr_t) aligned_vaddr);
             kprintf("  aligned_vaddr = %p, extra = %i", aligned_vaddr, extra_size);
 
-            pman_range_t * range = pman_get_range(process->paging_context, (void *) header->vaddr, header->memsz);
+            pman_range_t * range = pman_get_range(
+                process->paging_context,
+                (void *) header->vaddr,
+                header->memsz
+            );
 
             void * user_vaddr = NULL;
 
@@ -86,8 +90,20 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                     if (header->flags & ELF_PH_FLAGS_W) prot |= PMAN_WRITE;
                     if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_EXECUTE;
 
+                    kprintf(
+                        "      Flags: %s %s",
+                        header->flags & ELF_PH_FLAGS_W ? "write" : "",
+                        header->flags & ELF_PH_FLAGS_X ? "execute" : ""
+                    );
+
                     kprintf("    Mapping new kernel segment of size %i", header->memsz + extra_size);
-                    range = pman_add_anon_map(process->paging_context, aligned_vaddr, header->memsz + extra_size, 0, prot);
+                    range = pman_add_anon_map(
+                        process->paging_context,
+                        aligned_vaddr,
+                        header->memsz + extra_size,
+                        0,
+                        prot
+                    );
 
                     if (range == NULL) {
                         return -ENOMEM;

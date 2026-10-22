@@ -200,13 +200,17 @@ long process_strncpy_from_user(process_t * process, void * dst, const void * src
 }
 
 long process_copy_to_user(process_t * process, void * dst, const void * src, long size) {
+    printf("process_copy_to_user() dst = %p, src = %p, size = %i\n", dst, src, size);
+
     pman_range_t * range = pman_get_range(process->paging_context, dst, size);
 
     if (range == NULL) {
+        printf("Bad range\n");
         return 0;
     }
 
     if (!range->complete) {
+        printf("Incomplete range\n");
         pman_range_free(range);
         return 0;
     }
@@ -216,16 +220,21 @@ long process_copy_to_user(process_t * process, void * dst, const void * src, lon
     pman_mapping_t ** mapping = &range->mappings[0];
     char * kvaddr = pman_source_map_to_kernel((*mapping)->source);
 
+    printf("kvaddr = %p, paddr = %p\n", kvaddr, (*mapping)->source->palloc.paddrs[0]);
+
     for (long i = 0; i < size; i++) {
         if (kvaddr == NULL) {
             return i;
         }
 
+        /* printf("%i\n", offset); */
+
         kvaddr[offset++] = ((char *) src)[i];
 
-        /* printf("sent %i\n", ((char *) src)[i]); */
+        if (i >= 0x100 && i < 0x120) printf("sent %H\n", (int) ((unsigned char *) src)[i]);
 
         if (offset == PAGE_SIZE) {
+            printf("next\n");
             mapping++;
             kvaddr = pman_source_map_to_kernel((*mapping)->source);
             offset = 0;

@@ -193,12 +193,14 @@ int thread_interrupt(thread_t * thread) {
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
+            printf("RESUMEING KERNEL\n");
             resume_tsr_kernel(&thread->tsr);
         } break;
 
         case TL_USER: {
             signal_table_resume(thread);
 
+            printf("RESUMING USER\n");
             resume_tsr_user(&thread->tsr, thread->process->paging_context);
         } break;
 
