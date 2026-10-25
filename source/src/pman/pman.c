@@ -105,6 +105,7 @@ pman_range_t * pman_add_anon_map(
     else current_vaddr = valloc_reserve(&context->valloc, vaddr, size_bytes);
     vaddr = current_vaddr;
 
+    kprintf("flags = %H", flags);
     for (size_t i = 0; i < size_pages; i++) {
         if (flags & PMAN_ANCHOR) sources[i] = pman_source_init_anon_kernel(0);
         else sources[i] = pman_source_init_anon();
@@ -245,6 +246,8 @@ pman_range_t * pman_get_range(
                 mappings = heap_realloc(mappings, mapping_capacity * sizeof(pman_mapping_t *));
             }
         }
+
+        rounded_vaddr += PAGE_SIZE;
     }
 
     if (mapping_count == 0) return NULL;
@@ -330,7 +333,15 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
     }
 
     if (!mapping->active) {
+        kprintf("MAPPING: %p", mapping);
+        kprintf("PADDR: %p", mapping->source->palloc.paddrs[0]);
+        for (int i = 0; i < 10; i++) {
+            kprintf("  BYTE: %H", ((unsigned char *) mapping->source->mapping.vaddr)[i + 0x100]);
+        }
+
         pman_mapping_map_in(mapping);
+
+        kprintf("PADDR: %p", mapping->source->palloc.paddrs[0]);
     }
     else {
         panic0("Page fault on active mapping????");

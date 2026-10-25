@@ -105,6 +105,8 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                         prot
                     );
 
+                    kprintf("      Mapping[0] = %p", range->mappings[0]);
+
                     if (range == NULL) {
                         return -ENOMEM;
                     }
@@ -130,7 +132,7 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                 elf_load_segment(&elf, header, segment_buffer);
 
                 kprintf("    First 10 bytes:");
-                for (size_t j = 0; j < 10; j++) kprintf("      %i", ((unsigned char *) segment_buffer)[j]);
+                for (size_t j = 0; j < 10; j++) kprintf("      %H", ((unsigned char *) segment_buffer)[j]);
 
                 long result = process_copy_to_user(process, user_vaddr, segment_buffer, header->memsz);
 

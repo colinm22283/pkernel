@@ -108,16 +108,24 @@ thread_t * thread_create_kernel(void) {
 
     thread->twin_thread = NULL;
 
-    pman_range_t * stack_range = pman_add_anon_map(pman_kernel_context(), NULL, DEFAULT_THREAD_STACK_SIZE, 0, PMAN_WRITE);
+    pman_range_t * stack_range = pman_add_anon_map(
+        pman_kernel_context(),
+        NULL,
+        DEFAULT_THREAD_STACK_SIZE,
+        PMAN_ANCHOR,
+        PMAN_WRITE
+    );
     thread->stack_vaddr = stack_range->vaddr;
     thread->stack_size  = DEFAULT_THREAD_STACK_SIZE;
     pman_range_free(stack_range);
 
-    tsr_set_stack(&thread->tsr, thread->stack_vaddr, thread->stack_size);
-
-    kprintf("THREAD STACK MAPPING: %p", thread->stack_vaddr);
+    printf("STACK VADDR = %p\n", thread->stack_vaddr);
 
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
+
+    tsr_set_stack(&thread->tsr, thread->stack_vaddr, thread->stack_size);
+
+    printf("RSP = %p\n", thread->tsr.rsp);
 
     thread->waiter = NULL;
 
@@ -193,7 +201,7 @@ int thread_interrupt(thread_t * thread) {
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
-            printf("RESUMEING KERNEL\n");
+            printf("RESUMING KERNEL\n");
             resume_tsr_kernel(&thread->tsr);
         } break;
 
