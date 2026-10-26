@@ -69,61 +69,6 @@ process_t * process_create_fork(process_t * parent) {
 
     process->parent_id = parent->id;
 
-    // size_t mapping_count = 0, mapping_capacity = 1;
-    // pman_mapping_t ** mappings = heap_alloc_debug(mapping_capacity * sizeof(pman_mapping_t *), "process fork mappings");
-    //
-    // for (
-    //     pman_mapping_t * mapping = parent->paging_context->head.next;
-    //     mapping != &parent->paging_context->tail;
-    //     mapping = mapping->next
-    // ) {
-    //     mappings[mapping_count++] = mapping;
-    //
-    //     if (mapping_count == mapping_capacity) {
-    //         mapping_capacity *= 2;
-    //
-    //         mappings = heap_realloc(mappings, mapping_capacity * sizeof(pman_mapping_t *));
-    //     }
-    // }
-    //
-    // for (size_t i = 0; i < mapping_count; i++) {
-    //     pman_mapping_t * mapping = mappings[i];
-    //
-    //     if (mapping->protection & PMAN_PROT_SHARED) {
-    //         switch (mapping->type) {
-    //             case PMAN_MAPPING_BORROWED: {
-    //                 debug_print("oh dear\n");
-    //             } break;
-    //
-    //             case PMAN_MAPPING_SHARED: {
-    //                 pman_mapping_t * root_mapping = get_root_mapping(mapping);
-    //
-    //                 pman_context_add_shared(process->paging_context, mapping->protection, root_mapping, mapping->vaddr);
-    //             } break;
-    //
-    //             default: break;
-    //         }
-    //     }
-    //     else {
-    //         void * vaddr = mapping->vaddr;
-    //         pman_protection_flags_t prot = mapping->protection;
-    //         pman_mapping_t * root_mapping = get_root_mapping(mapping);
-    //
-    //         pman_context_add_borrowed(process->paging_context, mapping->protection, root_mapping, mapping->vaddr);
-    //
-    //         pman_context_unmap(mapping);
-    //
-    //         pman_mapping_t * new_mapping = pman_context_add_borrowed(parent->paging_context, prot, root_mapping, vaddr);
-    //         if (new_mapping == NULL) {
-    //             debug_print("OOHHH DEARRR\n");
-    //         }
-    //
-    //         process_remap(parent, mapping, new_mapping);
-    //     }
-    // }
-    //
-    // heap_free(mappings);
-
     pman_fork_context(process->paging_context, parent->paging_context);
 
     thread_t * new_thread = thread_create_fork(process->paging_context, process, parent->threads[0]);
