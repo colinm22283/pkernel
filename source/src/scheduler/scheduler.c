@@ -289,6 +289,8 @@ __NORETURN void scheduler_yield(void) {
                         kprintf("kill thread");
 
                         thread_free(thread);
+
+                        kprintf("done");
                     } break;
                 }
             }

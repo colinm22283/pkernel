@@ -34,6 +34,7 @@ thread_t * thread_create_user(pman_context_t * user_context, process_t * parent)
     kprintf("thread_create_user()");
 
     thread->process = parent;
+    thread->paging_context = parent->paging_context;
 
     thread->level = TL_USER;
     thread->state = TS_STOPPED;
@@ -73,6 +74,7 @@ thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent,
     kprintf("thread_create_fork()");
 
     thread->process = parent;
+    thread->paging_context = parent->paging_context;
 
     thread->level = TL_USER;
     thread->state = TS_STOPPED;
@@ -101,6 +103,7 @@ thread_t * thread_create_kernel(void) {
     kprintf("thread_create_kernel()");
 
     thread->process = NULL;
+    thread->paging_context = pman_kernel_context();
 
     thread->level = TL_KERNEL;
     thread->state = TS_STOPPED;
@@ -119,13 +122,9 @@ thread_t * thread_create_kernel(void) {
     thread->stack_size  = DEFAULT_THREAD_STACK_SIZE;
     pman_range_free(stack_range);
 
-    printf("STACK VADDR = %p\n", thread->stack_vaddr);
-
     memset(&thread->tsr, 0, sizeof(task_state_record_t));
 
     tsr_set_stack(&thread->tsr, thread->stack_vaddr, thread->stack_size);
-
-    printf("RSP = %p\n", thread->tsr.rsp);
 
     thread->waiter = NULL;
 
@@ -148,12 +147,7 @@ void thread_free(thread_t * thread) {
         waiter_free(thread->waiter);
     }
 
-    if (thread->level == TL_KERNEL) {
-        pman_range_unmap(pman_get_range(pman_kernel_context(), thread->stack_vaddr, thread->stack_size));
-    }
-    else if (thread->level == TL_USER) {
-        pman_range_unmap(pman_get_range(thread->process->paging_context, thread->stack_vaddr, thread->stack_size));
-    }
+    pman_range_unmap(pman_get_range(thread->paging_context, thread->stack_vaddr, thread->stack_size));
 
     heap_free(thread);
 }
@@ -201,14 +195,12 @@ int thread_interrupt(thread_t * thread) {
 __NORETURN void thread_resume(thread_t * thread) {
     switch (thread->level) {
         case TL_KERNEL: {
-            printf("RESUMING KERNEL\n");
             resume_tsr_kernel(&thread->tsr);
         } break;
 
         case TL_USER: {
             signal_table_resume(thread);
 
-            printf("RESUMING USER\n");
             resume_tsr_user(&thread->tsr, thread->process->paging_context);
         } break;
 

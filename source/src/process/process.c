@@ -69,8 +69,6 @@ process_t * process_create_fork(process_t * parent) {
 
     process->parent_id = parent->id;
 
-    pman_fork_context(process->paging_context, parent->paging_context);
-
     // size_t mapping_count = 0, mapping_capacity = 1;
     // pman_mapping_t ** mappings = heap_alloc_debug(mapping_capacity * sizeof(pman_mapping_t *), "process fork mappings");
     //
@@ -125,6 +123,8 @@ process_t * process_create_fork(process_t * parent) {
     // }
     //
     // heap_free(mappings);
+
+    pman_fork_context(process->paging_context, parent->paging_context);
 
     thread_t * new_thread = thread_create_fork(process->paging_context, process, parent->threads[0]);
 
@@ -192,16 +192,54 @@ void process_add_thread(process_t * process, thread_t * thread) {
 }
 
 long process_copy_from_user(process_t * process, void * dst, const void * src, long size) {
-    return 0;
+    pman_mapping_t * mapping = pman_get_mapping(process->paging_context, src);
+    if (mapping == NULL) return -EFAULT;
+    
+    int offset = (intptr_t) src % PAGE_SIZE;
+
+    for (long i = 0; i < size; i++) {
+        char c = ((const char *) pman_source_map_to_kernel(mapping->source))[offset++];
+        ((char *) dst)[i] = c;
+
+        if (offset == PAGE_SIZE) {
+            mapping = pman_get_mapping(process->paging_context, (void *) ((intptr_t) src + i));
+            if (mapping == NULL) return -EFAULT;
+
+            offset = 0;
+        }
+    }
+
+    return size;
 }
 
 long process_strncpy_from_user(process_t * process, void * dst, const void * src, long size) {
-    return 0;
+    pman_mapping_t * mapping = pman_get_mapping(process->paging_context, src);
+    if (mapping == NULL) return -EFAULT;
+    const char * kvaddr = pman_source_map_to_kernel(mapping->source);
+
+    int offset = (intptr_t) src % PAGE_SIZE;
+
+    for (long i = 0; i < size - 1; i++) {
+        char c = kvaddr[offset++];
+        ((char *) dst)[i] = c;
+
+        if (c == '\0') return i;
+
+        if (offset == PAGE_SIZE) {
+            mapping = pman_get_mapping(process->paging_context, src);
+            if (mapping == NULL) return -EFAULT;
+            kvaddr = pman_source_map_to_kernel(mapping->source);
+
+            offset = 0;
+        }
+    }
+
+    ((char *) dst)[size] = '\0';
+
+    return size;
 }
 
 long process_copy_to_user(process_t * process, void * dst, const void * src, long size) {
-    printf("process_copy_to_user() dst = %p, src = %p, size = %i\n", dst, src, size);
-
     pman_range_t * range = pman_get_range(process->paging_context, dst, size);
 
     if (range == NULL) {

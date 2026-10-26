@@ -16,9 +16,8 @@
 struct pman_context_s;
 struct fs_file_s;
 
-#define PMAN_BORROW   (1UL << 0)
-#define PMAN_SHARED   (1UL << 1)
-#define PMAN_ANCHOR   (1UL << 2)
+#define PMAN_SHARED   (1UL << 0)
+#define PMAN_ANCHOR   (1UL << 1)
 typedef int pman_mapping_flags_t;
 
 #define PMAN_EXECUTE (1UL << 0)
@@ -39,6 +38,7 @@ typedef struct {
     bool evicted;
     bool anchored; // This page is not able to be evicted
     bool mapped; // This page is mapped to the kernel (mapping is valid)
+    bool borrow; // This page is borrowed between two mappings
 } pman_source_t;
 
 typedef struct pman_mapping_s {

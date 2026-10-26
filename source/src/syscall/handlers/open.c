@@ -7,6 +7,8 @@
 
 #include <syscall/handlers/open.h>
 
+#include <debug/printf.h>
+
 int64_t syscall_open(const char * _path, int options) {
     process_t * current_process = scheduler_current_process();
 
@@ -17,7 +19,7 @@ int64_t syscall_open(const char * _path, int options) {
         _path,
         256
     );
-    if (size < 0) return -EFAULT;
+    if (size < 0) return size;
 
     fs_directory_entry_t * node = process_open_path(current_process, path);
     if (node == NULL) {

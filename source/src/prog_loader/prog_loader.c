@@ -56,7 +56,7 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
         return -ENOEXEC;
     }
 
-    kprintf("Loading ELF headers");
+    kprintf("Loading ELF headers to process %i", process->id);
 
     kprintf("  Entry: %p", (void *) elf.header.entry);
 
@@ -78,50 +78,42 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
 
             void * user_vaddr = NULL;
 
-            if (range == NULL || !range->complete) {
+            if (range != NULL) {
                 kprintf("    Unmapping possible old segments");
                 pman_range_unmap(range);
-
-                if (header->memsz != 0) {
-                    kprintf("    Mapping as new segment");
-
-                    pman_protection_flags_t prot = 0;
-
-                    if (header->flags & ELF_PH_FLAGS_W) prot |= PMAN_WRITE;
-                    if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_EXECUTE;
-
-                    kprintf(
-                        "      Flags: %s %s",
-                        header->flags & ELF_PH_FLAGS_W ? "write" : "",
-                        header->flags & ELF_PH_FLAGS_X ? "execute" : ""
-                    );
-
-                    kprintf("    Mapping new kernel segment of size %i", header->memsz + extra_size);
-                    range = pman_add_anon_map(
-                        process->paging_context,
-                        aligned_vaddr,
-                        header->memsz + extra_size,
-                        0,
-                        prot
-                    );
-
-                    kprintf("      Mapping[0] = %p", range->mappings[0]);
-
-                    if (range == NULL) {
-                        return -ENOMEM;
-                    }
-
-                    user_vaddr = range->vaddr + extra_size;
-                    pman_range_free(range);
-                }
             }
-            else {
-                if (header->memsz == 0) {
-                    kprintf("    Unmapping possible old segments");
-                    pman_range_unmap(range);
 
-                    user_vaddr = NULL;
+            if (header->memsz != 0) {
+                kprintf("    Mapping as new segment");
+
+                pman_protection_flags_t prot = 0;
+
+                if (header->flags & ELF_PH_FLAGS_W) prot |= PMAN_WRITE;
+                if (header->flags & ELF_PH_FLAGS_X) prot |= PMAN_EXECUTE;
+
+                kprintf(
+                    "      Flags: %s %s",
+                    header->flags & ELF_PH_FLAGS_W ? "write" : "",
+                    header->flags & ELF_PH_FLAGS_X ? "execute" : ""
+                );
+
+                kprintf("    Mapping new kernel segment of size %i", header->memsz + extra_size);
+                range = pman_add_anon_map(
+                    process->paging_context,
+                    aligned_vaddr,
+                    header->memsz + extra_size,
+                    0,
+                    prot
+                );
+
+                kprintf("      Mapping[0] = %p", range->mappings[0]);
+
+                if (range == NULL) {
+                    return -ENOMEM;
                 }
+
+                user_vaddr = range->vaddr + extra_size;
+                pman_range_free(range);
             }
             
             kprintf("user_vaddr = %p", user_vaddr);

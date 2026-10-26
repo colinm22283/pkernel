@@ -17,6 +17,8 @@ pman_mapping_t * pman_mapping_init(
 
     mapping->flags  = flags;
     mapping->prot   = prot;
+
+    pman_source_add_ref(source);
     mapping->source = source;
 
     mapping->vaddr = vaddr;
@@ -49,9 +51,14 @@ pman_mapping_t * pman_mapping_init(
 }
 
 void pman_mapping_free(pman_mapping_t * mapping) {
+    kprintf("pman_mapping_free(): mapping->vaddr = %p", mapping->vaddr);
     if (mapping->active) {
         paging_unmap(mapping->context->tlt, &mapping->mapping);
     }
+
+    valloc_release(&mapping->context->valloc, mapping->vaddr);
+
+    pman_source_sub_ref(mapping->source);
 
     mapping->prev->next = mapping->next;
     mapping->next->prev = mapping->prev;

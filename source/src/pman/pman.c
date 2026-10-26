@@ -84,6 +84,16 @@ void pman_context_load_table(pman_context_t * context) {
 }
 
 void pman_fork_context(pman_context_t * dst, pman_context_t * src) {
+    for (
+        pman_mapping_t * m = src->head.next;
+        m != &src->tail;
+        m = m->next
+    ) {
+        // TODO: Run something that will split the source when it is a borrow
+        m->source->borrow = true;
+
+        pman_mapping_init(dst, m->source, m->vaddr, m->flags, m->prot);
+    }
 }
 
 pman_range_t * pman_add_anon_map(
@@ -265,7 +275,7 @@ pman_range_t * pman_get_range(
 
 pman_mapping_t * pman_get_mapping(
     pman_context_t * context,
-    void * vaddr
+    const void * vaddr
 ) {
     intptr_t rounded_vaddr = ((intptr_t) vaddr / PAGE_SIZE) * PAGE_SIZE;
 
@@ -276,6 +286,7 @@ pman_mapping_t * pman_get_mapping(
         m != &context->tail;
         m = m->next
     ) {
+        kprintf("  vaddr = %p", m->vaddr);
         if ((intptr_t) m->vaddr == rounded_vaddr) {
             return m;
         }
@@ -285,13 +296,21 @@ pman_mapping_t * pman_get_mapping(
 }
 
 int pman_unmap(pman_context_t * context, void * vaddr, size_t size_bytes) {
+    panic0("unimp");
     return 0;
 }
 
 void pman_range_free(pman_range_t * range) {
+    heap_free(range->mappings);
+    heap_free(range);
 }
 
 void pman_range_unmap(pman_range_t * range) {
+    for (size_t i = 0; i < range->size; i++) {
+        pman_mapping_free(range->mappings[i]);
+    }
+
+    pman_range_free(range);
 }
 
 /* bool looping = false; */

@@ -38,6 +38,8 @@ typedef enum {
 typedef struct thread_s {
     struct process_s * process;
 
+    pman_context_t * paging_context;
+
     thread_level_t level;
     thread_state_t state;
     thread_priority_t priority;

@@ -38,6 +38,7 @@ pman_range_t * pman_copy_range(
     pman_mapping_flags_t flags,
     pman_protection_flags_t prot
 );
+
 pman_range_t * pman_get_range(
     pman_context_t * context,
     void * vaddr,
@@ -45,7 +46,7 @@ pman_range_t * pman_get_range(
 );
 pman_mapping_t * pman_get_mapping(
     pman_context_t * context,
-    void * vaddr
+    const void * vaddr
 );
 
 int pman_unmap(pman_context_t * context, void * vaddr, size_t size_bytes);

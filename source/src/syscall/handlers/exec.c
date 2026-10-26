@@ -28,14 +28,28 @@
 #include <sys/tsr/tsr_set_stack.h>
 #include <sys/paging/page_size.h>
 
-int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
-    // TODO
-    /* const char * path = process_user_to_kernel( */
-        /* scheduler_current_process(), */
-        /* _path */
-    /* ); */
+#include <config/exec.h>
 
-    /* if (path == NULL) return -EFAULT; */
+#ifdef EXEC_DEBUG
+#define DEBUG_LOGGER_ENABLED
+#endif
+#include <debug/debug_logger.h>
+
+DEFINE_KERNEL_PRINTF("exec");
+
+int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
+    process_t * current_process = scheduler_current_process();
+
+    char path[256];
+    long size = process_strncpy_from_user(
+        current_process,
+        path,
+        _path,
+        256
+    );
+    if (size < 0) return size;
+
+    kprintf("exec(%s, ...)", path);
 
     /* syscall_debug_print("SYSCALL exec("); */
     /* syscall_debug_print(path); */
@@ -57,18 +71,16 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
     /* syscall_debug_print_hex(argc); */
     /* syscall_debug_print(")\n"); */
 
-    /* process_t * current_process = scheduler_current_process(); */
+    fs_directory_entry_t * elf_dirent = process_open_path(
+        scheduler_current_process(),
+        path
+    );
 
-    /* fs_directory_entry_t * elf_dirent = process_open_path( */
-        /* scheduler_current_process(), */
-        /* path */
-    /* ); */
+    if (elf_dirent == NULL) {
+        return -ENOENT;
+    }
 
-    /* if (elf_dirent == NULL) { */
-        /* return -ENOENT; */
-    /* } */
-
-    /* if (argc != 0) { */
+    if (false && argc != 0) {
         /* const char ** argv = process_user_to_kernel(current_process, _argv); */
 
         /* const char * kern_argv[argc]; */
@@ -76,22 +88,22 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
             /* kern_argv[i] = process_user_to_kernel(current_process, argv[i]); */
         /* } */
         /* process_push_args(current_process, kern_argv, argc); */
-    /* } */
-    /* else { */
+    }
+    else {
         /* process_push_args(current_process, NULL, 0); */
-    /* } */
+    }
 
-    /* int load_result = load_program(current_process, elf_dirent); */
+    int load_result = load_program(current_process, elf_dirent);
 
-    /* if (load_result != 0) return load_result; */
+    if (load_result != 0) return load_result;
 
-    /* fs_directory_entry_release(elf_dirent); */
+    fs_directory_entry_release(elf_dirent);
 
-    /* tsr_set_stack( */
-        /* &current_process->threads[0]->tsr, */
-        /* current_process->threads[0]->stack_vaddr, */
-        /* current_process->threads[0]->stack_size */
-    /* ); */
+    tsr_set_stack(
+        &current_process->threads[0]->tsr,
+        current_process->threads[0]->stack_vaddr,
+        current_process->threads[0]->stack_size
+    );
 
     /* push_main_args(current_process, &current_process->threads[0]->tsr, current_process->argc, current_process->argv); */
 
