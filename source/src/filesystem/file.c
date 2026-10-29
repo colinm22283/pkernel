@@ -6,6 +6,8 @@
 
 #include <util/heap/heap.h>
 
+#include <debug/printf.h>
+
 #include <sys/debug/print.h>
 
 fs_file_t * file_alloc(void) {
@@ -159,7 +161,7 @@ int file_readdir(fs_file_t * file, struct dirent * entry, size_t buffer_size) {
     if (file->current_node == &file->dirent->tail) return 0;
 
     size_t name_length = strlen(file->current_node->name);
-    size_t entry_length = sizeof(directory_entry_t) + name_length + 1;
+    size_t entry_length = sizeof(struct dirent) + name_length + 1;
 
     if (entry_length > buffer_size) return -ERANGE;
 
@@ -177,3 +179,4 @@ int file_readdir(fs_file_t * file, struct dirent * entry, size_t buffer_size) {
 
     return 1;
 }
+

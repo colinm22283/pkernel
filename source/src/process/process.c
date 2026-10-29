@@ -199,8 +199,8 @@ long process_copy_to_user(process_t * process, void * dst, const void * src, lon
     size_t offset = ((intptr_t) dst) % PAGE_SIZE;
 
     pman_mapping_t ** mapping = &range->mappings[0];
-    char * kvaddr = pman_source_map_to_kernel((*mapping)->source);
     pman_mapping_prepare_write(*mapping);
+    char * kvaddr = pman_source_map_to_kernel((*mapping)->source);
 
     for (long i = 0; i < size; i++) {
         if (kvaddr == NULL) {
@@ -211,8 +211,8 @@ long process_copy_to_user(process_t * process, void * dst, const void * src, lon
 
         if (offset == PAGE_SIZE) {
             mapping++;
-            kvaddr = pman_source_map_to_kernel((*mapping)->source);
             pman_mapping_prepare_write(*mapping);
+            kvaddr = pman_source_map_to_kernel((*mapping)->source);
             offset = 0;
         }
     }
