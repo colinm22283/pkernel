@@ -23,29 +23,32 @@ pman_mapping_t * pman_mapping_init(
 
     mapping->vaddr = vaddr;
 
-    if (flags & PMAN_ANCHOR) {
-        mapping->active = true;
+    mapping->active = false;
 
-        // TODO: temporary, wont work for mapped files
-        paging_map_ex(
-            context->tlt,
-            &mapping->mapping,
-            source->palloc.paddrs[0],
-            vaddr,
-            1,
-            pman_prot_flags_read_write(prot),
-            pman_prot_flags_execute_disable(prot),
-            true // TODO
-        );
-    }
-    else {
-        mapping->active = false;
-    }
+    /* if (flags & PMAN_ANCHOR) { */
+        /* mapping->active = true; */
+
+        /* // TODO: temporary, wont work for mapped files */
+        /* paging_map_ex( */
+            /* context->tlt, */
+            /* &mapping->mapping, */
+            /* source->palloc.paddrs[0], */
+            /* vaddr, */
+            /* 1, */
+            /* pman_prot_flags_read_write(prot), */
+            /* pman_prot_flags_execute_disable(prot), */
+            /* true // TODO */
+        /* ); */
+    /* } */
+    /* else { */
+    /* } */
 
     mapping->next = context->head.next;
     mapping->prev = &context->head;
     context->head.next->prev = mapping;
     context->head.next = mapping;
+
+    if (flags & PMAN_ANCHOR) pman_mapping_map_in(mapping);
 
     return mapping;
 }
@@ -65,10 +68,28 @@ void pman_mapping_free(pman_mapping_t * mapping) {
     heap_free(mapping);
 }
 
+int pman_mapping_prepare_write(pman_mapping_t * mapping) {
+    kprintf("pman_mapping_prepare_write()");
+
+    if (!(mapping->prot & PMAN_WRITE)) return -EFAULT;
+
+    pman_source_t * new_source = pman_source_prepare_write(mapping->source);
+    
+    if (new_source == NULL) return -EFAULT;
+
+    mapping->source = new_source;
+
+    return 0;
+}
+
 void pman_mapping_map_in(pman_mapping_t * mapping) {
     if (mapping->active) return;
 
+    kprintf("test");
+
     pman_source_page_in(mapping->source);
+
+    if (mapping->prot & PMAN_WRITE) pman_mapping_prepare_write(mapping);
 
     kprintf("pman_mapping_map_in() vaddr = %p, paddr = %p, tlt_paddr = %p", mapping->vaddr, mapping->source->palloc.paddrs[0], mapping->context->tlt_paddr);
 

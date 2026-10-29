@@ -3,10 +3,12 @@
 #include <pman/types.h>
 #include <pman/pman.h>
 #include <pman/logger.h>
+#include <pman/source.h>
 
 #include <filesystem/file.h>
 
 #include <util/heap/heap.h>
+#include <util/memory/memcpy.h>
 
 #include <sys/panic.h>
 
@@ -23,6 +25,7 @@ static inline pman_source_t * pman_source_init(void) {
     source->evicted     = false;
     source->anchored    = false;
     source->mapped      = false;
+    source->borrow      = false;
 
     return source;
 }
@@ -42,6 +45,7 @@ pman_source_t * pman_source_init_file(fs_file_t * file, size_t offset) {
     source->evicted     = true;
     source->anchored    = false;
     source->mapped      = false;
+    source->borrow      = false;
 
     return source;
 }
@@ -54,6 +58,7 @@ pman_source_t * pman_source_init_anon(void) {
     source->evicted     = true;
     source->anchored    = false;
     source->mapped      = false;
+    source->borrow      = false;
 
     return source;
 }
@@ -66,6 +71,7 @@ pman_source_t * pman_source_init_anon_kernel(size_t paddr) {
     source->evicted     = false;
     source->anchored    = true;
     source->mapped      = false;
+    source->borrow      = false;
 
     palloc_alloc_contiguous(&source->palloc, PAGE_SIZE, paddr);
 
@@ -100,6 +106,47 @@ void pman_source_page_in(pman_source_t * source) {
 
     source->initialized = true;
     source->evicted = false;
+}
+
+pman_source_t * pman_source_prepare_write(pman_source_t * source) {
+    kprintf("pman_source_prepare_write()");
+
+    if (source->borrow) {
+        if (source->references == 1) {
+            source->borrow = false;
+
+            return source;
+        }
+        else {
+            if (source->initialized) {
+                pman_source_t * new_source = pman_source_init_anon();
+
+                void * src = pman_source_map_to_kernel(source);
+                void * dst = pman_source_map_to_kernel(new_source);
+
+                memcpy(dst, src, PAGE_SIZE);
+
+                return new_source;
+            }
+            else {
+                pman_source_t * new_source = pman_source_init();
+
+                new_source->initialized = false;
+                new_source->dirty       = false;
+                new_source->evicted     = false;
+                new_source->anchored    = source->anchored;
+                new_source->mapped      = false;
+                new_source->borrow      = false;
+
+                new_source->file = source->file;
+                new_source->file_offset = source->file_offset;
+
+                return new_source;
+            }
+        }
+    }
+
+    return source;
 }
 
 void * pman_source_map_to_kernel(pman_source_t * source) {

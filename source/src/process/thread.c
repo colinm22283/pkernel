@@ -90,6 +90,7 @@ thread_t * thread_create_fork(pman_context_t * user_context, process_t * parent,
     memcpy(&thread->tsr, &target->tsr, sizeof(task_state_record_t));
 
     thread->waiter = NULL;
+    thread->event = NULL;
 
     thread->next = NULL;
     thread->prev = NULL;

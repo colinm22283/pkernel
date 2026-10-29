@@ -21,3 +21,4 @@ static inline bool paging_map(pml4t64_t * pml4t, paging_mapping_t * mapping, uin
 }
 
 void paging_unmap(pml4t64_t * pml4t, paging_mapping_t * mapping);
+

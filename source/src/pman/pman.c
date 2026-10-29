@@ -89,10 +89,21 @@ void pman_fork_context(pman_context_t * dst, pman_context_t * src) {
         m != &src->tail;
         m = m->next
     ) {
-        // TODO: Run something that will split the source when it is a borrow
-        m->source->borrow = true;
+        kprintf("__________________________________________");
+        if (!(m->flags & PMAN_SHARED)) {
+            m->source->borrow = true;
+
+            if (m->active) paging_unmap(src->tlt, &m->mapping);
+            m->active = false;
+        }
 
         pman_mapping_init(dst, m->source, m->vaddr, m->flags, m->prot);
+
+        if (m->flags & PMAN_ANCHOR) {
+            kprintf("anchor");
+
+            pman_mapping_map_in(m);
+        }
     }
 }
 

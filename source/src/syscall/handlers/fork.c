@@ -2,6 +2,8 @@
 
 #include <syscall/handlers/fork.h>
 
+#include <debug/printf.h>
+
 #include <sys/tsr/tsr_load_return.h>
 
 #include <sys/debug/print.h>

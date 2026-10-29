@@ -12,5 +12,6 @@ void pman_source_add_ref(pman_source_t * source);
 void pman_source_sub_ref(pman_source_t * source);
 
 void pman_source_page_in(pman_source_t * source);
+pman_source_t * pman_source_prepare_write(pman_source_t * source);
 void * pman_source_map_to_kernel(pman_source_t * source);
 
