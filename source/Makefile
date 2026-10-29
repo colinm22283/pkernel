@@ -136,6 +136,7 @@ CONFIG_TARGETS+=$(KN_CD)/signal.h
 CONFIG_TARGETS+=$(KN_CD)/prog_loader.h
 CONFIG_TARGETS+=$(KN_CD)/unix_socket.h
 CONFIG_TARGETS+=$(KN_CD)/exec.h
+CONFIG_TARGETS+=$(KN_CD)/limits.h
 
 OPTIMIZATION=3
 

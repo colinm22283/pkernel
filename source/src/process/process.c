@@ -12,11 +12,10 @@
 
 #include <debug/printf.h>
 
-#include <sys/function/push_args.h>
-
 #include <scheduler/scheduler.h>
 #include <sys/paging/page_size.h>
 #include <sys/process/trampoline.h>
+#include <sys/process/push_args.h>
 
 pid_t current_pid = 0;
 
@@ -228,14 +227,6 @@ pman_range_t * process_create_segment(process_t * process, void * vaddr, size_t 
     );
 }
 
-/* void process_remap(process_t * process, pman_mapping_t * old_mapping, pman_mapping_t * new_mapping) { */
-    /* for (size_t i = 0; i < process->thread_count; i++) { */
-        /* if (process->threads[i]->stack_mapping == old_mapping) { */
-            /* process->threads[i]->stack_mapping = new_mapping; */
-        /* } */
-    /* } */
-/* } */
-
 void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
     if (process->argc != 0) {
         heap_free(process->argv);
@@ -254,34 +245,25 @@ void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
             required_size += strlen(argv[i]) + 1;
         }
 
-        /* pman_mapping_t * kern_mapping = pman_context_add_alloc( */
-            /* pman_kernel_context(), */
-            /* 0, */
-            /* NULL, */
-            /* required_size */
-        /* ); */
+        pman_range_t * arg_range = pman_add_anon_map(
+            process->paging_context,
+            NULL,
+            required_size,
+            0,
+            0
+        );
 
-        /* pman_mapping_t * user_mapping = pman_context_add_shared( */
-            /* process->paging_context, */
-            /* 0, */
-            /* kern_mapping, */
-            /* NULL */
-        /* ); */
+        char * user_vaddr = arg_range->vaddr;
 
-        /* char * kern_buf = kern_mapping->vaddr; */
-        /* char * user_buf = user_mapping->vaddr; */
+        uint64_t pos = 0;
+        for (uint64_t i = 0; i < argc; i++) {
+            uint64_t len = strlen(argv[i]);
 
-        /* uint64_t pos = 0; */
-        /* for (uint64_t i = 0; i < argc; i++) { */
-            /* uint64_t len = strlen(argv[i]); */
+            process->argv[i] = &user_vaddr[pos];
 
-            /* process->argv[i] = &user_buf[pos]; */
-
-            /* memcpy(&kern_buf[pos], argv[i], len + 1); */
-            /* pos += len + 1; */
-        /* } */
-
-        /* pman_context_unmap(kern_mapping); */
+            process_copy_to_user(process, &user_vaddr[pos], argv[i], len + 1);
+            pos += len + 1;
+        }
     }
 
     push_main_args(process, &process->threads[0]->tsr, process->argc, process->argv);

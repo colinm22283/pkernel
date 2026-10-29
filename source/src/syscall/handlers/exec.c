@@ -22,13 +22,14 @@
 
 #include <sys/halt.h>
 
-#include <sys/function/push_args.h>
+#include <sys/process/push_args.h>
 
 #include <sys/tsr/tsr_load_pc.h>
 #include <sys/tsr/tsr_set_stack.h>
 #include <sys/paging/page_size.h>
 
 #include <config/exec.h>
+#include <config/limits.h>
 
 #ifdef EXEC_DEBUG
 #define DEBUG_LOGGER_ENABLED
@@ -80,17 +81,34 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
         return -ENOENT;
     }
 
-    if (false && argc != 0) {
-        /* const char ** argv = process_user_to_kernel(current_process, _argv); */
+    if (argc != 0) {
+        long result;
 
-        /* const char * kern_argv[argc]; */
-        /* for (uint64_t i = 0; i < argc; i++) { */
-            /* kern_argv[i] = process_user_to_kernel(current_process, argv[i]); */
-        /* } */
-        /* process_push_args(current_process, kern_argv, argc); */
+        const char * user_argv[argc];
+        char ** argv = heap_alloc_debug(argc * sizeof(char *), "exec argv");
+        for (size_t i = 0; i < argc; i++) argv[i] = heap_alloc_debug(LIMIT_ARG_LENGTH, "exec argv[]");
+
+        result = process_copy_from_user(current_process, user_argv, _argv, argc * sizeof(const char *));
+        if (result < 0) {
+            heap_free(argv);
+            return -EFAULT;
+        }
+
+        for (size_t i = 0; i < argc; i++) {
+            result = process_strncpy_from_user(current_process, argv[i], user_argv[i], LIMIT_ARG_LENGTH);
+            if (result < 0) {
+                heap_free(argv);
+                return -EFAULT;
+            }
+        }
+
+        process_push_args(current_process, (const char **) argv, argc);
+
+        for (size_t i = 0; i < argc; i++) heap_free(argv[i]);
+        heap_free(argv);
     }
     else {
-        /* process_push_args(current_process, NULL, 0); */
+        process_push_args(current_process, NULL, 0);
     }
 
     int load_result = load_program(current_process, elf_dirent);
@@ -105,7 +123,7 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
         current_process->threads[0]->stack_size
     );
 
-    /* push_main_args(current_process, &current_process->threads[0]->tsr, current_process->argc, current_process->argv); */
+    push_main_args(current_process, &current_process->threads[0]->tsr, current_process->argc, current_process->argv);
 
     return 0;
 }
