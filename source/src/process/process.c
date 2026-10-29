@@ -5,6 +5,7 @@
 
 #include <pman/pman.h>
 #include <pman/source.h>
+#include <pman/mapping.h>
 
 #include <util/heap/heap.h>
 
@@ -199,6 +200,7 @@ long process_copy_to_user(process_t * process, void * dst, const void * src, lon
 
     pman_mapping_t ** mapping = &range->mappings[0];
     char * kvaddr = pman_source_map_to_kernel((*mapping)->source);
+    pman_mapping_prepare_write(*mapping);
 
     for (long i = 0; i < size; i++) {
         if (kvaddr == NULL) {
@@ -210,6 +212,7 @@ long process_copy_to_user(process_t * process, void * dst, const void * src, lon
         if (offset == PAGE_SIZE) {
             mapping++;
             kvaddr = pman_source_map_to_kernel((*mapping)->source);
+            pman_mapping_prepare_write(*mapping);
             offset = 0;
         }
     }
@@ -255,7 +258,7 @@ void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
 
         char * user_vaddr = arg_range->vaddr;
 
-        uint64_t pos = 0;
+        size_t pos = 0;
         for (uint64_t i = 0; i < argc; i++) {
             uint64_t len = strlen(argv[i]);
 
