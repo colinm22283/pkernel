@@ -10,34 +10,69 @@
 
 #include <util/string/strcmp.h>
 
+#include <config/limits.h>
+
 int syscall_mount(const char * _src, const char * _dst, const char * _fs, unsigned long options, const char * _data) {
-    return 0; // TODO
+    long size;
 
-    /* process_t * current_process = scheduler_current_process(); */
+    process_t * current_process = scheduler_current_process();
 
-    /* const char * dst = process_user_to_kernel(current_process, _dst); */
-    /* if (dst == NULL) return -EFAULT; */
+    char dst[LIMIT_PATH_LENGTH + 1];
+    size = process_strncpy_from_user(
+        current_process,
+        dst,
+        _dst,
+        LIMIT_PATH_LENGTH + 1
+    );
+    if (size < 0) return size;
+    if (size == LIMIT_PATH_LENGTH + 1) return -ENAMETOOLONG;
 
-    /* const char * fs = process_user_to_kernel(current_process, _fs); */
-    /* if (fs == NULL) return -EFAULT; */
+    char src[LIMIT_PATH_LENGTH + 1];
+    if (_src != NULL) {
+        size = process_strncpy_from_user(
+            current_process,
+            src,
+            _src,
+            LIMIT_PATH_LENGTH + 1
+        );
+        if (size < 0) return size;
+        if (size == LIMIT_PATH_LENGTH + 1) return -ENAMETOOLONG;
+    }
 
-    /* const char * data = process_user_to_kernel(current_process, _data); */
-    /* if (data == NULL) return -EFAULT; */
+    char fs[LIMIT_FS_LENGTH + 1];
+    size = process_strncpy_from_user(
+        current_process,
+        fs,
+        _fs,
+        LIMIT_FS_LENGTH + 1
+    );
+    if (size < 0) return size;
+    if (size == LIMIT_FS_LENGTH + 1) return -ENAMETOOLONG;
 
-    /* device_t * dev = NULL; */
-    /* if (_src != NULL) { */
-        /* const char * src = process_user_to_kernel(current_process, _src); */
-        /* if (src == NULL) return -EFAULT; */
+    char fs[LIMIT_FS_LENGTH + 1];
+    size = process_strncpy_from_user(
+        current_process,
+        fs,
+        _fs,
+        LIMIT_FS_LENGTH + 1
+    );
+    if (size < 0) return size;
+    if (size == LIMIT_FS_LENGTH + 1) return -ENAMETOOLONG;
 
-        /* fs_directory_entry_t * dirent = process_open_path(current_process, src); */
-        /* if (dirent == NULL) return -ENOENT; */
+    device_t * dev = NULL;
+    if (_src != NULL) {
+        const char * src = process_user_to_kernel(current_process, _src);
+        if (src == NULL) return -EFAULT;
 
-        /* if (dirent->type != FS_DEVICE) return -ENODEV; */
+        fs_directory_entry_t * dirent = process_open_path(current_process, src);
+        if (dirent == NULL) return -ENOENT;
 
-        /* dev = dirent->device; */
+        if (dirent->type != FS_DEVICE) return -ENODEV;
 
-        /* fs_directory_entry_release(dirent); */
-    /* } */
+        dev = dirent->device;
+
+        fs_directory_entry_release(dirent);
+    }
 
     /* if (strcmp(dst, "/") == 0) { */
         /* return fs_mount_root(fs, dev); */
