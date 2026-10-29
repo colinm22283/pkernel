@@ -31,6 +31,14 @@ static inline pman_source_t * pman_source_init(void) {
 }
 
 static inline void pman_source_free(pman_source_t * source) {
+    if (source->mapped) {
+        paging_unmap(pman_kernel_context()->tlt, &source->mapping);
+    }
+
+    if (!source->evicted) {
+        palloc_free(&source->palloc);
+    }
+
     heap_free(source);
 }
 

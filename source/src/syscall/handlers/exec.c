@@ -100,8 +100,6 @@ int syscall_exec(const char * _path, const char ** _argv, uint64_t argc) {
                 heap_free(argv);
                 return -EFAULT;
             }
-
-            printf("Test: %s\n", argv[i]);
         }
 
         process_push_args(current_process, (const char **) argv, argc);

@@ -39,6 +39,8 @@ void event_invoke(event_t * event) {
     kprintf("event_invoke(): %p, %p", event, event->waiter_head.next->thread);
 
     if (event->waiter_head.next != &event->waiter_tail) {
+        kprintf("  invoke caused resume");
+
         waiter_t * waiter = event->waiter_head.next;
         thread_t * thread = waiter->thread;
 
@@ -50,6 +52,8 @@ void event_invoke(event_t * event) {
         thread_run(thread);
     }
     else {
+        kprintf("  invoke did not cause resume");
+
         event->has_signal = true;
     }
 }
