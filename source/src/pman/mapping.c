@@ -71,8 +71,6 @@ void pman_mapping_free(pman_mapping_t * mapping) {
 int pman_mapping_prepare_write(pman_mapping_t * mapping) {
     kprintf("pman_mapping_prepare_write()");
 
-    if (!(mapping->prot & PMAN_WRITE)) return -EFAULT;
-
     pman_source_t * new_source = pman_source_prepare_write(mapping->source);
     
     if (new_source == NULL) return -EFAULT;
@@ -84,8 +82,6 @@ int pman_mapping_prepare_write(pman_mapping_t * mapping) {
 
 void pman_mapping_map_in(pman_mapping_t * mapping) {
     if (mapping->active) return;
-
-    kprintf("test");
 
     pman_source_page_in(mapping->source);
 

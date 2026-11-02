@@ -63,6 +63,19 @@ typedef struct __PACKED {
     ._reserved2 = 0,                                             \
 })
 
+#define DEFINE_IDT64_ENTRY_TRAP(_selector, handler) ((idt64_entry_t) { \
+    .offset_lower = (uint16_t) (((uint64_t) (intptr_t) &handler) & 0xFFFF), \
+    .offset_upper = ((uint64_t) (intptr_t) &handler) >> 16,                 \
+    .ist = 1,                                                    \
+    .dpl = 0,                                                    \
+    .p = 1,                                                      \
+    .gate_type = 0xF,                                            \
+    .selector = _selector,                                        \
+    ._reserved0 = 0,                                             \
+    ._reserved1 = 0,                                             \
+    ._reserved2 = 0,                                             \
+})
+
 #define DEFINE_IDT64_ENTRY_USER_INTERRUPT(_selector, handler) ((idt64_entry_t) { \
     .offset_lower = (uint16_t) (((uint64_t) &handler) & 0xFFFF), \
     .offset_upper = ((uint64_t) &handler) >> 16,                 \

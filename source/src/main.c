@@ -184,13 +184,16 @@ __NORETURN void kernel_main(void) {
     process_add_thread(init_process, thread_create_user(init_process->paging_context, init_process));
 
     kprintf("Loading init ELF");
-    fs_directory_entry_t * elf_dirent = fs_open_path(&fs_root, "bin/init");
+    fs_directory_entry_t * elf_dirent = fs_open_path(&fs_root, "bin/pksh");
 
     if (load_program(init_process, elf_dirent) != 0) {
         panic0("Unable to load init process");
     }
 
     fs_directory_entry_release(elf_dirent);
+
+    const char * init_args[1] = { "/bin/init" };
+    process_push_args(init_process, init_args, 1);
 
     thread_run(init_process->threads[0]);
 

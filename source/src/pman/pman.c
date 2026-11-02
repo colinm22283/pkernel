@@ -297,7 +297,6 @@ pman_mapping_t * pman_get_mapping(
         m != &context->tail;
         m = m->next
     ) {
-        kprintf("  vaddr = %p", m->vaddr);
         if ((intptr_t) m->vaddr == rounded_vaddr) {
             return m;
         }

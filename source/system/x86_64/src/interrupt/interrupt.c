@@ -28,7 +28,7 @@ void interrupt_init() {
     idt.segment_not_present      = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, segment_not_present_handler_entry);
     idt.stack_segment_fault      = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, stack_segment_fault_handler_entry);
     idt.general_protection_fault = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, general_protection_fault_handler_entry);
-    idt.page_fault               = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, page_fault_handler_entry);
+    idt.page_fault               = DEFINE_IDT64_ENTRY_TRAP(GDT_KERNEL_CODE, page_fault_handler_entry);
     idt.x87_fpu_error            = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, x87_fpu_handler_entry);
     idt.alignment_check          = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, alignment_check_handler_entry);
     idt.machine_check            = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, machine_check_handler_entry);
