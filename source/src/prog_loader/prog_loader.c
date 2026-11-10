@@ -124,7 +124,7 @@ int load_program(process_t * process, fs_directory_entry_t * dirent) {
                 elf_load_segment(&elf, header, segment_buffer);
 
                 kprintf("    First 10 bytes:");
-                for (size_t j = 0; j < 10; j++) kprintf("      %H", ((unsigned char *) segment_buffer)[j]);
+                for (size_t j = 0; j < 10; j++) kprintf("      %H", ((unsigned char *) segment_buffer)[0x100 + j]);
 
                 long result = process_copy_to_user(process, user_vaddr, segment_buffer, header->memsz);
 

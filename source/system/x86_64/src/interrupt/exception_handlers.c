@@ -7,6 +7,7 @@
 #include <interrupt/interrupt_registry.h>
 
 #include <sys/tsr/tsr.h>
+#include <sys/tsr/tsr_print.h>
 
 #include <sys/paging/read_page_table.h>
 #include <sys/paging/load_page_table.h>
@@ -221,6 +222,8 @@ __NORETURN void page_fault_handler(task_state_record_t * tsr, page_fault_error_c
     load_page_table(new_pml4t_paddr);
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
+
+    tsr_print(tsr);
 
     // if (old_pml4t_paddr != new_pml4t_paddr) process_load_tsr(scheduler_current_process(), tsr);
 
