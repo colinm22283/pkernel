@@ -17,6 +17,7 @@ _resume_tsr_user: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx: t
     mov  136(%rcx), %r10 # flags
 
     mov  %r8,  %rsp
+    sub  $128, %rsp
 
     mov  %rdx, %cr3
 

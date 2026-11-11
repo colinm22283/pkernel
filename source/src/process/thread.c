@@ -200,8 +200,6 @@ __NORETURN void thread_resume(thread_t * thread) {
         } break;
 
         case TL_USER: {
-            printf("\nrip = %p\n\n", thread->tsr.rip);
-
             signal_table_resume(thread);
 
             resume_tsr_user(&thread->tsr, thread->process->paging_context);

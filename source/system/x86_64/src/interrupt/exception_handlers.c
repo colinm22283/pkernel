@@ -223,8 +223,6 @@ __NORETURN void page_fault_handler(task_state_record_t * tsr, page_fault_error_c
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
-    tsr_print(tsr);
-
     // if (old_pml4t_paddr != new_pml4t_paddr) process_load_tsr(scheduler_current_process(), tsr);
 
     interrupt_registry_invoke((interrupt_code_t) IC_PAGE_FAULT, tsr, error_code);

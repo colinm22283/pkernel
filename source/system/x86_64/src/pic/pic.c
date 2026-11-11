@@ -32,12 +32,12 @@ void interrupt_pic_init(void) {
     idt.mapped_irqs[MAPPED_IRQ_COM1] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, pic1_com1_handler_entry);
     idt.mapped_irqs[MAPPED_IRQ_MOUSE] = DEFINE_IDT64_ENTRY_INTERRUPT(GDT_KERNEL_CODE, pic2_mouse_handler_entry);
 
-    /* interrupt_pic_clear_mask(MAPPED_IRQ_TIMER); */
-    /* interrupt_pic_clear_mask(MAPPED_IRQ_KEYBOARD); */
-    /* interrupt_pic_clear_mask(MAPPED_IRQ_COM2); */
-    /* interrupt_pic_clear_mask(MAPPED_IRQ_COM1); */
-    /* interrupt_pic_clear_mask(MAPPED_IRQ_CASCADE); */
-    /* interrupt_pic_clear_mask(MAPPED_IRQ_MOUSE); */
+    interrupt_pic_clear_mask(MAPPED_IRQ_TIMER);
+    interrupt_pic_clear_mask(MAPPED_IRQ_KEYBOARD);
+    interrupt_pic_clear_mask(MAPPED_IRQ_COM2);
+    interrupt_pic_clear_mask(MAPPED_IRQ_COM1);
+    interrupt_pic_clear_mask(MAPPED_IRQ_CASCADE);
+    interrupt_pic_clear_mask(MAPPED_IRQ_MOUSE);
 
     outb(PORT_PIC1_COMMAND, 0x20);
     outb(PORT_PIC2_COMMAND, 0x20);

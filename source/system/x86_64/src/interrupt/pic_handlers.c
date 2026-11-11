@@ -21,8 +21,6 @@ __NORETURN void pic1_keyboard_handler(task_state_record_t * tsr) {
 
     load_page_table(new_pml4t_paddr);
 
-    printf("keyboard\n");
-
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
     interrupt_registry_invoke((interrupt_code_t) IC_KEYBOARD, tsr, NULL);
@@ -62,8 +60,6 @@ __NORETURN void pic1_timer_handler(task_state_record_t * tsr) {
 
     load_page_table(new_pml4t_paddr);
 
-    printf("timer\n");
-
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 
     interrupt_registry_invoke((interrupt_code_t) IC_TIMER, tsr, NULL);
@@ -76,8 +72,6 @@ __NORETURN void pic2_mouse_handler(task_state_record_t * tsr) {
     uint64_t new_pml4t_paddr = pman_kernel_context()->tlt_paddr;
 
     load_page_table(new_pml4t_paddr);
-
-    printf("mouse\n");
 
     if (old_pml4t_paddr != new_pml4t_paddr) scheduler_load_tsr(tsr);
 

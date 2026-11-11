@@ -262,8 +262,6 @@ void process_push_args(process_t * process, const char ** argv, uint64_t argc) {
         for (uint64_t i = 0; i < argc; i++) {
             uint64_t len = strlen(argv[i]);
 
-            printf("user = %p\n", &user_vaddr[pos]);
-
             process->argv[i] = &user_vaddr[pos];
 
             process_copy_to_user(process, &user_vaddr[pos], argv[i], len + 1);
