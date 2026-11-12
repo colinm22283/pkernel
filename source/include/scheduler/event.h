@@ -10,6 +10,8 @@ typedef struct waiter_s {
 } waiter_t;
 
 typedef struct event_s {
+    size_t references;
+
     bool has_signal;
 
     waiter_t waiter_head, waiter_tail;
@@ -22,3 +24,7 @@ void event_invoke(event_t * event);
 void event_interrupt(event_t * event);
 
 void waiter_free(waiter_t * waiter);
+
+static inline void event_add_ref(event_t * event) {
+    event->references++;
+}

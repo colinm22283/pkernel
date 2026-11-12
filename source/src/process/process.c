@@ -181,7 +181,7 @@ long process_strncpy_from_user(process_t * process, void * dst, const void * src
         }
     }
 
-    ((char *) dst)[size] = '\0';
+    ((char *) dst)[size - 1] = '\0';
 
     return size;
 }
@@ -211,7 +211,7 @@ long process_copy_to_user(process_t * process, void * dst, const void * src, lon
 
         kvaddr[offset++] = ((char *) src)[i];
 
-        if (offset == PAGE_SIZE) {
+        if (offset == PAGE_SIZE && i + 1 != size) {
             mapping++;
             pman_mapping_prepare_write(*mapping);
             kvaddr = pman_source_map_to_kernel((*mapping)->source);

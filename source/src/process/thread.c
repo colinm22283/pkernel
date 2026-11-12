@@ -148,8 +148,6 @@ void thread_free(thread_t * thread) {
         waiter_free(thread->waiter);
     }
 
-    pman_range_unmap(pman_get_range(thread->paging_context, thread->stack_vaddr, thread->stack_size));
-
     heap_free(thread);
 }
 

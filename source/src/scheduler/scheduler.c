@@ -90,25 +90,40 @@ void scheduler_init_sysfs(void) {
 
 void scheduler_queue(thread_t * thread) {
     kprintf("scheduler_queue()");
-    if (thread->state == TS_RUNNING || thread->state == TS_DEAD) {
-        kprintf("queue accepted %p, %i", (void *) thread->tsr.rip, thread->priority);
 
+    if (thread->state == TS_RUNNING || thread->state == TS_DEAD) {
         scheduler_queue_t * queue = &scheduler_queues[thread->priority];
 
-        thread->prev = queue->tail.prev;
-        thread->next = &queue->tail;
+        bool is_duplicate = false;
+        for (
+            thread_t * t = queue->head.next;
+            t != &queue->tail;
+            t = t->next
+        ) {
+            if (t == thread) {
+                is_duplicate = true;
+                break;
+            }
+        }
 
-        queue->tail.prev->next = thread;
-        queue->tail.prev = thread;
+        if (!is_duplicate) {
+            kprintf("queue accepted %p, %i", (void *) thread->tsr.rip, thread->priority);
+
+            thread->prev = queue->tail.prev;
+            thread->next = &queue->tail;
+
+            queue->tail.prev->next = thread;
+            queue->tail.prev = thread;
+        }
     }
 
     size_t proc_count = 0;
     for (size_t i = 0; i < TP_COUNT; i++) {
-        thread_t * thread = scheduler_queues[i].head.next;
-        while (thread != &scheduler_queues[i].tail) {
+        thread_t * t = scheduler_queues[i].head.next;
+        while (t != &scheduler_queues[i].tail) {
             proc_count++;
 
-            thread = thread->next;
+            t = t->next;
         }
     }
     kprintf("proc_count %i", proc_count);
@@ -132,6 +147,8 @@ int scheduler_await(event_t * event) {
 
         thread->waiter = waiter;
         thread->event = event;
+
+        event_add_ref(event);
 
         kprintf("await %p, %p", event, thread);
 

@@ -20,6 +20,8 @@ event_t * event_init(void) {
 
     kprintf("event_init()");
 
+    event->references = 1;
+
     event->has_signal = false;
 
     event->waiter_head.next = &event->waiter_tail;
@@ -32,7 +34,13 @@ event_t * event_init(void) {
 
 void event_free(event_t * event) {
     kprintf("event_free()");
-    heap_free(event);
+
+    event->references--;
+
+    if (event->references == 0) {
+        kprintf("Event removed from heap");
+        heap_free(event);
+    }
 }
 
 void event_invoke(event_t * event) {
@@ -50,6 +58,8 @@ void event_invoke(event_t * event) {
         thread->event = NULL;
 
         thread_run(thread);
+
+        event_free(event);
     }
     else {
         kprintf("  invoke did not cause resume");

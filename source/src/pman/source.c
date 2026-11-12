@@ -141,7 +141,7 @@ pman_source_t * pman_source_prepare_write(pman_source_t * source) {
 
                 new_source->initialized = false;
                 new_source->dirty       = false;
-                new_source->evicted     = false;
+                new_source->evicted     = true;
                 new_source->anchored    = source->anchored;
                 new_source->mapped      = false;
                 new_source->borrow      = false;

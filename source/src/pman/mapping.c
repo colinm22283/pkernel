@@ -59,7 +59,7 @@ void pman_mapping_free(pman_mapping_t * mapping) {
         paging_unmap(mapping->context->tlt, &mapping->mapping);
     }
 
-    valloc_release(&mapping->context->valloc, mapping->vaddr);
+    /* valloc_release(&mapping->context->valloc, mapping->vaddr); */
 
     pman_source_sub_ref(mapping->source);
 

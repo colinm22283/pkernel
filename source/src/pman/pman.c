@@ -74,6 +74,15 @@ pman_context_t * pman_new_context(void) {
 }
 
 int pman_free_context(pman_context_t * context) {
+    while (context->head.next != &context->tail) {
+        pman_mapping_free(context->head.next);
+    }
+
+    paging_talloc_free(&context->tlt_alloc);
+    valloc_free(&context->valloc);
+
+    heap_free(context);
+
     return 0;
 }
 
@@ -89,7 +98,6 @@ void pman_fork_context(pman_context_t * dst, pman_context_t * src) {
         m != &src->tail;
         m = m->next
     ) {
-        kprintf("__________________________________________");
         if (!(m->flags & PMAN_SHARED)) {
             m->source->borrow = true;
 
@@ -100,8 +108,6 @@ void pman_fork_context(pman_context_t * dst, pman_context_t * src) {
         pman_mapping_init(dst, m->source, m->vaddr, m->flags, m->prot);
 
         if (m->flags & PMAN_ANCHOR) {
-            kprintf("anchor");
-
             pman_mapping_map_in(m);
         }
     }
@@ -311,7 +317,7 @@ pman_range_t * pman_get_range(
     range->complete = complete;
 
     range->size = mapping_count;
-    range->mappings = heap_realloc(mappings, mapping_count * sizeof(pman_mapping_t));
+    range->mappings = heap_realloc(mappings, mapping_count * sizeof(pman_mapping_t *));
 
     return range;
 }
@@ -390,7 +396,8 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
     pman_mapping_t * mapping = pman_get_mapping(context, fault_vaddr);
 
     if (mapping == NULL) {
-        panic0("User attempted to access unmapped page");
+        /* panic0("User attempted to access unmapped page"); */
+        process_kill(current_process);
     }
 
     if (!mapping->active) {
@@ -405,7 +412,13 @@ void pman_page_fault_handler(interrupt_code_t channel, task_state_record_t * tsr
         kprintf("PADDR: %p", mapping->source->palloc.paddrs[0]);
     }
     else {
-        panic0("Page fault on active mapping????");
+        process_kill(current_process);
+        /* panic3( */
+            /* "Page fault on active mapping????", */
+            /* "user", (uint64_t) error_code->user, */
+            /* "vaddr", (uint64_t) fault_vaddr, */
+            /* "rip", (uint64_t) tsr->rip */
+        /* ); */
     }
 }
 

@@ -3,6 +3,8 @@
 #include <util/string/strlen.h>
 #include <util/string/strcpy.h>
 
+#include <debug/printf.h>
+
 #include <entry_error.h>
 
 #include <sys/panic.h>
@@ -31,7 +33,12 @@ void heap_free(void * alloc) {
 
     alloc_size -= tag->next_size;
 
-    if (!tag->next_reserved) panic1("Unable to verify reserve in heap_free()", "alloc", (intptr_t) alloc);
+    if (!tag->next_reserved) {
+#ifdef HEAP_DEBUG
+        printf("Region name: %s\n", tag->name);
+#endif
+        panic1("Unable to verify reserve in heap_free()", "alloc", (intptr_t) alloc);
+    }
 
     heap_tag_t * next_tag = (heap_tag_t *) ((intptr_t) tag + tag->next_size + sizeof(heap_tag_t));
 
