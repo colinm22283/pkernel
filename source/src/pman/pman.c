@@ -193,6 +193,38 @@ pman_range_t * pman_add_anon_map_paddr(
     return range;
 }
 
+pman_range_t * pman_add_anon_map_sources(
+    pman_context_t * context,
+    pman_source_t ** sources,
+    size_t source_count,
+    void * vaddr,
+    pman_mapping_flags_t flags,
+    pman_protection_flags_t prot
+) {
+    kprintf("Mapping source");
+
+    pman_mapping_t ** mappings = heap_alloc_debug(source_count * sizeof(pman_mapping_t *), "pman_add_anon_map mappings");
+
+    page_data_t * current_vaddr;
+    if (vaddr == NULL) current_vaddr = valloc_alloc(&context->valloc, PAGE_SIZE * source_count);
+    else current_vaddr = valloc_reserve(&context->valloc, vaddr, PAGE_SIZE * source_count);
+    vaddr = current_vaddr;
+
+    for (size_t i = 0; i < source_count; i++) {
+        mappings[i] = pman_mapping_init(context, sources[i], current_vaddr, flags, prot);
+
+        current_vaddr++;
+    }
+
+    pman_range_t * range = heap_alloc_debug(sizeof(pman_range_t), "pman_add_anon_map range");
+    range->vaddr = vaddr;
+    range->complete = true;
+    range->size = source_count;
+    range->mappings = mappings;
+
+    return range;
+}
+
 pman_range_t * pman_copy_range(
     pman_context_t * context,
     pman_range_t * range,

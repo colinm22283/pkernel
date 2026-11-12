@@ -4,6 +4,8 @@
 
 #include <process/process.h>
 
+#include <debug/printf.h>
+
 #include <util/heap/heap.h>
 
 socket_t * socket_init(socket_domain_t domain, socket_type_t type, uint64_t protocol) {
@@ -33,7 +35,7 @@ int socket_connect(socket_t * socket, const sockaddr_t * _sockaddr, size_t socka
 
             const sockaddr_unix_t * sockaddr = (const sockaddr_unix_t *) _sockaddr;
 
-            if (sockaddr->path[sockaddr_len - 1] != '\0') return -EINVAL;
+            if (sockaddr->path[sockaddr_len - 2] != '\0') return -EINVAL;
 
             fs_directory_entry_t * dirent = process_open_path(current_process, sockaddr->path);
 
@@ -56,7 +58,7 @@ int socket_bind(socket_t * socket, const sockaddr_t * _sockaddr, size_t sockaddr
 
             const sockaddr_unix_t * sockaddr = (const sockaddr_unix_t *) _sockaddr;
 
-            if (sockaddr->path[sockaddr_len - 1] != '\0') return -EINVAL;
+            if (sockaddr->path[sockaddr_len - 2] != '\0') return -EINVAL;
 
             {
                 fs_directory_entry_t * dirent = process_open_path(current_process, sockaddr->path);

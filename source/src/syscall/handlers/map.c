@@ -1,19 +1,18 @@
 #include <scheduler/scheduler.h>
 
+#include <pman/types.h>
+
 #include <syscall/handlers/map.h>
 
 void * syscall_map(fd_t fd, void * map_address, uint64_t size, uint64_t offset, map_options_t options) {
-    return NULL;
+    if (size == 0) return NULL;
 
-    // TODO
+    process_t * current_process = scheduler_current_process();
 
-    /* if (size == 0) return NULL; */
+    pman_context_t * context = current_process->paging_context;
 
-    /* process_t * current_process = scheduler_current_process(); */
-
-    /* pman_context_t * context = current_process->paging_context; */
-
-    /* if (options & MAP_ANON) { */
+    if (options & MAP_ANON) {
+        // TODO
         /* pman_protection_flags_t prot = 0; */
         /* if (options & MAP_WRITE) prot |= PMAN_WRITE; */
         /* if (options & MAP_EXECUTE) prot |= PMAN_EXECUTE; */
@@ -23,10 +22,12 @@ void * syscall_map(fd_t fd, void * map_address, uint64_t size, uint64_t offset, 
         /* pman_context_unmap(kernel_mapping); */
 
         /* return user_mapping->vaddr; */
-    /* } */
-    /* else { */
-        /* fs_file_t * file = file_table_get(&current_process->file_table, fd); */
 
-        /* return file_map(file, context, map_address, size, offset); */
-    /* } */
+        return NULL;
+    }
+    else {
+        fs_file_t * file = file_table_get(&current_process->file_table, fd);
+
+        return file_map(file, context, map_address, size, offset);
+    }
 }

@@ -16,6 +16,7 @@ _resume_tsr_kernel: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx:
     mov  128(%rcx), %r9
 
     mov  %r8,  %rsp
+    sub  $128, %rsp
 
     mov  %rdx, %cr3
 
@@ -33,8 +34,8 @@ _resume_tsr_kernel: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx:
 
     mov   %rcx, %r15
 
-    mov   120(%r15), %rax
-    mov   %rax,      -16(%rsp)
+    # mov   120(%r15), %rax
+    # mov   %rax,      -16(%rsp)
 
     mov   0(%r15), %rax
     mov   8(%r15), %rbx

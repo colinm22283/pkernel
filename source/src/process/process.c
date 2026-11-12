@@ -139,16 +139,18 @@ void process_add_thread(process_t * process, thread_t * thread) {
 long process_copy_from_user(process_t * process, void * dst, const void * src, long size) {
     pman_mapping_t * mapping = pman_get_mapping(process->paging_context, src);
     if (mapping == NULL) return -EFAULT;
+    const char * kvaddr = pman_source_map_to_kernel(mapping->source);
     
     int offset = (intptr_t) src % PAGE_SIZE;
 
     for (long i = 0; i < size; i++) {
-        char c = ((const char *) pman_source_map_to_kernel(mapping->source))[offset++];
+        char c = kvaddr[offset++];
         ((char *) dst)[i] = c;
 
         if (offset == PAGE_SIZE) {
-            mapping = pman_get_mapping(process->paging_context, (void *) ((intptr_t) src + i));
+            mapping = pman_get_mapping(process->paging_context, (void *) ((intptr_t) src + i + 1));
             if (mapping == NULL) return -EFAULT;
+            kvaddr = pman_source_map_to_kernel(mapping->source);
 
             offset = 0;
         }
@@ -171,7 +173,7 @@ long process_strncpy_from_user(process_t * process, void * dst, const void * src
         if (c == '\0') return i;
 
         if (offset == PAGE_SIZE) {
-            mapping = pman_get_mapping(process->paging_context, src);
+            mapping = pman_get_mapping(process->paging_context, (void *) ((intptr_t) src + i + 1));
             if (mapping == NULL) return -EFAULT;
             kvaddr = pman_source_map_to_kernel(mapping->source);
 

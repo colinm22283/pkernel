@@ -34,8 +34,8 @@ _resume_tsr_user: # rdi: CS selector, rsi: SS selector, rdx: pml4t paddr, rcx: t
 
     mov   %rcx, %r15
 
-    mov   120(%r15), %rax
-    mov   %rax,      -16(%rsp)
+    # mov   120(%r15), %rax
+    # mov   %rax,      -16(%rsp)
 
     mov   0(%r15), %rax
     mov   8(%r15), %rbx
